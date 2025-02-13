@@ -3,7 +3,7 @@ import { useTaskStore } from '@/stores/taskStore';
 import { Button, Table, Space, Input, Form, Select, DatePicker, Switch } from 'antd';
 import { createHistoricalTask, createScheduledTask, terminateHistoricalTask, retryHistoricalTask, toggleScheduledTask } from '@/api/tasks';
 import type { HistoricalTaskRequest, ScheduledTaskRequest, HistoricalTaskResponse, ScheduledTaskResponse } from '@/types/tasks';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { ServiceInstance } from '@/types/service';
 import { getServices } from '@/api/services';
 
@@ -110,7 +110,7 @@ const TaskManagement: React.FC = () => {
       title: 'Created At',
       dataIndex: 'created_at',
       key: 'created_at',
-      render: (text: string) => moment(text).format('YYYY-MM-DD HH:mm:ss'),
+      render: (text: string) => dayjs(text).format('YYYY-MM-DD HH:mm:ss'),
     },
     {
       title: 'Action',

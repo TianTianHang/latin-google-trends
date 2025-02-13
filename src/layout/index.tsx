@@ -1,11 +1,12 @@
 import { Breadcrumb, Layout, Menu, MenuProps, theme } from 'antd';
-import { Content, Footer, Header } from 'antd/es/layout/layout';
+import { Content, Footer } from 'antd/es/layout/layout';
 import Sider from 'antd/es/layout/Sider';
 import { useState, useMemo } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { usePermissionStore } from '@/stores/permission';
 import { RouteType } from '@/types/route';
 import { ItemType } from 'antd/es/menu/interface';
+
 type MenuItem = Required<MenuProps>['items'][number];
 
 // 递归生成菜单项
@@ -114,7 +115,6 @@ export default function BasicLayout() {
         />
       </Sider>
       <Layout>
-        <Header style={{ padding: 0, background: colorBgContainer }} />
         <Content style={{ margin: '0 16px' }}>
           <Breadcrumb style={{ margin: '16px 0' }}>
           {breadcrumbItems.map((item, index) => (

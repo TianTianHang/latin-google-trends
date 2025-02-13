@@ -1,12 +1,10 @@
 /* eslint-disable react-refresh/only-export-components */
+import { usePermissionStore } from "@/stores/permission";
 import { RouteType } from "@/types/route";
 import {
-  forwardRef,
   lazy,
   Suspense,
-  useImperativeHandle,
   useMemo,
-  useState,
 } from "react";
 import { useRoutes } from "react-router-dom";
 /** 常驻路由 */
@@ -50,6 +48,16 @@ export const asyncRoutes: RouteType[] = [
       title:"任务管理"
     },
   },
+  {
+    path: "/dashboard",
+    component: lazy(() => import("@/views/DashBoardView.tsx")),
+    meta: {
+      requiresAuth: true,
+      breadcrumb: true,
+      allowedRoles: ["user","admin"],
+      title:"面板"
+    },
+  },
 ];
 // 路由处理方式
 const generateRouter = (routers: RouteType[]) => {
@@ -66,9 +74,9 @@ const generateRouter = (routers: RouteType[]) => {
     return item;
   });
 };
-export const AppRouter = forwardRef((props, ref) => {
+export const AppRouter = () => {
   // 合并静态路由和动态路由
-  const [dynamicRoutes, setDynamicRoutes] = useState<RouteType[]>([]);
+  const {dynamicRoutes} = usePermissionStore();
 
   // 修改合并函数
   const allRoutes = useMemo(() => {
@@ -86,17 +94,10 @@ export const AppRouter = forwardRef((props, ref) => {
     return constantRoutes;
   }, [dynamicRoutes]);
 
-  // 暴露给外部使用的添加路由方法
-  const addRoutes = (newRoutes: RouteType[]) => {
-    setDynamicRoutes((prev) => [...prev, ...newRoutes]);
-  };
-  // 通过 ref 暴露方法
-  useImperativeHandle(ref, () => ({
-    addRoutes,
-  }));
+
 
   return useRoutes(generateRouter(allRoutes));
-});
+};
 
 // 类型提示（如果使用 TypeScript）
 AppRouter.displayName = "AppRouter";

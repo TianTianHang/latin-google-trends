@@ -1,4 +1,4 @@
-import { MutableRefObject, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { getRoles, getToken } from '@/stores/user' // 直接导入工具函数
 import {useUserStore} from '@/stores/user'
@@ -6,12 +6,10 @@ import {usePermissionStore} from '@/stores/permission'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import { message } from 'antd'
-import { RouteType } from '@/types/route'
 
 NProgress.configure({ showSpinner: false })
 
-export default function RouterBeforeEach({appRouterRef}:
-  {appRouterRef:MutableRefObject<{ addRoutes: (routes: RouteType[]) => void } | undefined>}) {
+export default function RouterBeforeEach() {
   const location = useLocation()
   const navigate = useNavigate()
   const { getInfo, resetToken } = useUserStore()
@@ -42,16 +40,10 @@ export default function RouterBeforeEach({appRouterRef}:
           }else{
               const roles = getRoles()
               setRoutes(roles)
-
-              // 将'有访问权限的动态路由' 添加到 Router 中
-              // 获取动态路由并添加到 AppRouter
-              const { dynamicRoutes } = usePermissionStore.getState();
-              appRouterRef?.current?.addRoutes(dynamicRoutes);
               // 确保添加路由已完成
               // 设置 replace: true, 因此导航将不会留下历史记录
               navigate(location.pathname, {replace: true })
               return true
-            return true
           }
     }
   }else {

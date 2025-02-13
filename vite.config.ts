@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
 import { fileURLToPath } from 'url'
 import { viteMockServe } from 'vite-plugin-mock'
-
+import tailwindcss from '@tailwindcss/vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
@@ -10,7 +10,8 @@ export default defineConfig({
     viteMockServe({
       mockPath: 'src/mock',
       enable: true,
-    })
+    }),
+    tailwindcss(),
   ],
   resolve:{
     alias:{

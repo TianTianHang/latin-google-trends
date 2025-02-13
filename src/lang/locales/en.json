@@ -1,0 +1,15 @@
+{
+    "api": {
+      "errMsg400": "Bad request, please check your request parameters",
+      "errMsg401": "Unauthorized, please log in again",
+      "errMsg403": "Forbidden, you do not have permission to perform this action",
+      "errMsg404": "Resource not found, please check your request URL",
+      "errMsg405": "Method not allowed, please check your request method",
+      "errMsg408": "Request timeout, please try again later",
+      "errMsg500": "Internal server error, please try again later",
+      "errMsg502": "Bad gateway, please try again later",
+      "errMsg503": "Service unavailable, please try again later",
+      "errMsg504": "Gateway timeout, please try again later",
+      "errMsgdefault": "Network request failed, please try again later"
+    }
+  }

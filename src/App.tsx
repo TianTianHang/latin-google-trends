@@ -1,16 +1,24 @@
-import { AppRouter } from '@/router';
-import RouterBeforeEach from '@/router/permission';
-import { useRef } from 'react';
-import { BrowserRouter } from 'react-router-dom';
-import { RouteType } from '@/types/route';
+import { AppRouter } from "@/router";
+import RouterBeforeEach from "@/router/permission";
+import { ConfigProvider } from "antd";
+import { BrowserRouter } from "react-router-dom";
 
 function App() {
-  const appRouterRef = useRef<{ addRoutes: (routes: RouteType[]) => void }>();
   return (
-    <BrowserRouter>
-      <AppRouter ref={appRouterRef}/>
-      <RouterBeforeEach appRouterRef={appRouterRef}/>
-    </BrowserRouter>
+    <ConfigProvider
+      theme={{
+        components: {
+          Layout: {
+            /* 这里是你的组件 token */
+          },
+        },
+      }}
+    >
+      <BrowserRouter>
+        <AppRouter />
+        <RouterBeforeEach />
+      </BrowserRouter>
+    </ConfigProvider>
   );
 }
 
