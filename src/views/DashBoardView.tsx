@@ -1,61 +1,126 @@
-import { Col, Row, Card, Statistic, Progress, Layout, Typography } from 'antd';
-import { ClockCircleOutlined } from '@ant-design/icons';
-import { useState, useEffect } from 'react';
-import ChoroplethMap from "@/components/Map/ChoroplethMap"
-import dayjs from 'dayjs';
+import {
+  Col,
+  Row,
+  Card,
+  Layout,
+  Typography,
+  DatePicker,
+  Select,
+  Input,
+} from "antd";
+import { useMemo } from "react";
+import { Footer } from "antd/es/layout/layout";
+import { useDashBoardStore } from "@/stores/useDashBoardStore";
+import dayjs from "dayjs";
+const { Option } = Select;
+import LineChart from "@/components/Charts/LineChart";
+import HeatMap from "@/components/Map/HeatMap";
+import TimeWordCloud from "@/components/TimeWordCloud";
+import GlobalMoranIndex from "@/components/GlobalMoranIndex";
+import TimeStatistic from "@/components/TimeStatistic";
+import usePermission from '@/hooks/usePermission';
 
-const { Header, Content } = Layout;
+const { Content } = Layout;
 const { Title, Text } = Typography;
 
 export default function DashboardView() {
-  const [currentTime, setCurrentTime] = useState(dayjs().format('YYYY-MM-DD HH:mm:ss'));
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(dayjs().format('YYYY-MM-DD HH:mm:ss'));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
+  const {
+    startDate,
+    interval,
+    selectedGeos,
+    keyword,
+    setStartDate,
+    setInterval,
+    setSelectedGeos,
+    setKeyword,
+  } = useDashBoardStore();
+  
   return (
-    <Layout className="h-screen bg-[#030d1f]">
-      {/* 顶部标题栏 */}
-      <Header className="bg-[#001529] flex items-center">
-        <Row justify="space-between" className="w-full">
-          <Col>
-            <Title level={3} className="!text-white !mb-0">
-              title
-            </Title>
-          </Col>
-          <Col>
-            <Text className="text-white">
-              <ClockCircleOutlined className="mr-2" />
-              {currentTime}
-            </Text>
+    <Layout className=" h-max bg-[#0a1949]">
+      {/* 主要内容区域 */}
+      <Content className="p-4 bg-[#0a1949]">
+        {/* 参数配置面板 */}
+        <Row className="mb-4">
+          <Col span={24}>
+            <Card className="bg-[#0a1949] border-[#1a335d]">
+              <Title level={5} className="!text-white !mb-4">
+                参数配置
+              </Title>
+              <Row gutter={[16, 16]}>
+                <Col span={6}>
+                  <Text className="text-white">开始日期</Text>
+                  <DatePicker
+                    value={startDate}
+                    onChange={(date) =>
+                      setStartDate(date ? dayjs(date) : dayjs())
+                    }
+                    style={{ width: "100%" }}
+                    allowClear={false}
+                  />
+                </Col>
+                <Col span={6}>
+                  <Text className="text-white">时间间隔</Text>
+                  <Select
+                    value={interval}
+                    onChange={setInterval}
+                    style={{ width: "100%" }}
+                  >
+                    <Option value="day">天</Option>
+                    <Option value="month">月</Option>
+                    <Option value="year">年</Option>
+                  </Select>
+                </Col>
+                <Col span={6}>
+                  <Text className="text-white">地理编码</Text>
+                  <Select
+                    mode="multiple"
+                    value={selectedGeos}
+                    onChange={setSelectedGeos}
+                    style={{ width: "100%" }}
+                    placeholder="请选择地理编码"
+                  >
+                    <Option value="IT">意大利</Option>
+                    <Option value="FR">法国</Option>
+                    <Option value="ES">西班牙</Option>
+                    <Option value="DE">德国</Option>
+                  </Select>
+                </Col>
+                <Col span={6}>
+                  <Text className="text-white">关键词</Text>
+                  <Input
+                    value={keyword}
+                    onChange={(e) => setKeyword(e.target.value)}
+                    placeholder="请输入关键词"
+                  />
+                </Col>
+              </Row>
+            </Card>
           </Col>
         </Row>
-      </Header>
 
-      {/* 主要内容区域 */}
-      <Content className="p-4">
+        {/*第一行*/}
         <Row gutter={[16, 16]}>
           {/* 左侧指标区 */}
           <Col span={6}>
-            <Row gutter={[16, 16]} className="h-full">
+            <Row gutter={[16, 16]} className="h-half">
               <Col span={24}>
                 <Card className="h-[200px] bg-[#0a1949] border-[#1a335d]">
-                  <Statistic
-                    title="title"
-                    value={1128}
-                    valueStyle={{ color: '#3f8600' }}
-                  />
-                  <Progress percent={75} status="active" strokeColor="#13c2c2" />
+                  <Row gutter={[16, 8]}>
+                    <Col span={12}>
+                      <GlobalMoranIndex />
+                    </Col>
+                    <Col span={12}></Col>
+                  </Row>
+                  <Row gutter={[16, 8]}>
+                    <Col span={24}>
+                      {/* <TimeStatistic /> */}
+                    </Col>
+                  </Row>
                 </Card>
               </Col>
               <Col span={24}>
                 <Card className="h-[300px] bg-[#0a1949] border-[#1a335d]">
-                  {/* 这里可以放置环形图或雷达图 */}
-                  <Title level={5} className="!text-white">title</Title>
+                  <TimeWordCloud />
                 </Card>
               </Col>
             </Row>
@@ -63,65 +128,38 @@ export default function DashboardView() {
 
           {/* 中央可视化区 */}
           <Col span={18}>
-            <Row gutter={[16, 16]} className="h-full">
-              {/* 顶部图表区 */}
-              <Col span={24}>
-                <Card className="h-[500px] bg-[#0a1949] border-[#1a335d]">
-                  <Title level={5} className="!text-white">地图</Title>
-                  {/* 这里放置ECharts主图表 */}
-                  <ChoroplethMap slider interval='month'/>
-                  
-                </Card>
-              </Col>
-
-              {/* 底部指标区 */}
-              <Col span={24}>
-                <Row gutter={16}>
-                  <Col span={8}>
-                    <Card className="bg-[#0a1949] border-[#1a335d]">
-                      <Statistic
-                        title="title"
-                        value={2568}
-                        valueStyle={{ color: '#1890ff' }}
-                      />
-                    </Card>
-                  </Col>
-                  <Col span={8}>
-                    <Card className="bg-[#0a1949] border-[#1a335d]">
-                      <Statistic
-                        title="title"
-                        value={68.5}
-                        suffix="%"
-                        valueStyle={{ color: '#52c41a' }}
-                      />
-                    </Card>
-                  </Col>
-                  <Col span={8}>
-                    <Card className="bg-[#0a1949] border-[#1a335d]">
-                      <Statistic
-                        title="title"
-                        value={288.5}
-                        prefix="¥"
-                        valueStyle={{ color: '#eb2f96' }}
-                      />
-                    </Card>
-                  </Col>
-                </Row>
-              </Col>
-            </Row>
+            <Card className="h-[518px] bg-[#0a1949] border-[#1a335d]">
+              <Title level={5} className="!text-white !mb-4">
+                地理分布
+              </Title>
+              {useMemo(
+                () => (
+                  <HeatMap slider />
+                ),
+                []
+              )}
+            </Card>
           </Col>
         </Row>
 
-        {/* 底部扩展区 */}
+        {/* 第三行 底部扩展区 用表格 展示data*/}
         <Row className="mt-4">
           <Col span={24}>
             <Card className="bg-[#0a1949] border-[#1a335d]">
-              <Title level={5} className="!text-white">实时交易数据</Title>
-              {/* 这里放置滚动表格 */}
+              <Title level={5} className="!text-white !mb-4">
+                趋势分析
+              </Title>
+              {useMemo(
+                () => (
+                  <LineChart />
+                ),
+                []
+              )}
             </Card>
           </Col>
         </Row>
       </Content>
+      <Footer></Footer>
     </Layout>
-  );
-}
+    );
+  }

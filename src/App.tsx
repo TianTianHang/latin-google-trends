@@ -1,24 +1,15 @@
 import { AppRouter } from "@/router";
 import RouterBeforeEach from "@/router/permission";
-import { ConfigProvider } from "antd";
 import { BrowserRouter } from "react-router-dom";
-
+import { StyleProvider } from '@ant-design/cssinjs';
 function App() {
   return (
-    <ConfigProvider
-      theme={{
-        components: {
-          Layout: {
-            /* 这里是你的组件 token */
-          },
-        },
-      }}
-    >
-      <BrowserRouter>
+      <StyleProvider layer>
+         <BrowserRouter>
         <AppRouter />
         <RouterBeforeEach />
       </BrowserRouter>
-    </ConfigProvider>
+      </StyleProvider>
   );
 }
 

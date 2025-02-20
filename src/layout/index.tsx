@@ -104,7 +104,7 @@ export default function BasicLayout() {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
+      <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)} >
         <div className="demo-logo-vertical" />
         <Menu
           theme="dark"
@@ -116,11 +116,7 @@ export default function BasicLayout() {
       </Sider>
       <Layout>
         <Content style={{ margin: '0 16px' }}>
-          <Breadcrumb style={{ margin: '16px 0' }}>
-          {breadcrumbItems.map((item, index) => (
-            <Breadcrumb.Item key={index}>{item.title}</Breadcrumb.Item>
-          ))}
-          </Breadcrumb>
+          <Breadcrumb style={{ margin: '16px 0' }} items={breadcrumbItems}/>
           <div
             style={{
               padding: 24,

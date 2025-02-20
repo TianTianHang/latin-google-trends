@@ -26,15 +26,35 @@ export const queryTimeInterests = (queryParams: QueryParams) => {
 /**
  * 根据多个 geo_code 查询区域兴趣
  * @param geo_codes 区域代码数组
- * @returns 返回指定格式的结果
+ * @param keyword 关键词
+ * @param startDate 开始时间
+ * @param endDate 结束时间
+ * @returns { RegionInterestResult}
  */
 export const getRegionInterestByGeoCode = async (
-  geo_codes: string[]
+  geo_codes: string[],
+  keyword: string,
+  startDate: dayjs.Dayjs,
+  endDate: dayjs.Dayjs
 ): Promise<RegionInterestResult> => {
   try {
     // 构造查询参数
-    const queryParams = {
-      filters: [{ field: "geo_code", op: "in", value: geo_codes }],
+    const queryParams: QueryParams = {
+      filters: [
+        { field: "geo_code", op: "in", value: geo_codes },
+        { field: "keyword", op: "eq", value: keyword },
+        {
+          field: "timeframe_start",
+          op: "ge",
+          value: startDate.format("YYYY-MM-DD"),
+        },
+        {
+          field: "timeframe_end",
+          op: "le",
+          value: endDate.format("YYYY-MM-DD"),
+        },
+      ],
+      sorts: [{ field: "timeframe_start", order: "asc" }],
     };
 
     // 调用查询接口
@@ -67,26 +87,31 @@ export const getRegionInterestByGeoCode = async (
  * @param keyword 关键词
  * @param startDate 开始时间
  * @param endDate 结束时间
- * @param interval 时间间隔（支持 'day' | 'month' | 'year'）
  * @returns { RegionInterestResponse[] }
  */
 export const getRegionInterestByTime = async (
   keyword: string,
   startDate: dayjs.Dayjs,
-  endDate: dayjs.Dayjs,
+  endDate: dayjs.Dayjs
 ): Promise<RegionInterestResponse[]> => {
   try {
     // 1. 查询地区数据
-    const regionQueryParams:QueryParams = {
+    const regionQueryParams: QueryParams = {
       filters: [
         { field: "keyword", op: "eq", value: keyword },
-        { field: "timeframe_start", op: "eq", value: startDate.format("YYYY-MM-DD") },
-        { field: "timeframe_end", op: "eq", value: endDate.format("YYYY-MM-DD") },
+        {
+          field: "timeframe_start",
+          op: "eq",
+          value: startDate.format("YYYY-MM-DD"),
+        },
+        {
+          field: "timeframe_end",
+          op: "eq",
+          value: endDate.format("YYYY-MM-DD"),
+        },
       ],
     };
     const regionInterests = await queryRegionInterests(regionQueryParams);
-
-    
 
     return regionInterests;
   } catch (error) {

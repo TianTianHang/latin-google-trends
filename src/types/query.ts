@@ -9,7 +9,7 @@ export interface Filter {
   // 定义 Sort 类型
   export interface Sort {
     field: string;
-    order?: string; // 默认为 "asc"
+    order?: "asc"|"desc"; // 默认为 "asc"
   }
   
   // 定义 QueryParams 类型

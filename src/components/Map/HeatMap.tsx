@@ -1,18 +1,20 @@
 import type {
+  HeatmapLayerProps,
   LarkMapProps,
   LayerPopupProps,
-  PolygonLayerProps,
+  PointLayerProps,
 } from "@antv/larkmap";
 import {
   CustomControl,
   FullscreenControl,
+  HeatmapLayer,
   LarkMap,
   LayerPopup,
   LegendRamp,
   MapThemeControl,
-  PolygonLayer,
+  PointLayer
 } from "@antv/larkmap";
-import geojson from "@/components/Map/geojson.json";
+import loc_data from "@/components/Map/loc_data.json";
 import { useEffect, useState } from "react";
 import { getRegionInterestByTime, queryRegionInterests } from "@/api/interest";
 import { QueryParams } from "@/types/query";
@@ -22,20 +24,20 @@ import { LoadingOutlined } from "@ant-design/icons";
 import { useDashBoardStore } from "@/stores/useDashBoardStore";
 
 const colors = [
-  "#B8E1FF",
-  "#7DAAFF",
-  "#3D76DD",
-  "#0047A5",
-  "#001D70",
-  "#000B3C",
-  "#000522",
+  '#FF0000', // 红色，映射到 0
+  '#FF6600', // 橙色，映射到 30
+  '#FFCC00', // 黄色，映射到 50
+  '#66FF66', // 浅绿色，映射到 70
+  '#33CCFF', // 浅蓝色，映射到 85
+  '#0000FF', // 蓝色，映射到 95
+  '#800080', // 紫色，映射到 100
 ];
 const labels = ["0", "30", "50", "70", "85", "95", "100"];
 
 const config: LarkMapProps = {
   mapType: "Mapbox",
   mapOptions: {
-    mapStyle: "mapbox://styles/mapbox/dark-v11",
+    style: "mapbox://styles/mapbox/dark-v11",
     center: [41.9028, 12.4964],
     minZoom:1,
     maxZoom:8,
@@ -44,27 +46,12 @@ const config: LarkMapProps = {
     language:"en",
     worldview:"CN"
   },
-};
-
-const layerOptions: Omit<PolygonLayerProps, "source"> = {
-  autoFit: true,
-  shape: "fill",
-  color: {
-    field: "value",
-    value: colors,
-    scale: { type: "quantile" },
-  },
-  state: {
-    active: true,
-  },
-  style: {
-    opacity: 0.6,
-  },
+  logoVisible: false,
 };
 
 const items: LayerPopupProps["items"] = [
   {
-    layer: "myPolygonLayer",
+    layer: "myPointLayer",
     fields: [
       {
         field: "NAME_ZH",
@@ -87,19 +74,54 @@ const { RangePicker } = DatePicker;
 
 const timeFormat = "YYYY-MM-DD";
 //组件开始
-export interface ChoroplethMapProp {
+export interface HeatmapProp {
   slider?: boolean;
 }
-const ChoroplethMap = ({ slider }: ChoroplethMapProp) => {
-  const { data, currentStep, timeSteps, setData, setCurrentStep, setTimeSteps,interval } = useDashBoardStore();
+const HeatMap = ({ slider}: HeatmapProp) => {
+  const { data, currentStep, timeSteps, setData, setCurrentStep, setTimeSteps,interval,startDate } = useDashBoardStore();
 
-  const [options, setOptions] = useState(layerOptions);
+  const [heatOptions] = useState< Omit<HeatmapLayerProps, "source">>({
+    autoFit: true,
+    shape: 'heatmap' as const,
+    size: {
+      field: 'value',
+      value:({value})=>value/50,
+    },
+    state: {
+      active: true,
+    },
+    style: {
+      intensity: 3,
+      radius: 20,
+      opacity: 1,
+      rampColors: {
+        colors: colors,
+        positions:[0, 0.3, 0.5, 0.7, 0.85, 0.95, 1]
+      },
+    },
+  });
+  const [pointOptions] = useState< Omit<PointLayerProps, "source">>({
+    autoFit: true,
+    shape: 'circle',
+    size: {
+      value: () => {
+        return 10
+      },
+    },
+    state: {
+      active: false,
+    },
+    color:"rgba(0, 0, 0, 0.1)",
+    style: {
+      opacity:  0.1,
+    },
+  });
   const [source, setSource] = useState({
-    data: geojson,
-    parser: { type: "geojson" },
+    data: loc_data,
+    parser: { type: "json", x:"LABEL_X", y:"LABEL_Y" },
   });
 
-  const [timeframe, setTimeframe] = useState(["2004-01-01", "2004-02-01"]);
+  const [timeframe, setTimeframe] = useState([startDate.format("YYYY-MM-DD"), startDate.add(1,"month").format("YYYY-MM-DD")]);
   const [keyword, setKeyword] = useState<string>("new");
   const [loading, setLoding] = useState(false);
   const [autoPlay, setAutoPlay] = useState(false);
@@ -119,6 +141,7 @@ const ChoroplethMap = ({ slider }: ChoroplethMapProp) => {
     };
 
     const data = await queryRegionInterests(queryParams);
+    
     setSource((prev) => ({
       ...prev,
       transforms: [
@@ -135,7 +158,7 @@ const ChoroplethMap = ({ slider }: ChoroplethMapProp) => {
   // 生成时间刻度
   const generateTimeSteps = () => {
     const steps: dayjs.Dayjs[] = [];
-    let current = dayjs("2004-01-01");
+    let current = startDate;
 
     while (current.isBefore(dayjs())) {
       steps.push(current);
@@ -220,9 +243,11 @@ const ChoroplethMap = ({ slider }: ChoroplethMapProp) => {
 
   return (
     <Spin indicator={<LoadingOutlined spin />} size="large" spinning={loading}>
-      <LarkMap {...config} style={{ height: "50vh" }}>
-        <MapThemeControl position="bottomright" />
-        <PolygonLayer {...options} source={source} id="myPolygonLayer" />
+      <LarkMap {...config} style={{ height: "55vh" }}>
+         <HeatmapLayer {...heatOptions} source={source}  />
+        <PointLayer {...pointOptions} source={source} id="myPointLayer"/>
+       
+       
         <LayerPopup
           closeButton={false}
           closeOnClick={false}
@@ -230,6 +255,7 @@ const ChoroplethMap = ({ slider }: ChoroplethMapProp) => {
           trigger="hover"
           items={items}
         />
+        <MapThemeControl position="bottomright" />
         <FullscreenControl />
         <CustomControl position="bottomleft">
           <LegendRamp labels={labels} colors={colors} />
@@ -295,4 +321,4 @@ const ChoroplethMap = ({ slider }: ChoroplethMapProp) => {
     </Spin>
   );
 };
-export default ChoroplethMap;
+export default HeatMap;
