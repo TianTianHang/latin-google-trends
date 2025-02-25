@@ -1,15 +1,29 @@
 {
-    "api": {
-      "errMsg400": "请求错误，请检查请求参数",
-      "errMsg401": "未授权，请重新登录",
-      "errMsg403": "禁止访问，您没有权限执行此操作",
-      "errMsg404": "资源未找到，请检查请求地址",
-      "errMsg405": "请求方法不被允许",
-      "errMsg408": "请求超时，请稍后重试",
-      "errMsg500": "服务器错误，请稍后重试",
-      "errMsg502": "网关错误，请稍后重试",
-      "errMsg503": "服务不可用，请稍后重试",
-      "errMsg504": "网关超时，请稍后重试",
-      "errMsgdefault": "网络请求异常，请稍后重试"
-    }
+  "api": {
+    "errMsg400": "请求错误，请检查请求参数",
+    "errMsg401": "未授权，请重新登录", 
+    "errMsg403": "禁止访问，您没有权限执行此操作",
+    "errMsg404": "资源未找到，请检查请求地址",
+    "errMsg405": "请求方法不被允许",
+    "errMsg408": "请求超时，请稍后重试",
+    "errMsg500": "服务器错误，请稍后重试",
+    "errMsg502": "网关错误，请稍后重试",
+    "errMsg503": "服务不可用，请稍后重试",
+    "errMsg504": "网关超时，请稍后重试",
+    "errMsgdefault": "网络请求异常，请稍后重试"
+  },
+  "subject": {
+    "createTitle": "创建新Subject",
+    "createSubTitle": "用于启动新的数据采集任务",
+    "userId": "用户ID",
+    "userIdPlaceholder": "例如: 12345",
+    "userIdRequired": "请输入用户ID",
+    "paramConfig": "参数配置",
+    "paramRequired": "请输入参数配置",
+    "invalidJson": "请输入有效的JSON",
+    "addParam": "添加参数配置",
+    "submit": "提交",
+    "createSuccess": "Subject创建成功！ID: {subject_id}",
+    "createFailed": "创建失败: {error}"
   }
+}

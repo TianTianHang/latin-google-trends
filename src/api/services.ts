@@ -7,11 +7,11 @@ const api = {
 };
 
 /**
- * @description: 获取所有服务实例
+ * @description: 根据服务名获取所有服务实例
  * @return 返回服务实例列表
  */
-export function getServices() {
+export function getServices(service_name:string) {
   return http.get<{
-    services:{[key:string]:ServiceInstance[]}
-}>(api.services);
+    services:ServiceInstance[]
+}>(api.services,{service_name:service_name});
 }

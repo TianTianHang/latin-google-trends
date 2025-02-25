@@ -9,6 +9,7 @@ export interface usersStoreType {
   token: string;
   roles: string[];
   username:string
+  id: number;
   setToken(value: string): void;
   getInfo:()=>Promise<void>
   resetToken:()=>void
@@ -20,14 +21,18 @@ export const useUserStore = create<usersStoreType>()(
     (set) => ({
       token: '', // 登录token
       roles: [], // 权限角色
-      username:'',     
+      username:'',  
+      id: 0, // 用户ID   
       // 设置token
       setToken: (value: string) => set({ token: value }),
       /** 获取用户详情 */
       getInfo:async () => {
         const data= await userInfo()
-        set({username:data.username})
-        set({roles: data.role ? [data.role] : ['DEFAULTROLE']})
+        set({ 
+          username: data.username, 
+          roles: data.role ? [data.role] : ['DEFAULTROLE'], 
+          id: data.id 
+        })
       },
       /** 重置 Token */
       resetToken:() => {

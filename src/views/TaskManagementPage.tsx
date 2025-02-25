@@ -49,8 +49,8 @@ const TaskManagement: React.FC = () => {
 
   const fetchServiceInstances = async () => {
     try {
-      const services = await getServices()
-      const trendsCollectorInstances=services.services.trends_collector
+      const services = await getServices("trends_collector")
+      const trendsCollectorInstances=services.services
       setServiceInstances(trendsCollectorInstances);
       if (trendsCollectorInstances.length > 0) {
         setSelectedServiceId(trendsCollectorInstances[0].instance_id); // 默认选择第一个实例

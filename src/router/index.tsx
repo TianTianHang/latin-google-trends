@@ -58,6 +58,16 @@ export const asyncRoutes: RouteType[] = [
       title:"面板"
     },
   },
+  {
+    path: "/subject",
+    component: lazy(() => import("@/views/SubjectCreateView.tsx")),
+    meta: {
+      requiresAuth: true,
+      breadcrumb: true,
+      allowedRoles: ["user","admin"],
+      title:"主题配置"
+    },
+  }
 ];
 // 路由处理方式
 const generateRouter = (routers: RouteType[]) => {
