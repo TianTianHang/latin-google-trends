@@ -1,9 +1,10 @@
 import { create } from "zustand";
-import { RegionInterestResponse, RegionInterestResult } from "@/types/interest";
+import { Subject } from "@/types/subject";
+import { RegionInterestResult } from "@/types/interest";
 import dayjs from "dayjs";
 
 interface DashBoardState {
-  data: { [index: number]: RegionInterestResponse[] };
+  subjects: Subject[];
   currentStep: number;
   timeSteps: dayjs.Dayjs[];
   geoData: RegionInterestResult;
@@ -12,7 +13,7 @@ interface DashBoardState {
   interval: "day" | "month" | "year";
   keyword: string;
   fitCodes: string[];
-  setData: (index: number, regionData: RegionInterestResponse[]) => void;
+  setSubjects: (subjects: Subject[]) => void;
   setGeoData: (geoData: RegionInterestResult) => void;
   setCurrentStep: (step: number) => void;
   setTimeSteps: (steps: dayjs.Dayjs[]) => void;
@@ -24,19 +25,16 @@ interface DashBoardState {
 }
 
 export const useDashBoardStore = create<DashBoardState>((set) => ({
-  data: {},
+  subjects: [],
   currentStep: 0,
   timeSteps: [],
   selectedGeos: ["IT"],
   geoData: {},
-  startDate: dayjs("2004-01-01"), // 默认值
+  startDate: dayjs("2004-01-01"),
   interval: "month",
   keyword: "new",
   fitCodes: ["IT"],
-  setData: (index, regionData) =>
-    set((state) => ({
-      data: { ...state.data, [index]: regionData },
-    })),
+  setSubjects: (subjects) => set({ subjects }),
   setGeoData: (geodata) => set({ geoData: geodata }),
   setCurrentStep: (step) => set({ currentStep: step }),
   setTimeSteps: (steps) => set({ timeSteps: steps }),
@@ -46,7 +44,7 @@ export const useDashBoardStore = create<DashBoardState>((set) => ({
   setSelectedGeos: (geos) =>
     set({
       selectedGeos: geos,
-      fitCodes: geos.slice(0, 1), // 保持fitCodes为selectedGeos的子集
+      fitCodes: geos.slice(0, 1),
     }),
   setFitCodes: (codes) =>
     set((state) => ({

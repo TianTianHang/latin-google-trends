@@ -10,84 +10,66 @@ import {
 import { LoadingOutlined } from "@ant-design/icons";
 import { Progress, Spin, Switch } from "antd";
 import { fitModel, getFitProgress } from "@/api/cfc";
-import { useDashBoardStore } from "@/stores/useDashBoardStore";
-
+import { TimeInterest } from "@/types/interest";
+import { SubjectDataMeta } from "@/types/subject";
 
 interface ChartData {
-  timeframe: string;
+  time: string;
   value: number;
   geo_code: string;
+  keyword:string;
   timespans: number;
 }
 
-const LineChart: React.FC = () => {
-  const {
-    startDate,
-    interval,
-    geoData,
-    keyword,
-    selectedGeos,
-    fitCodes,
-    setGeoData,
-  } = useDashBoardStore();
+interface LineChartProps {
+  data: TimeInterest[];
+  meta: SubjectDataMeta;
+  currentStep:number;
+}
+
+const LineChart: React.FC<LineChartProps> = ({ data, meta,currentStep }) => {
   const [loading, setLoading] = useState(false);
   const [fit, setFit] = useState(false);
   const [progress, setProgress] = useState(0);
   const [isFitting, setIsFitting] = useState(false);
+  const [originalData, setOriginalData] = useState<ChartData[]>([]);
   const [fitData, setFitData] = useState<ChartData[]>([]);
-  const endDate = useMemo(() => dayjs(), []);
-
-  const init = async () => {
-    setLoading(true);
-    try {
-      const data = await getRegionInterestByGeoCode(
-        selectedGeos,
-        keyword,
-        startDate,
-        endDate
-      );
-      setGeoData(data);
-    } catch (error) {
-      console.error("Failed to fetch region interest:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
-    init();
-  }, [selectedGeos, keyword]);
+    if(!meta || data.length==0) return
+    const originalData: ChartData[] = [];
 
-  const originalData = useMemo(() => {
-    if (!geoData || Object.keys(geoData).length === 0) return [];
-    const allData: ChartData[] = [];
-    for (const geo_code in geoData) {
-      const { time_range, values } = generateTimeRangeAndValues(
-        geoData[geo_code],
-        startDate,
-        endDate,
-        interval
-      );
-      time_range.forEach((timeframe, index) => {
-        allData.push({
-          timeframe,
-          value: values[index] !== null ? values[index]! : 0,
-          geo_code: geo_code,
-          timespans: generateTimespans(
-            timeframe.split(" - ")[0],
-            startDate,
-            interval
-          ),
+    meta.keywords.forEach((kw) => {
+      data.forEach((d, i) => {
+        originalData.push({
+          time: d["time [UTC]"],
+          value: d[kw],
+          keyword:kw,
+          geo_code: meta.geo_code == "" ? "world" : meta.geo_code,
+          timespans: i,
         });
       });
-    }
-    return allData;
-  }, [geoData, interval, startDate, endDate]);
+    });
 
-  const generateFitData = async (geo_code: string): Promise<ChartData[]> => {
+    setOriginalData(originalData);
+    
+  }, []);
+  useEffect(()=>{
+    return 
+    if(!meta|| originalData.length==0) return;
+    const fit=async ()=>{
+      const fitData:ChartData[]=[]
+      for(const kw of meta.keywords){
+        fitData.concat(await generateFitData(kw))
+      }
+      setFitData(fitData)
+    }
+    fit()
+  },[originalData])
+  const generateFitData = async (kw: string): Promise<ChartData[]> => {
     setIsFitting(true);
     try {
-      const data = originalData.filter((d) => d.geo_code === geo_code);
+      const data = originalData.filter((d) => d.keyword === kw);
       const fillValues = fillMissingValuesAndTrim(
         data.map((d) => d.value),
         "linear"
@@ -104,9 +86,10 @@ const LineChart: React.FC = () => {
 
       if (result) {
         return originalData.map((d, index) => ({
-          timeframe: d.timeframe,
+          time: d.time,
           value: result?.values[index] || 0,
-          geo_code: `${d.geo_code}-fit`,
+          keyword:`${d.keyword}-fit`,
+          geo_code: d.geo_code,
           timespans: d.timespans,
         }));
       }
@@ -116,9 +99,10 @@ const LineChart: React.FC = () => {
           setIsFitting(false);
           setProgress(100);
           return originalData.map((d, index) => ({
-            timeframe: d.timeframe,
+            time: d.time,
             value: data.result?.values[index] || 0,
-            geo_code: `${d.geo_code}-fit`,
+            keyword:`${d.keyword}-fit`,
+            geo_code: d.geo_code,
             timespans: d.timespans,
           }));
         } else if (data.status === "processing") {
@@ -138,49 +122,16 @@ const LineChart: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchFitData = async () => {
-      if (originalData.length === 0 || !fit) {
-        setFitData([]);
-        return;
-      }
 
-      const results = await Promise.all(
-        fitCodes.map((code) => generateFitData(code))
-      );
-      setFitData(results.flat().filter(Boolean));
-    };
-
-    fetchFitData();
-  }, [originalData, fitCodes, fit]);
-
-  const formatTimeframe = (
-    timeframe: string,
-    interval: "day" | "month" | "year"
-  ): string => {
-    const [startDate, endDate] = timeframe.split(" - ");
-    const startDayjs = dayjs(startDate);
-    const endDayjs = dayjs(endDate);
-
-    switch (interval) {
-      case "day":
-        return startDayjs.format("MM/DD");
-      case "month":
-        return startDayjs.format("MMM YYYY");
-      case "year":
-        return startDayjs.format("YYYY");
-      default:
-        return `${startDayjs.format("MM/DD")} - ${endDayjs.format("MM/DD")}`;
-    }
-  };
+  
 
   const config: LineConfig = useMemo(
     () => ({
       data: [...originalData, ...fitData],
       xField: "timeframe",
       yField: "value",
-      seriesField: "geo_code",
-      colorField: "geo_code",
+      seriesField: "keyword",
+      colorField: "keyword",
       height: 300,
       axis: {
         x: {
@@ -189,7 +140,6 @@ const LineChart: React.FC = () => {
 
           titleSpacing: 2,
           titleFontFamily: "Times New Roman",
-          labelFormatter: (v: string) => formatTimeframe(v, interval),
           labelFontSize: 10,
 
           labelFontFamily: "Times New Roman",
@@ -210,9 +160,8 @@ const LineChart: React.FC = () => {
         x: {
           sparklineType: "line",
           values: [0, 0.3],
-          showLabel:false,
-          style: {
-          },
+          showLabel: false,
+          style: {},
         },
       },
       legend: {
@@ -231,14 +180,14 @@ const LineChart: React.FC = () => {
       },
       style: {
         lineWidth: 2,
-        lineDash: (data:ChartData[]) => {
-          const mark=data[0].geo_code.split("-")[1]
-          if ( mark&&mark=== 'fit') return [4, 4];
+        lineDash: (data: ChartData[]) => {
+          const mark = data[0].geo_code.split("-")[1];
+          if (mark && mark === "fit") return [4, 4];
         },
       },
-      theme: "classicDark"//or 'academy',
+      theme: "classicDark", //or 'academy',
     }),
-    [fitData, interval, originalData]
+    [fitData, originalData]
   );
 
   return (

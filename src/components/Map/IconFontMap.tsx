@@ -1,21 +1,19 @@
 import type {
-  HeatmapLayerProps,
+  IconFontLayerProps,
   LarkMapProps,
   LayerPopupProps,
-  PointLayerProps,
 } from "@antv/larkmap";
 import {
   CustomControl,
   FullscreenControl,
-  HeatmapLayer,
+  IconFontLayer,
   LarkMap,
   LayerPopup,
   LegendRamp,
   MapThemeControl,
-  PointLayer,
 } from "@antv/larkmap";
 import loc_data from "@/components/Map/loc_data.json";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { RegionInterest } from "@/types/interest";
@@ -48,82 +46,111 @@ const config: LarkMapProps = {
   logoVisible: false,
 };
 
-
-
 //组件开始
 
-export interface HeatMapProps {
+export interface IconFontMapProps {
   data: RegionInterest[];
   meta: SubjectDataMeta;
-  currentStep:number;
+  currentStep: number;
 }
-const HeatMap = ({ data, meta, currentStep }: HeatMapProps) => {
+interface MapData {
+  geoCode: string;
+  geoName: string;
+  keyword: string;
+  value: number;
+}
+const IconFontMap = ({ data, meta, currentStep }: IconFontMapProps) => {
+  const items = useMemo(() => {
+    if (!meta) return [];
 
-  const [items, setItems] = useState<LayerPopupProps["items"]>([]);
-  const [heatOptions, setHeatOptions] = useState<Omit<HeatmapLayerProps, "source"> | null>(null);
-
-  useEffect(() => {
-    if (!meta) return;
-
-    setItems([
+    return [
       {
-        layer: "myPointLayer",
+        layer: "myIconFontLayer",
         fields: [
+          ...(meta && meta.keywords ? meta.keywords.map(kw => ({
+            field: "value",
+            formatField: ():string => kw,
+            formatValue: (value: number) => (value ? value : "无"),
+          })) : []),
           {
             field: "NAME_ZH",
-            formatField: () => "country name",
+            formatField: ():string => "country name",
           },
           {
             field: "ISO_A2",
             formatField: "ISO_A2",
           },
-          {
-            field: meta?.keywords?.[0],
-            formatField: () => "搜索指数",
-            formatValue: (value) => (value ? value : "无"),
-          },
         ],
       },
-    ]);
+    ];
+  }, [meta]);
 
-    setHeatOptions({
+  const iconFontOptions = useMemo<Omit<IconFontLayerProps, 'source'>>(() => {
+    const getRandomIcon = () => {
+      const icons = ["oldman", "man1", "man2", "man3", "woman"];
+      return icons[Math.floor(Math.random() * icons.length)];
+    };
+
+    return {
       autoFit: true,
-      shape: "heatmap" as const,
-      size: {
-        field: meta?.keywords?.[0],
-        value: (item) => item[meta?.keywords?.[0]] / 50,
+      iconAtlas: {
+        fontFamily: "iconfont",
+        fontPath:
+          "//at.alicdn.com/t/c/font_4840841_5wf9puodfzl.woff2?t=1740645634202",
+        iconFonts: [
+          ["oldman", "&#xe607;"],
+          ["man1", "&#xe645;"],
+          ["man2", "&#xe646;"],
+          ["man3", "&#xe649;"],
+          ["woman1", "&#xe648;"],
+        ],
       },
+      icon: {
+        field: "value",
+        value: ({ value }) => getRandomIcon(),
+      },
+      iconStyle: {
+        textAnchor: "center",
+        textOffset: [0, 0],
+        fontFamily: "iconfont",
+        textAllowOverlap: true,
+        iconfont: true,
+      },
+      filter: {
+        field: "value",
+        value: ({value}) => value > 0,
+      },
+      radius: 20,
+      opacity: 0.7,
       state: {
-        active: true,
-      },
-      style: {
-        intensity: 3,
-        radius: 20,
-        opacity: 1,
-        rampColors: {
-          colors: colors,
-          positions: [0, 0.3, 0.5, 0.7, 0.85, 0.95, 1],
+        active: {
+          color: "red",
         },
       },
-    });
+    };
   }, [meta]);
   
-  const [pointOptions] = useState<Omit<PointLayerProps, "source">>({
-    autoFit: true,
-    shape: "circle",
-    size: {
-      value: () => {
-        return 10;
-      },
-    },
-    state: {
-      active: false,
-    },
-    color: "rgba(0, 0, 0, 0.1)",
-    style: {
-      opacity: 0.1,
-    },
-  });
+  
+
+  const originalData = useMemo(() => {
+    if (!meta || data.length === 0) return [];
+    const result: MapData[] = [];
+
+    meta.keywords.forEach((kw) => {
+      data.forEach((d) => {
+        result.push({
+          geoCode: d.geoCode,
+          geoName: d.geoName,
+          value: d[kw],
+          keyword: kw,
+        });
+      });
+    });
+
+    return result;
+  }, [meta, data]);
+  
+
   const [source, setSource] = useState({
     data: loc_data,
     parser: { type: "json", x: "LABEL_X", y: "LABEL_Y" },
@@ -139,7 +166,7 @@ const HeatMap = ({ data, meta, currentStep }: HeatMapProps) => {
   }, []);
 
   useEffect(() => {
-    if(data.length === 0||!meta) return;
+    if (data.length === 0 || !meta) return;
     setSource((prev) => ({
       ...prev,
       transforms: [
@@ -147,18 +174,20 @@ const HeatMap = ({ data, meta, currentStep }: HeatMapProps) => {
           type: "join",
           targetField: "ISO_A2",
           sourceField: "geoCode",
-          data: data,
+          data: originalData,
         },
       ],
     }));
-    
-  }, [data, meta]);
+  }, [originalData, meta]);
 
   return (
     <Spin indicator={<LoadingOutlined spin />} size="large" spinning={loading}>
       <LarkMap {...config} style={{ height: "55vh" }}>
-        <HeatmapLayer {...heatOptions} source={source}/>
-        <PointLayer {...pointOptions} source={source} id="myPointLayer" />
+      <IconFontLayer
+            {...iconFontOptions}
+            source={source}
+            id="myIconFontLayer"
+          />
 
         <LayerPopup
           closeButton={false}
@@ -176,4 +205,4 @@ const HeatMap = ({ data, meta, currentStep }: HeatMapProps) => {
     </Spin>
   );
 };
-export default HeatMap;
+export default IconFontMap;

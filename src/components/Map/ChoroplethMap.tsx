@@ -14,10 +14,9 @@ import {
 } from "@antv/larkmap";
 import geojson from "@/components/Map/geojson.json";
 import { useEffect, useState } from "react";
-import { getRegionInterestByTime, queryRegionInterests } from "@/api/interest";
-import { QueryParams } from "@/types/query";
-import { Button, DatePicker, Input, Slider, Space, Spin, Switch } from "antd";
-import dayjs from "dayjs";
+import { Spin } from "antd";
+import { RegionInterest } from "@/types/interest";
+import { SubjectDataMeta } from "@/types/subject";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useDashBoardStore } from "@/stores/useDashBoardStore";
 
@@ -46,183 +45,91 @@ const config: LarkMapProps = {
   },
 };
 
-const layerOptions: Omit<PolygonLayerProps, "source"> = {
-  autoFit: true,
-  shape: "fill",
-  color: {
-    field: "value",
-    value: colors,
-    scale: { type: "quantile" },
-  },
-  state: {
-    active: true,
-  },
-  style: {
-    opacity: 0.6,
-  },
-};
 
-const items: LayerPopupProps["items"] = [
-  {
-    layer: "myPolygonLayer",
-    fields: [
-      {
-        field: "NAME_ZH",
-        formatField: () => "country name",
-      },
-      {
-        field: "ISO_A2",
-        formatField: "ISO_A2",
-      },
-      {
-        field: "value",
-        formatField: () => "搜索指数",
-        formatValue: (value) => (value ? value : "无"),
-      },
-    ],
-  },
-];
-
-const { RangePicker } = DatePicker;
-
-const timeFormat = "YYYY-MM-DD";
-//组件开始
-export interface ChoroplethMapProp {
-  slider?: boolean;
+export interface ChoroplethMapProps {
+  data: RegionInterest[];
+  meta: SubjectDataMeta;
+  currentStep: number;
 }
-const ChoroplethMap = ({ slider }: ChoroplethMapProp) => {
-  const { data, currentStep, timeSteps, setData, setCurrentStep, setTimeSteps,interval } = useDashBoardStore();
+const ChoroplethMap = ({ data, meta, currentStep }: ChoroplethMapProps) => {
+  const [items, setItems] = useState<LayerPopupProps["items"]>([]);
+  const [polygonOptions, setPolygonOptions] = useState<Omit<PolygonLayerProps, "source"> | null>(null);
 
-  const [options, setOptions] = useState(layerOptions);
+  useEffect(() => {
+    if (!meta) return;
+
+    setItems([
+      {
+        layer: "myPolygonLayer",
+        fields: [
+          {
+            field: "NAME_ZH",
+            formatField: () => "country name",
+          },
+          {
+            field: "ISO_A2",
+            formatField: "ISO_A2",
+          },
+          {
+            field: meta?.keywords?.[0],
+            formatField: () => "搜索指数",
+            formatValue: (value) => (value ? value : "无"),
+          },
+        ],
+      },
+    ]);
+
+    setPolygonOptions({
+      autoFit: true,
+      shape: "fill",
+      color: {
+        field: meta?.keywords?.[0],
+        value: colors,
+        scale: { type: "quantile" },
+      },
+      state: {
+        active: true,
+      },
+      style: {
+        opacity: 0.6,
+      },
+    });
+  }, [meta]);
+
   const [source, setSource] = useState({
     data: geojson,
     parser: { type: "geojson" },
   });
+  const [loading, setLoading] = useState(true);
 
-  const [timeframe, setTimeframe] = useState(["2004-01-01", "2004-02-01"]);
-  const [keyword, setKeyword] = useState<string>("new");
-  const [loading, setLoding] = useState(false);
-  const [autoPlay, setAutoPlay] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 3000); // 3 seconds loading time
 
-  const submit = async () => {
-    setLoding(true);
-    const queryParams: QueryParams = {
-      filters: [
-        { field: "keyword", op: "eq", value: keyword },
-        {
-          field: "timeframe_start",
-          op: "eq",
-          value: timeframe[0],
-        },
-        { field: "timeframe_end", op: "eq", value: timeframe[1] },
-      ],
-    };
+    return () => clearTimeout(timer);
+  }, []);
 
-    const data = await queryRegionInterests(queryParams);
+  useEffect(() => {
+    if (data.length === 0 || !meta) return;
     setSource((prev) => ({
       ...prev,
       transforms: [
         {
           type: "join",
           targetField: "ISO_A2",
-          sourceField: "geo_code",
+          sourceField: "geoCode",
           data: data,
         },
       ],
     }));
-    setLoding(false);
-  };
-  // 生成时间刻度
-  const generateTimeSteps = () => {
-    const steps: dayjs.Dayjs[] = [];
-    let current = dayjs("2004-01-01");
-
-    while (current.isBefore(dayjs())) {
-      steps.push(current);
-      current = current.add(1, interval);
-    }
-    setTimeSteps(steps);
-  };
-  const getSilderData = async (loading: boolean = true) => {
-    setLoding(loading);
-    for (let i = currentStep; i < currentStep + 2; i++) {
-      if (!data[i]) {
-        const regionData = await getRegionInterestByTime(
-          keyword,
-          timeSteps[i],
-          timeSteps[i + 1]
-        );
-        setData(i, regionData);
-        // 确保data加载后手动触发一次source更新
-        if (i == 0) {
-          setSource((prev) => {
-            return {
-              ...prev,
-              transforms: [
-                {
-                  type: "join",
-                  targetField: "ISO_A2",
-                  sourceField: "geo_code",
-                  data: regionData,
-                },
-              ],
-            };
-          });
-        }
-      }
-    }
-    setLoding(false);
-  };
-  //初始化
-  useEffect(() => {
-    if (slider) {
-      generateTimeSteps();
-    } else {
-      submit();
-    }
-  }, []);
-  useEffect(() => {
-    if (timeSteps.length === 0) return;
-    // 当timesteps有效时获取数据
-    getSilderData();
-  }, [timeSteps]);
-
-  // 自动播放逻辑
-  useEffect(() => {
-    let intervalId: number | undefined;
-    if (autoPlay && timeSteps.length > 0) {
-      intervalId = setInterval(() => {
-        setCurrentStep((currentStep + 1) % timeSteps.length);
-      }, 2000);
-    }
-    return () => clearInterval(intervalId);
-  }, [autoPlay, currentStep, setCurrentStep, timeSteps.length]);
-
-  // 滑条更新数据
-  useEffect(() => {
-    if (!data[currentStep + 2] && timeSteps.length != 0) {
-      getSilderData(false);
-    }
-    if (data[currentStep]) {
-      setSource((prev) => ({
-        ...prev,
-        transforms: [
-          {
-            type: "join",
-            targetField: "ISO_A2",
-            sourceField: "geo_code",
-            data: data[currentStep],
-          },
-        ],
-      }));
-    }
-  }, [data, currentStep]);
+  }, [data, meta]);
 
   return (
     <Spin indicator={<LoadingOutlined spin />} size="large" spinning={loading}>
-      <LarkMap {...config} style={{ height: "50vh" }}>
-        <MapThemeControl position="bottomright" />
-        <PolygonLayer {...options} source={source} id="myPolygonLayer" />
+      <LarkMap {...config} style={{ height: "55vh" }}>
+        <PolygonLayer {...polygonOptions} source={source} id="myPolygonLayer" />
+
         <LayerPopup
           closeButton={false}
           closeOnClick={false}
@@ -230,66 +137,10 @@ const ChoroplethMap = ({ slider }: ChoroplethMapProp) => {
           trigger="hover"
           items={items}
         />
+        <MapThemeControl position="bottomright" />
         <FullscreenControl />
         <CustomControl position="bottomleft">
           <LegendRamp labels={labels} colors={colors} />
-        </CustomControl>
-        <CustomControl
-          position="topleft"
-          className="opacity-0 hover:opacity-100  transition-opacity duration-300"
-        >
-          <Space>
-            {slider ? (
-              <div style={{ width: 300 }}>
-                <Slider
-                  min={0}
-                  max={timeSteps.length - 1}
-                  value={currentStep}
-                  onChange={(value) => {
-                    setAutoPlay(false);
-                    setCurrentStep(value);
-                  }}
-                  tooltip={{
-                    formatter: (value) =>
-                      timeSteps[value ? value : 0]?.format("YYYY-MM-DD"),
-                  }}
-                />
-                <div>
-                  {timeSteps[currentStep]?.format("YYYY-MM-DD")}
-                  <Switch
-                    checkedChildren="自动"
-                    unCheckedChildren="手动"
-                    checked={autoPlay}
-                    onChange={(checked) => setAutoPlay(checked)}
-                  />
-                </div>
-              </div>
-            ) : (
-              <>
-                {" "}
-                <RangePicker
-                  format={timeFormat}
-                  defaultValue={[dayjs("2004-01-01"), dayjs("2004-02-01")]}
-                  minDate={dayjs("2004-01-01")}
-                  maxDate={dayjs()}
-                  onChange={(_, dateStrings) => {
-                    if (dateStrings[0] && dateStrings[1]) {
-                      setTimeframe(dateStrings);
-                    }
-                  }}
-                />
-                <Input
-                  defaultValue={keyword}
-                  onChange={(e) => {
-                    setKeyword(e.target.value);
-                  }}
-                />
-                <Button type="primary" onClick={submit}>
-                  OK
-                </Button>
-              </>
-            )}
-          </Space>
         </CustomControl>
       </LarkMap>
     </Spin>

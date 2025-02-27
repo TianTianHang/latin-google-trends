@@ -1,12 +1,8 @@
 /* eslint-disable react-refresh/only-export-components */
 import { usePermissionStore } from "@/stores/permission";
 import { RouteType } from "@/types/route";
-import {
-  lazy,
-  Suspense,
-  useMemo,
-} from "react";
-import { useRoutes } from "react-router-dom";
+import { lazy, Suspense, useMemo } from "react";
+import { Outlet, useRoutes } from "react-router-dom";
 /** 常驻路由 */
 export const constantRoutes: RouteType[] = [
   {
@@ -45,7 +41,7 @@ export const asyncRoutes: RouteType[] = [
       requiresAuth: true,
       breadcrumb: true,
       allowedRoles: ["admin"],
-      title:"任务管理"
+      title: "任务管理",
     },
   },
   {
@@ -54,20 +50,44 @@ export const asyncRoutes: RouteType[] = [
     meta: {
       requiresAuth: true,
       breadcrumb: true,
-      allowedRoles: ["user","admin"],
-      title:"面板"
+      allowedRoles: ["user", "admin"],
+      title: "面板",
     },
   },
   {
     path: "/subject",
-    component: lazy(() => import("@/views/SubjectCreateView.tsx")),
+    element: <Outlet />,
     meta: {
       requiresAuth: true,
       breadcrumb: true,
-      allowedRoles: ["user","admin"],
-      title:"主题配置"
+      allowedRoles: ["user", "admin"],
+      title: "主题",
     },
-  }
+    children: [
+      {
+        path: "/subject/",
+        component: lazy(() => import("@/views/SubjectManagementView/SubjectCreateView.tsx")),
+        meta: {
+          requiresAuth: true,
+          breadcrumb: true,
+          allowedRoles: ["user", "admin"],
+          title: "主题创建",
+        },
+      },
+      {
+        path: "/subject/list",
+        component: lazy(
+          () => import("@/views/SubjectManagementView/SubjectList.tsx")
+        ),
+        meta: {
+          title: "主题列表",
+          requiresAuth: true,
+          breadcrumb: true,
+          allowedRoles: ["user", "admin"],
+        },
+      },
+    ],
+  },
 ];
 // 路由处理方式
 const generateRouter = (routers: RouteType[]) => {
@@ -75,7 +95,8 @@ const generateRouter = (routers: RouteType[]) => {
     if (item.children) {
       item.children = generateRouter(item.children);
     }
-    item.element = (
+    item.element = 
+      item.element || (
       <Suspense fallback={""}>
         {/* 把懒加载的异步路由变成组件装载进去 */}
         {item.component && <item.component />}
@@ -86,7 +107,7 @@ const generateRouter = (routers: RouteType[]) => {
 };
 export const AppRouter = () => {
   // 合并静态路由和动态路由
-  const {dynamicRoutes} = usePermissionStore();
+  const { dynamicRoutes } = usePermissionStore();
 
   // 修改合并函数
   const allRoutes = useMemo(() => {
@@ -94,17 +115,19 @@ export const AppRouter = () => {
     const rootRoute = constantRoutes.find((route) => route.path === "/");
     if (rootRoute && rootRoute.children) {
       // 筛选出尚未存在的动态路由
-      const existingPaths = new Set(rootRoute.children.map(child => child.path));
-      const newRoutes = dynamicRoutes.filter(route => !existingPaths.has(route.path));
-  
+      const existingPaths = new Set(
+        rootRoute.children.map((child) => child.path)
+      );
+      const newRoutes = dynamicRoutes.filter(
+        (route) => !existingPaths.has(route.path)
+      );
+
       // 将筛选后的动态路由合并到"/"的children中
       rootRoute.children.push(...newRoutes);
     }
 
     return constantRoutes;
   }, [dynamicRoutes]);
-
-
 
   return useRoutes(generateRouter(allRoutes));
 };

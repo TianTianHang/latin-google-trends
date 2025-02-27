@@ -1,3 +1,12 @@
+export type TimeInterest= {
+    "time [UTC]": string;
+    isPartial: boolean;
+} & Record<string, number>;
+export type RegionInterest= {
+    geoName: string;
+    geoCode: string;
+} & Record<string, number>;
+
 export interface RegionInterestResponse {
     id: number; // 唯一标识符
     keyword: string; // 关键词
