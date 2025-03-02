@@ -1,5 +1,5 @@
 import { Dayjs } from "dayjs";
-import { RegionInterest, TimeInterest } from "./interest";
+import { RegionInterest, TimeInterest } from "@/types/interest";
 
 export interface RealtimeTask {
   type: "realtime";

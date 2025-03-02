@@ -1,15 +1,12 @@
 import type {
   IconFontLayerProps,
   LarkMapProps,
-  LayerPopupProps,
 } from "@antv/larkmap";
 import {
-  CustomControl,
   FullscreenControl,
   IconFontLayer,
   LarkMap,
   LayerPopup,
-  LegendRamp,
   MapThemeControl,
 } from "@antv/larkmap";
 import loc_data from "@/components/Map/loc_data.json";
@@ -19,16 +16,7 @@ import { LoadingOutlined } from "@ant-design/icons";
 import { RegionInterest } from "@/types/interest";
 import { SubjectDataMeta } from "@/types/subject";
 
-const colors = [
-  "#FF0000", // 红色，映射到 0
-  "#FF6600", // 橙色，映射到 30
-  "#FFCC00", // 黄色，映射到 50
-  "#66FF66", // 浅绿色，映射到 70
-  "#33CCFF", // 浅蓝色，映射到 85
-  "#0000FF", // 蓝色，映射到 95
-  "#800080", // 紫色，映射到 100
-];
-const labels = ["0", "30", "50", "70", "85", "95", "100"];
+
 
 const config: LarkMapProps = {
   mapType: "Mapbox",
@@ -59,7 +47,7 @@ interface MapData {
   keyword: string;
   value: number;
 }
-const IconFontMap = ({ data, meta, currentStep }: IconFontMapProps) => {
+const IconFontMap = ({ data, meta }: IconFontMapProps) => {
   const items = useMemo(() => {
     if (!meta) return [];
 
@@ -67,14 +55,16 @@ const IconFontMap = ({ data, meta, currentStep }: IconFontMapProps) => {
       {
         layer: "myIconFontLayer",
         fields: [
-          ...(meta && meta.keywords ? meta.keywords.map(kw => ({
-            field: "value",
-            formatField: ():string => kw,
-            formatValue: (value: number) => (value ? value : "无"),
-          })) : []),
+          ...(meta && meta.keywords
+            ? meta.keywords.map((kw) => ({
+                field: "value",
+                formatField: (): string => kw,
+                formatValue: (value: number) => (value ? value : "无"),
+              }))
+            : []),
           {
             field: "NAME_ZH",
-            formatField: ():string => "country name",
+            formatField: (): string => "country name",
           },
           {
             field: "ISO_A2",
@@ -85,7 +75,7 @@ const IconFontMap = ({ data, meta, currentStep }: IconFontMapProps) => {
     ];
   }, [meta]);
 
-  const iconFontOptions = useMemo<Omit<IconFontLayerProps, 'source'>>(() => {
+  const iconFontOptions = useMemo<Omit<IconFontLayerProps, "source">>(() => {
     const getRandomIcon = () => {
       const icons = ["oldman", "man1", "man2", "man3", "woman"];
       return icons[Math.floor(Math.random() * icons.length)];
@@ -107,7 +97,7 @@ const IconFontMap = ({ data, meta, currentStep }: IconFontMapProps) => {
       },
       icon: {
         field: "value",
-        value: ({ value }) => getRandomIcon(),
+        value: () => getRandomIcon(),
       },
       iconStyle: {
         textAnchor: "center",
@@ -118,10 +108,26 @@ const IconFontMap = ({ data, meta, currentStep }: IconFontMapProps) => {
       },
       filter: {
         field: "value",
-        value: ({value}) => value > 0,
+        value: ({ value }) => !!value,
       },
-      radius: 20,
-      opacity: 0.7,
+      radius: {
+        field: "value",
+        value: ({ value }) => value / 5,
+      },
+      label: {
+        field: "keyword",
+        style: {
+          fontFamily: "Times New Roman",
+          opacity: 0.5,
+          fontSize: 12,
+          textAnchor: "top",
+          textOffset: [0, 10],
+          spacing: 1,
+          padding: [5, 0],
+          strokeWidth: 0.3,
+        },
+      },
+      opacity: 1,
       state: {
         active: {
           color: "red",
@@ -129,8 +135,6 @@ const IconFontMap = ({ data, meta, currentStep }: IconFontMapProps) => {
       },
     };
   }, [meta]);
-  
-  
 
   const originalData = useMemo(() => {
     if (!meta || data.length === 0) return [];
@@ -149,7 +153,6 @@ const IconFontMap = ({ data, meta, currentStep }: IconFontMapProps) => {
 
     return result;
   }, [meta, data]);
-  
 
   const [source, setSource] = useState({
     data: loc_data,
@@ -183,11 +186,11 @@ const IconFontMap = ({ data, meta, currentStep }: IconFontMapProps) => {
   return (
     <Spin indicator={<LoadingOutlined spin />} size="large" spinning={loading}>
       <LarkMap {...config} style={{ height: "55vh" }}>
-      <IconFontLayer
-            {...iconFontOptions}
-            source={source}
-            id="myIconFontLayer"
-          />
+        <IconFontLayer
+          {...iconFontOptions}
+          source={source}
+          id="myIconFontLayer"
+        />
 
         <LayerPopup
           closeButton={false}
@@ -198,9 +201,6 @@ const IconFontMap = ({ data, meta, currentStep }: IconFontMapProps) => {
         />
         <MapThemeControl position="bottomright" />
         <FullscreenControl />
-        <CustomControl position="bottomleft">
-          <LegendRamp labels={labels} colors={colors} />
-        </CustomControl>
       </LarkMap>
     </Spin>
   );

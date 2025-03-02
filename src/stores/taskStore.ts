@@ -5,19 +5,19 @@ import { listHistoricalTasks, listScheduledTasks } from '@/api/tasks';
 interface TaskState {
   historicalTasks: HistoricalTaskResponse[];
   scheduledTasks: ScheduledTaskResponse[];
-  fetchHistoricalTasks: () => void;
-  fetchScheduledTasks: () => void;
+  fetchHistoricalTasks: (serviceId: string) => void;
+  fetchScheduledTasks: (serviceId: string) => void;
 }
 
 export const useTaskStore = create<TaskState>((set) => ({
   historicalTasks: [],
   scheduledTasks: [],
-  fetchHistoricalTasks: async () => {
-    const tasks = await listHistoricalTasks();
+  fetchHistoricalTasks: async (serviceId: string) => {
+    const tasks = await listHistoricalTasks(serviceId);
     set({ historicalTasks: tasks });
   },
-  fetchScheduledTasks: async () => {
-    const tasks = await listScheduledTasks();
+  fetchScheduledTasks: async (serviceId: string) => {
+    const tasks = await listScheduledTasks(serviceId);
     set({ scheduledTasks: tasks });
   },
 }));

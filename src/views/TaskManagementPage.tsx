@@ -42,10 +42,10 @@ const TaskManagement: React.FC = () => {
   const [selectedServiceId, setSelectedServiceId] = useState<string>('');
 
   useEffect(() => {
-    fetchHistoricalTasks();
-    fetchScheduledTasks();
+    fetchHistoricalTasks(selectedServiceId);
+    fetchScheduledTasks(selectedServiceId);
     fetchServiceInstances();
-  }, [fetchHistoricalTasks, fetchScheduledTasks]);
+  }, [fetchHistoricalTasks, fetchScheduledTasks, selectedServiceId]);
 
   const fetchServiceInstances = async () => {
     try {
@@ -62,27 +62,27 @@ const TaskManagement: React.FC = () => {
 
   const handleCreateHistoricalTask = async (values: HistoricalTaskRequest) => {
     await createHistoricalTask(selectedServiceId, values);
-    fetchHistoricalTasks();
+    fetchHistoricalTasks(selectedServiceId);
   };
 
   const handleCreateScheduledTask = async (values: ScheduledTaskRequest) => {
     await createScheduledTask(selectedServiceId, values);
-    fetchScheduledTasks();
+    fetchScheduledTasks(selectedServiceId);
   };
 
   const handleTerminateHistoricalTask = async (taskId: number) => {
     await terminateHistoricalTask(selectedServiceId, taskId);
-    fetchHistoricalTasks();
+    fetchHistoricalTasks(selectedServiceId);
   };
 
   const handleRetryHistoricalTask = async (taskId: number) => {
     await retryHistoricalTask(selectedServiceId, taskId);
-    fetchHistoricalTasks();
+    fetchHistoricalTasks(selectedServiceId);
   };
 
   const handleToggleScheduledTask = async (taskId: number, enabled: boolean) => {
     await toggleScheduledTask(selectedServiceId, taskId, enabled);
-    fetchScheduledTasks();
+    fetchScheduledTasks(selectedServiceId);
   };
 
   const columnsHistorical = [
@@ -97,9 +97,10 @@ const TaskManagement: React.FC = () => {
       key: 'job_type',
     },
     {
-      title: 'Keyword',
-      dataIndex: 'keyword',
-      key: 'keyword',
+      title: 'Keywords',
+      dataIndex: 'keywords',
+      key: 'keywords',
+      render: (keywords: string[]) => keywords.join(', '),
     },
     {
       title: 'Status',
@@ -136,14 +137,21 @@ const TaskManagement: React.FC = () => {
       key: 'job_type',
     },
     {
-      title: 'Keyword',
-      dataIndex: 'keyword',
-      key: 'keyword',
+      title: 'Keywords',
+      dataIndex: 'keywords',
+      key: 'keywords',
+      render: (keywords: string[]) => keywords.join(', '),
     },
     {
-      title: 'Cron Expression',
-      dataIndex: 'cron_expression',
-      key: 'cron_expression',
+      title: 'Start Date',
+      dataIndex: 'start_date',
+      key: 'start_date',
+      render: (text: string) => dayjs(text).format('YYYY-MM-DD'),
+    },
+    {
+      title: 'Duration',
+      dataIndex: 'duration',
+      key: 'duration',
     },
     {
       title: 'Enabled',
@@ -174,6 +182,7 @@ const TaskManagement: React.FC = () => {
       </Select>
 
       <h2>Historical Tasks</h2>
+     
       <Form onFinish={handleCreateHistoricalTask}>
         <Form.Item name="job_type" label="Job Type">
           <Select>
@@ -181,8 +190,8 @@ const TaskManagement: React.FC = () => {
             <Option value="region">Region</Option>
           </Select>
         </Form.Item>
-        <Form.Item name="keyword" label="Keyword">
-          <Input />
+        <Form.Item name="keywords" label="Keywords">
+          <Select mode="tags" />
         </Form.Item>
         <Form.Item name="geo_code" label="Geo Code">
         <Select
@@ -214,9 +223,11 @@ const TaskManagement: React.FC = () => {
           </Button>
         </Form.Item>
       </Form>
+      <Button onClick={()=>fetchHistoricalTasks(selectedServiceId)} style={{ marginBottom: 16 }}>Refresh</Button>
       <Table dataSource={historicalTasks} columns={columnsHistorical} rowKey="id" />
 
       <h2>Scheduled Tasks</h2>
+      
       <Form onFinish={handleCreateScheduledTask}>
         <Form.Item name="job_type" label="Job Type">
           <Select>
@@ -224,8 +235,8 @@ const TaskManagement: React.FC = () => {
             <Option value="region">Region</Option>
           </Select>
         </Form.Item>
-        <Form.Item name="keyword" label="Keyword">
-          <Input />
+        <Form.Item name="keywords" label="Keywords">
+          <Select mode="tags" />
         </Form.Item>
         <Form.Item name="geo_code" label="Geo Code">
         <Select
@@ -242,6 +253,12 @@ const TaskManagement: React.FC = () => {
         <Form.Item name="cron_expression" label="Cron Expression">
           <Input />
         </Form.Item>
+        <Form.Item name="start_date" label="Start Date">
+          <DatePicker format="YYYY-MM-DD" />
+        </Form.Item>
+        <Form.Item name="duration" label="Duration">
+          <Input />
+        </Form.Item>
         <Form.Item name="interval" label="Interval">
           <Select defaultValue="MS">
             <Option value="YS">Yearly</Option>
@@ -254,6 +271,7 @@ const TaskManagement: React.FC = () => {
           </Button>
         </Form.Item>
       </Form>
+      <Button onClick={()=>fetchScheduledTasks(selectedServiceId)} style={{ marginBottom: 16 }}>Refresh</Button>
       <Table dataSource={scheduledTasks} columns={columnsScheduled} rowKey="id" />
     </div>
   );

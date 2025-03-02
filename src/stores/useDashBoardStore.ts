@@ -1,10 +1,10 @@
 import { create } from "zustand";
-import { Subject } from "@/types/subject";
 import { RegionInterestResult } from "@/types/interest";
 import dayjs from "dayjs";
+import { ListSubjectResponse } from "@/types/subject";
 
 interface DashBoardState {
-  subjects: Subject[];
+  subjects: ListSubjectResponse[];
   currentStep: number;
   timeSteps: dayjs.Dayjs[];
   geoData: RegionInterestResult;
@@ -13,7 +13,7 @@ interface DashBoardState {
   interval: "day" | "month" | "year";
   keyword: string;
   fitCodes: string[];
-  setSubjects: (subjects: Subject[]) => void;
+  setSubjects: (subjects: ListSubjectResponse[]) => void;
   setGeoData: (geoData: RegionInterestResult) => void;
   setCurrentStep: (step: number) => void;
   setTimeSteps: (steps: dayjs.Dayjs[]) => void;

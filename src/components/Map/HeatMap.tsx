@@ -57,7 +57,7 @@ export interface HeatMapProps {
   meta: SubjectDataMeta;
   currentStep:number;
 }
-const HeatMap = ({ data, meta, currentStep }: HeatMapProps) => {
+const HeatMap = ({ data, meta }: HeatMapProps) => {
 
   const [items, setItems] = useState<LayerPopupProps["items"]>([]);
   const [heatOptions, setHeatOptions] = useState<Omit<HeatmapLayerProps, "source"> | null>(null);

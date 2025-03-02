@@ -1,7 +1,7 @@
 // 定义任务相关的类型
 export type HistoricalTaskRequest = {
     job_type: string;
-    keyword: string;
+    keywords: string[];
     geo_code?: string;
     start_date: string;
     end_date: string;
@@ -10,23 +10,25 @@ export type HistoricalTaskRequest = {
   
   export type ScheduledTaskRequest = {
     job_type: string;
-    keyword: string;
-    cron_expression: string;
+    keywords: string[];
+    start_date: string;
     geo_code?: string;
     interval?: string;
+    duration: number;
   };
   
   export type HistoricalTaskResponse = {
     id: number;
     job_type: string;
-    keyword: string;
+    keywords: string[];
     status: string;
     created_at: string;
   };
   
   export type ScheduledTaskResponse = {
     id: number;
-    cron_expression: string;
-    keyword: string;
+    duration: string;
+    interval: number;
+    keywords: string[];
     enabled: boolean;
   };

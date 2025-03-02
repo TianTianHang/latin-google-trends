@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import _ from 'lodash';
 
 type RecordType = Record<string, any>; // 定义一个通用的对象类型

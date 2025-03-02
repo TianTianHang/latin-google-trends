@@ -6,10 +6,6 @@ import { Outlet, useRoutes } from "react-router-dom";
 /** 常驻路由 */
 export const constantRoutes: RouteType[] = [
   {
-    path: "/login",
-    component: lazy(() => import("@/views/LoginPage")),
-  },
-  {
     path: "/",
     component: lazy(() => import("@/layout")),
     meta: {
@@ -26,11 +22,15 @@ export const constantRoutes: RouteType[] = [
           requiresAuth: false,
         },
       },
+      {
+        path: "*",
+        component: lazy(() => import("@/views/error/NotFound")),
+      },
     ],
   },
   {
-    path: "*",
-    component: lazy(() => import("@/views/error/NotFound")),
+    path: "/login",
+    component: lazy(() => import("@/views/LoginPage")),
   },
 ];
 export const asyncRoutes: RouteType[] = [

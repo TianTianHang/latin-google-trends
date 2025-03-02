@@ -18,7 +18,7 @@ import { Spin } from "antd";
 import { RegionInterest } from "@/types/interest";
 import { SubjectDataMeta } from "@/types/subject";
 import { LoadingOutlined } from "@ant-design/icons";
-import { useDashBoardStore } from "@/stores/useDashBoardStore";
+
 
 const colors = [
   "#B8E1FF",
@@ -51,7 +51,7 @@ export interface ChoroplethMapProps {
   meta: SubjectDataMeta;
   currentStep: number;
 }
-const ChoroplethMap = ({ data, meta, currentStep }: ChoroplethMapProps) => {
+const ChoroplethMap = ({ data, meta }: ChoroplethMapProps) => {
   const [items, setItems] = useState<LayerPopupProps["items"]>([]);
   const [polygonOptions, setPolygonOptions] = useState<Omit<PolygonLayerProps, "source"> | null>(null);
 

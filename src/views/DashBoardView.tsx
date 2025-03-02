@@ -19,7 +19,6 @@ import {
   PlayCircleOutlined,
   ReloadOutlined,
 } from "@ant-design/icons";
-import ChoroplethMap from "@/components/Map/ChoroplethMap";
 import { useShallow } from "zustand/shallow";
 import LineChart from "@/components/Charts/LineChart";
 import IconFontMap from "@/components/Map/IconFontMap";
@@ -40,6 +39,7 @@ export default function DashboardView() {
   const { selectSubject, parseSubjectData } = useSubjectStore();
 
   const [step, setStep] = useState(0);
+  const [index] = useState(0);
   const [isProgressVisible, setIsProgressVisible] = useState(false);
   const [intervalTime, setIntervalTime] = useState(1000); // 新增状态变量
 
@@ -47,6 +47,7 @@ export default function DashboardView() {
     interests: RegionInterest[];
     meta: SubjectDataMeta;
   }>({ interests: [], meta: {} as SubjectDataMeta });
+
   const [timeData, setTimeData] = useState<{
     interests: TimeInterest[];
     meta: SubjectDataMeta;
@@ -65,9 +66,10 @@ export default function DashboardView() {
     setRegionData(regionInterests[step]);
   }, [regionInterests, step]);
   useEffect(() => {
+   
     if (timeInterests.length === 0) return;
-    setTimeData(timeInterests[step]);
-  }, [timeInterests, step]);
+    setTimeData(timeInterests[index]);
+  }, [timeInterests, index]);
 
   useEffect(() => {
     const init = async () => {

@@ -1,11 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Line, LineConfig } from "@ant-design/plots";
-import { getRegionInterestByGeoCode } from "@/api/interest";
-import dayjs from "dayjs";
 import {
   fillMissingValuesAndTrim,
-  generateTimeRangeAndValues,
-  generateTimespans,
 } from "@/utils/interest";
 import { LoadingOutlined } from "@ant-design/icons";
 import { Progress, Spin, Switch } from "antd";
@@ -17,55 +13,49 @@ interface ChartData {
   time: string;
   value: number;
   geo_code: string;
-  keyword:string;
+  keyword: string;
   timespans: number;
 }
 
 interface LineChartProps {
   data: TimeInterest[];
   meta: SubjectDataMeta;
-  currentStep:number;
+  currentStep: number;
 }
 
-const LineChart: React.FC<LineChartProps> = ({ data, meta,currentStep }) => {
-  const [loading, setLoading] = useState(false);
+const LineChart: React.FC<LineChartProps> = ({ data, meta }) => {
+  const [loading] = useState(false);
   const [fit, setFit] = useState(false);
   const [progress, setProgress] = useState(0);
   const [isFitting, setIsFitting] = useState(false);
-  const [originalData, setOriginalData] = useState<ChartData[]>([]);
+
   const [fitData, setFitData] = useState<ChartData[]>([]);
+  const originalData = useMemo(() => {
+    if (!meta || data.length === 0) return [];
+    return meta.keywords.flatMap((kw) =>
+      data.map((d, i) => ({
+        time: d["time [UTC]"],
+        value: d[kw],
+        keyword: kw,
+        geo_code: meta.geo_code || "world",
+        timespans: i,
+      }))
+    );
+  }, [data, meta]);
 
   useEffect(() => {
-    if(!meta || data.length==0) return
-    const originalData: ChartData[] = [];
-
-    meta.keywords.forEach((kw) => {
-      data.forEach((d, i) => {
-        originalData.push({
-          time: d["time [UTC]"],
-          value: d[kw],
-          keyword:kw,
-          geo_code: meta.geo_code == "" ? "world" : meta.geo_code,
-          timespans: i,
-        });
-      });
-    });
-
-    setOriginalData(originalData);
-    
-  }, []);
-  useEffect(()=>{
-    return 
-    if(!meta|| originalData.length==0) return;
-    const fit=async ()=>{
-      const fitData:ChartData[]=[]
-      for(const kw of meta.keywords){
-        fitData.concat(await generateFitData(kw))
+    if (!meta || originalData.length == 0) return;
+    if (!fit) return;
+    const fit_ = async () => {
+      const fitData: ChartData[] = [];
+      for (const kw of meta.keywords) {
+        fitData.push(...await generateFitData(kw))
       }
-      setFitData(fitData)
-    }
-    fit()
-  },[originalData])
+      setFitData(fitData);
+    };
+    fit_();
+  }, [originalData, fit]);
+
   const generateFitData = async (kw: string): Promise<ChartData[]> => {
     setIsFitting(true);
     try {
@@ -88,20 +78,21 @@ const LineChart: React.FC<LineChartProps> = ({ data, meta,currentStep }) => {
         return originalData.map((d, index) => ({
           time: d.time,
           value: result?.values[index] || 0,
-          keyword:`${d.keyword}-fit`,
+          keyword: `${d.keyword}-fit`,
           geo_code: d.geo_code,
           timespans: d.timespans,
         }));
       }
       const pollProgress = async (): Promise<ChartData[]> => {
         const data = await getFitProgress(task_id);
+        console.log(data);
         if (data.status === "completed") {
           setIsFitting(false);
           setProgress(100);
           return originalData.map((d, index) => ({
             time: d.time,
             value: data.result?.values[index] || 0,
-            keyword:`${d.keyword}-fit`,
+            keyword: `${d.keyword}-fit`,
             geo_code: d.geo_code,
             timespans: d.timespans,
           }));
@@ -122,13 +113,10 @@ const LineChart: React.FC<LineChartProps> = ({ data, meta,currentStep }) => {
     }
   };
 
-
-  
-
   const config: LineConfig = useMemo(
     () => ({
       data: [...originalData, ...fitData],
-      xField: "timeframe",
+      xField: "time",
       yField: "value",
       seriesField: "keyword",
       colorField: "keyword",

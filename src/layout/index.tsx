@@ -1,137 +1,123 @@
-import { Breadcrumb, Layout, Menu, MenuProps, theme } from 'antd';
-import { Content, Footer } from 'antd/es/layout/layout';
-import Sider from 'antd/es/layout/Sider';
-import { useState, useMemo } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
-import { usePermissionStore } from '@/stores/permission';
-import { RouteType } from '@/types/route';
-import { ItemType } from 'antd/es/menu/interface';
-
-type MenuItem = Required<MenuProps>['items'][number];
-
-// 递归生成菜单项
-const generateMenuItems = (routes: RouteType[]): ItemType[] => {
-  // 已生成的菜单路径集合，用于去重
-  const existingPaths = new Set<string>();
-
-  const generate = (routes: RouteType[]): ItemType[] => {
-    return routes
-      .filter(route => !route.meta?.hidden) // 过滤隐藏菜单
-      .map(route => {
-        // 如果路径已经存在，则跳过该路由
-        if (existingPaths.has(route.path!)) {
-          return null;
-        }
-
-        // 将当前路径添加到已生成的路径集合中
-        existingPaths.add(route.path!);
-
-        const menuItem: MenuItem = {
-          key: route.path!,
-          icon: route.meta?.icon,
-          label: route.meta?.title || route.path,
-          children: route.children ? generate(route.children) : undefined
-        };
-
-        return menuItem;
-      })
-      .filter(item => item !== null); // 过滤掉被跳过的路由
-  };
-
-  return generate(routes);
-};
+import React, { useState, Suspense, useMemo } from "react";
+import {
+  Outlet,
+  useNavigate,
+  useLocation,
+  Navigate,
+} from "react-router-dom";
+import { MenuProps } from "antd";
+import { Layout, Menu, theme, Spin } from "antd";
+import HeaderComp from "@/layout/components/Header";
+import NoAuthPage from "@/views/error/NoAuthPage";
+import "antd/dist/reset.css";
+import { useUserStore } from "@/stores/user";
+import { RouteType } from "@/types/route";
+import { usePermissionStore } from "@/stores/permission";
 
 
-// 根据路径获取面包屑数据
-const getBreadcrumbItems = (
-  routes: RouteType[],
-  currentPath: string
-): { title: string }[] => {
-  const items: { title: string }[] = [];
-  let found = false;
 
-  const traverse = (routes: RouteType[], parentPath = '') => {
-    for (const route of routes) {
-      const fullPath = `${parentPath}/${route.path}`.replace(/\/+/g, '/');
-      
-      if (fullPath === currentPath) {
-        if (route.meta?.breadcrumb !== false) { // 支持单独控制
-          items.push({ title: route.meta?.title || route.path! });
-        }
-        found = true;
-        return true;
-      }
+const { Header, Content, Sider } = Layout;
 
-      if (route.children) {
-        if (traverse(route.children, fullPath)) {
-          if (route.meta?.breadcrumb !== false && !route.meta?.hidden) {
-            items.unshift({ title: route.meta?.title || route.path! });
-          }
-          return true;
-        }
-      }
-    }
-    return false;
-  };
-
-  traverse(routes);
-  
-  return found ? items : [{ title: '当前位置' }];
-};
-
-export default function BasicLayout() {
-  const navigate = useNavigate();
+const BasicLayout: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
-  const routes  = usePermissionStore(state => state.routes);
-  const { token: { colorBgContainer, borderRadiusLG } } = theme.useToken();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const { token } = useUserStore();
+  const { routes } =usePermissionStore();
+  const {
+    token: { colorBgContainer },
+  } = theme.useToken();
 
-  // 生成动态菜单项
-  const menuItems = useMemo(() => {
-    // 过滤根路由（布局路由不需要显示）
-    const mainRoutes = routes.find(r => r.path === '/')?.children || [];
-    return generateMenuItems(mainRoutes);
-  }, [routes]);
-  // 菜单点击处理
-  const handleMenuClick: MenuProps['onClick'] = (e) => {
-    navigate(e.key);
+  const isAdmin  = true
+
+  const getItems = (children: RouteType[]): MenuProps["items"] => {
+    return children.map((item) => {
+      return {
+        key: item.index
+          ? "/"
+          : item.path?.startsWith("/")
+          ? item.path
+          : `/${item.path}`,
+        icon: item.meta?.icon,
+        label: item.meta?.title,
+        children: item.children ? getItems(item.children) : null,
+      };
+    });
   };
 
-  // 生成面包屑数据
-  const breadcrumbItems = useMemo(() => {
-    return getBreadcrumbItems(routes, location.pathname);
-    // eslint-disable-next-line
-  }, [routes, location.pathname]);
+  const menuItems: MenuProps["items"] = useMemo(()=>{
+    if (routes.length === 0) return [];
+    return getItems(
+      routes[0]?.children?.filter((item) => item.path !== "*") || []
+    );
+  },[routes])
+
+  const onMenuClick: MenuProps["onClick"] = ({ key }) => {
+    navigate(key);
+  };
+
+  if (!token) {
+    return <Navigate to="/login" replace={true} />;
+  }
+
+  const renderOpenKeys = () => {
+    const arr = pathname.split("/").slice(0, -1);
+    const result = arr.map(
+      (_, index) => "/" + arr.slice(1, index + 1).join("/")
+    );
+    return result;
+  };
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)} >
-        <div className="demo-logo-vertical" />
+    <Layout style={{ minHeight: "100vh" }}>
+      <Sider
+        style={{
+          overflow: "auto",
+          height: "100vh",
+        }}
+        collapsible
+        collapsed={collapsed}
+        onCollapse={(value) => setCollapsed(value)}
+      >
+        <div
+          style={{
+            height: 0,
+            margin: 16,
+          }}
+        />
         <Menu
           theme="dark"
+          defaultSelectedKeys={[pathname]}
+          defaultOpenKeys={renderOpenKeys()}
           mode="inline"
           items={menuItems}
-          onClick={handleMenuClick}
-          defaultSelectedKeys={[location.pathname]}
+          onClick={onMenuClick}
         />
       </Sider>
-      <Layout>
-        <Content style={{ margin: '0 16px' }}>
-          <Breadcrumb style={{ margin: '16px 0' }} items={breadcrumbItems}/>
-          <div
-            style={{
-              padding: 24,
-              minHeight: 360,
-              background: colorBgContainer,
-              borderRadius: borderRadiusLG,
-            }}
-          >
-            <Outlet/>
-          </div>
+      <Layout className="site-layout">
+        <Header style={{ padding: "0 10px", background: colorBgContainer }}>
+          <HeaderComp />
+        </Header>
+        {/* height：Header和Footer的默认高度是64 */}
+        <Content
+          style={{
+            padding: 8,
+            overflow: "auto",
+            height: `calc(100vh - 128px)`,
+          }}
+        >
+          {isAdmin ? (
+            <Suspense fallback={<Spin size="large" className="content_spin" />}>
+              <Outlet />
+            </Suspense>
+          ) : (
+            <NoAuthPage />
+          )}
         </Content>
-        <Footer style={{ textAlign: 'center' }}>
-          Ant Design ©{new Date().getFullYear()} Created by Ant UED
-        </Footer>
+       
       </Layout>
     </Layout>
   );
-}
+};
+
+export default BasicLayout;
