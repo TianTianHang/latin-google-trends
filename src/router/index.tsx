@@ -35,6 +35,16 @@ export const constantRoutes: RouteType[] = [
 ];
 export const asyncRoutes: RouteType[] = [
   {
+    path:'/keywords',
+    component: lazy(()=>import("@/views/KeywordsView")),
+    meta: {
+      requiresAuth: true,
+      breadcrumb: true,
+      allowedRoles: ["admin"],
+      title: "关键字",
+    },
+  },
+  {
     path: "/tasks",
     component: lazy(() => import("@/views/TaskManagementPage.tsx")),
     meta: {
@@ -56,37 +66,13 @@ export const asyncRoutes: RouteType[] = [
   },
   {
     path: "/subject",
-    element: <Outlet />,
+    component: lazy(() => import("@/views/SubjectView")),
     meta: {
       requiresAuth: true,
       breadcrumb: true,
       allowedRoles: ["user", "admin"],
       title: "主题",
     },
-    children: [
-      {
-        path: "/subject/",
-        component: lazy(() => import("@/views/SubjectManagementView/SubjectCreateView.tsx")),
-        meta: {
-          requiresAuth: true,
-          breadcrumb: true,
-          allowedRoles: ["user", "admin"],
-          title: "主题创建",
-        },
-      },
-      {
-        path: "/subject/list",
-        component: lazy(
-          () => import("@/views/SubjectManagementView/SubjectList.tsx")
-        ),
-        meta: {
-          title: "主题列表",
-          requiresAuth: true,
-          breadcrumb: true,
-          allowedRoles: ["user", "admin"],
-        },
-      },
-    ],
   },
 ];
 // 路由处理方式

@@ -28,14 +28,14 @@ export function createScheduledTask(serviceId: string, data: ScheduledTaskReques
 
 // 查询所有历史任务
 export function listHistoricalTasks(serviceId: string) {
-  return http.get<HistoricalTaskResponse[]>(api.listHistoricalTasks, {
+  return http.get<HistoricalTaskResponse[]>(api.listHistoricalTasks,undefined, {
     headers: { 'X-Service-ID': serviceId }
   });
 }
 
 // 查询所有定时任务
 export function listScheduledTasks(serviceId: string) {
-  return http.get<ScheduledTaskResponse[]>(api.listScheduledTasks, {
+  return http.get<ScheduledTaskResponse[]>(api.listScheduledTasks, undefined,{
     headers: { 'X-Service-ID': serviceId }
   });
 }

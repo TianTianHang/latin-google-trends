@@ -1,10 +1,10 @@
 export type TimeInterest= {
-    "time [UTC]": string;
-    isPartial: boolean;
+    time_utc: string;
+    is_partial: boolean;
 } & Record<string, number>;
 export type RegionInterest= {
-    geoName: string;
-    geoCode: string;
+    geo_name: string;
+    geo_code: string;
 } & Record<string, number>;
 
 export interface RegionInterestResponse {

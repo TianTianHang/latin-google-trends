@@ -44,14 +44,15 @@ export interface CreateSubjectResponse {
 }
 
 export interface ListSubjectResponse {
-  subject_id: string;
+  subject_id: number;
   name: string;
   description:string
   status: string;
   data_num: number;
 }
 export interface SubjectDataResponse{
-  subject_id: string;
+  id:number;
+  subject_id: number;
   data_type: string;
   data: Array<TimeInterest>[]|Array<RegionInterest>[];
   meta: SubjectDataMeta[];

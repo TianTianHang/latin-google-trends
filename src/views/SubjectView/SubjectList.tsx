@@ -1,33 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Card, List, message, Table } from "antd";
-import { getSubjectList, getSubjectData } from "@/api/subject";
 import { useTranslation } from "react-i18next";
-import { ListSubjectResponse, SubjectDataResponse } from "@/types/subject";
+import { useSubjectStore } from "@/stores/useSubjectStore";
 
 const SubjectList = () => {
-  const [subjects, setSubjects] = useState<ListSubjectResponse[]>([]);
-  const [subjectData, setSubjectData] = useState<SubjectDataResponse[]>([]);
   const { t } = useTranslation();
+  const { allSubjects, subjectData, fetchAllSubjects, selectSubject } = useSubjectStore();
 
   useEffect(() => {
-    const fetchSubjects = async () => {
-      try {
-        const response = await getSubjectList();
-        setSubjects(response);
-      } catch (error) {
-        message.error(
-          t("subject.fetchFailed", { error: (error as Error).message })
-        );
-      }
-    };
+    fetchAllSubjects();
+  }, [fetchAllSubjects]);
 
-    fetchSubjects();
-  }, [t]);
-
-  const handleShowData = async (subjectId: string) => {
+  const handleShowData = async (subjectId: number) => {
     try {
-      const data = await getSubjectData(subjectId);
-      setSubjectData(data);
+      await selectSubject(subjectId);
       message.success(t("subject.dataFetched"));
     } catch (error) {
       message.error(
@@ -48,10 +34,10 @@ const SubjectList = () => {
   };
 
   return (
-    <div>
+    <Card className="h-screen">
       <List
         grid={{ gutter: 16, column: 4 }}
-        dataSource={subjects}
+        dataSource={allSubjects}
         renderItem={(subject) => (
           <List.Item>
             <Card
@@ -100,7 +86,7 @@ const SubjectList = () => {
           />
         ))}
       </div>
-    </div>
+    </Card>
   );
 };
 

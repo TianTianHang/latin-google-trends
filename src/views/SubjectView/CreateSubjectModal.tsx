@@ -1,19 +1,9 @@
-import {
-  Form,
-  Input,
-  Button,
-  Space,
-  Card,
-  message,
-  Typography,
-  Select,
-  DatePicker,
-} from "antd";
+import React from "react";
+import { Modal, Form, Input, Button, Space, Select, DatePicker, message } from "antd";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { createSubject } from "@/api/subject";
 import { useTranslation } from "react-i18next";
 import { useUserStore } from "@/stores/user";
-import { useNavigate } from "react-router-dom";
 import type { RealtimeTask, HistoricalTask, HistoricalTaskStringDate, RealtimeTaskStringDate } from "@/types/subject";
 const countries = [
   { name: "World", code: "World" },
@@ -43,22 +33,23 @@ const countries = [
   { name: "Brazil", code: "BR" },
   { name: "Brunei", code: "BN" },
 ];
-
 const { Option } = Select;
 
 interface FormValues {
-  name:string;
+  name: string;
   parameters: Array<RealtimeTask | HistoricalTask>;
-  description:string;
+  description: string;
 }
 
-const SubjectCreateView = () => {
+interface CreateSubjectModalProps {
+  visible: boolean;
+  onClose: () => void;
+}
+
+const CreateSubjectModal: React.FC<CreateSubjectModalProps> = ({ visible, onClose }) => {
   const [form] = Form.useForm<FormValues>();
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { id } = useUserStore();
-
-  // ...
 
   const onFinish = async (values: FormValues) => {
     try {
@@ -93,6 +84,7 @@ const SubjectCreateView = () => {
       const { subject_id } = await createSubject(formattedValues);
       message.success(t("subject.createSuccess", { subject_id }));
       form.resetFields();
+      onClose();
     } catch (error: unknown) {
       if (error instanceof Error) {
         message.error(t("subject.createFailed", { error: error.message }));
@@ -114,20 +106,12 @@ const SubjectCreateView = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <Card
-        title={
-          <Typography.Title level={3} className="mb-0">
-            {t("subject.createTitle")}
-          </Typography.Title>
-        }
-        extra={
-          <Typography.Text type="secondary">
-            {t("subject.createSubTitle")}
-          </Typography.Text>
-        }
-        className="mb-6"
-      />
+    <Modal
+      open={visible}
+      title={t("subject.createTitle")}
+      onCancel={onClose}
+      footer={null}
+    >
       <Form
         form={form}
         layout="vertical"
@@ -233,7 +217,7 @@ const SubjectCreateView = () => {
                     ]}
                   >
                     <Select showSearch placeholder={t("subject.enterGeoCode")}>
-                      {countries.map((country) => (
+                      {countries.map((country: { name: string; code: string }) => (
                         <Option key={country.code} value={country.code}>
                           {country.name}
                         </Option>
@@ -346,11 +330,8 @@ const SubjectCreateView = () => {
           </Button>
         </Form.Item>
       </Form>
-      <Button type="link" onClick={() => navigate('/subject/list')}>
-        {t("subject.viewAll")}
-      </Button>
-    </div>
+    </Modal>
   );
 };
 
-export default SubjectCreateView;
+export default CreateSubjectModal;

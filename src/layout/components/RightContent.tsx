@@ -1,14 +1,11 @@
-import React, { ChangeEvent } from "react";
-import { Avatar, Dropdown, MenuProps, Button, Input, Badge, Space, Col, Row } from "antd";
-import { SkinOutlined, BellOutlined } from "@ant-design/icons";
-import { debounce } from "@/utils/func";
-import styles from "../index.module.scss";
-import { useGlobalStore } from "@/stores/global";
+import React from "react";
+import { Avatar, Dropdown, MenuProps, Space, Col, Row } from "antd";
+import { BellOutlined } from "@ant-design/icons";
 import { useUserStore } from "@/stores/user";
+import LanguageSwitcher from './LanguageSwitcher';
 
 const RightContent: React.FC = () => {
   const { resetToken } = useUserStore();
-  const { setColor, primaryColor } = useGlobalStore();
   const logoutHandle = () => {
     resetToken();
   };
@@ -19,28 +16,14 @@ const RightContent: React.FC = () => {
     },
   ];
 
-  const changeMainColor = (e: ChangeEvent<HTMLInputElement>) => {
-    setColor(e.target.value);
-  };
-
   return (
     <Space size={20}>
       <Row gutter={16} align="middle">
-        <Col>
-          <Badge count={12}>
-            <BellOutlined style={{ fontSize: 24 }} />
-          </Badge>
+      <Col>
+          <LanguageSwitcher />
         </Col>
         <Col>
-          <div className={styles.skin}>
-            <Button type="primary" shape="circle" icon={<SkinOutlined />} />
-            <Input
-              type="color"
-              className={styles.skin_input}
-              defaultValue={primaryColor}
-              onChange={debounce(changeMainColor, 500)}
-            />
-          </div>
+        <BellOutlined style={{ fontSize: 24 }} />
         </Col>
         <Col>
           <Dropdown menu={{ items }} placement="bottomRight">
