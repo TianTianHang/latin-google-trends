@@ -74,6 +74,16 @@ export const asyncRoutes: RouteType[] = [
       title: "主题",
     },
   },
+  {
+    path:"/test",
+    component:  lazy(()=>import("@/views/VisualEditorView")),
+    meta: {
+      requiresAuth: true,
+      breadcrumb: true,
+      allowedRoles: ["user", "admin"],
+      title: "测试",
+    },
+  }
 ];
 // 路由处理方式
 const generateRouter = (routers: RouteType[]) => {

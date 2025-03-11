@@ -66,3 +66,8 @@ export interface SubjectDataMeta{
 }
 
 
+export interface SubjectDataUpdate{
+  add_collection_ids?:number[];
+  delete_collection_ids?:number[];
+}
+

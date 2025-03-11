@@ -5,8 +5,10 @@ export const useContainerSize = () => {
   const [size, setSize] = useState({ width: 0, height: 0 }); // 容器的尺寸状态
 
   useEffect(() => {
+ 
     if (!containerRef.current) return;
-
+    
+    const  observerRefValue = containerRef.current; 
     // 创建 ResizeObserver 监听容器尺寸变化
     const resizeObserver = new ResizeObserver((entries) => {
       const { width, height } = entries[0].contentRect; // 获取容器的宽度和高度
@@ -14,12 +16,12 @@ export const useContainerSize = () => {
     });
 
     // 开始监听容器
-    resizeObserver.observe(containerRef.current);
-
+    resizeObserver.observe(observerRefValue);
+   
     // 清理函数：组件卸载时取消监听
     return () => {
-      if (containerRef.current) {
-        resizeObserver.unobserve(containerRef.current);
+      if (observerRefValue) {
+        resizeObserver.unobserve(observerRefValue);
       }
     };
   }, []);

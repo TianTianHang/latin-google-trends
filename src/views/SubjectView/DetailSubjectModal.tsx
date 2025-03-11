@@ -11,7 +11,7 @@ interface DetailSubjectModalProps {
 }
 
 const DetailSubjectModal = ({ visible, subject_id, onClose }: DetailSubjectModalProps) => {
-  const { subjectData, selectSubject } = useSubjectStore();
+  const { subjectDatas, selectSubject } = useSubjectStore();
   
   useEffect(() => {
     if(!subject_id) return
@@ -29,7 +29,7 @@ const DetailSubjectModal = ({ visible, subject_id, onClose }: DetailSubjectModal
       footer={null}
     >
       <Collapse accordion>
-        {subjectData && subjectData.map((data, index) => (
+        {subjectDatas && subjectDatas.map((data, index) => (
           <Panel 
             header={`SubjectData #${index+1}`} 
             key={index}

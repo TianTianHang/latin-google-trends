@@ -26,13 +26,13 @@ const { Content } = Layout;
 const { Title, Text } = Typography;
 
 export default function DashboardView() {
-  const { regionInterests, timeInterests, loading, subjectData } =
+  const { regionInterests, timeInterests, loading, subjectDatas } =
     useSubjectStore(
       useShallow((state) => ({
         regionInterests: state.regionInterests,
         timeInterests: state.timeInterests,
         loading: state.loading,
-        subjectData: state.subjectData,
+        subjectDatas: state.subjectDatas,
       }))
     );
 
@@ -73,13 +73,13 @@ export default function DashboardView() {
 
   useEffect(() => {
     const init = async () => {
-      await selectSubject("1");
+      await selectSubject(1);
     };
     init();
   }, []);
   useEffect(() => {
     if (loading) return;
-    parseSubjectData(subjectData);
+    parseSubjectData(subjectDatas);
   }, [loading]);
 
   const handleSliderChange = (value: number) => {
@@ -111,7 +111,7 @@ export default function DashboardView() {
                                 value: interest[
                                   regionData.meta.keywords?.[0]
                                 ] as number,
-                                geo_code: interest.geoCode,
+                                geo_code: interest.geo_code,
                               }))
                             : []
                         }

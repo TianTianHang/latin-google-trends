@@ -6,12 +6,14 @@ import { useEffect, useState } from "react";
 import { useSubjectStore } from "@/stores/useSubjectStore";
 import DetailSubjectModal from "./DetailSubjectModal";
 import { ListSubjectResponse } from "@/types/subject";
+import EditSubjectModal from "./EditSubjectModal";
 
 const SubjectManagement = () => {
   const { t } = useTranslation();
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [detailModalVisible, setDetailModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
   const [selectedSubjectId, setSelectedSubjectId] = useState<number | null>(null);
   const { allSubjects, fetchAllSubjects } = useSubjectStore();
   const showModal = () => {
@@ -37,8 +39,14 @@ const SubjectManagement = () => {
         subject_id={selectedSubjectId} 
         onClose={() => setDetailModalVisible(false)} 
       />
+      <EditSubjectModal
+         visible={editModalVisible} 
+         subject_id={selectedSubjectId} 
+         onClose={() => setEditModalVisible(false)} 
+      />
       <Table
         dataSource={allSubjects}
+        rowKey="subject_id"
         columns={[
           {
             title: t("subject.name"),
@@ -89,7 +97,12 @@ const SubjectManagement = () => {
                 >
                   {t("subject.details")}
                 </Button>
-                <Button type="link">{t("subject.edit")}</Button>
+                <Button type="primary"
+                onClick={() => {
+                  setSelectedSubjectId(value.subject_id);
+                  setEditModalVisible(true);
+                }}
+                >{t("subject.edit")}</Button>
                 <Button type="link" danger>
                   {t("subject.delete")}
                 </Button>

@@ -5,7 +5,7 @@ import { useSubjectStore } from "@/stores/useSubjectStore";
 
 const SubjectList = () => {
   const { t } = useTranslation();
-  const { allSubjects, subjectData, fetchAllSubjects, selectSubject } = useSubjectStore();
+  const { allSubjects, subjectDatas, fetchAllSubjects, selectSubject } = useSubjectStore();
 
   useEffect(() => {
     fetchAllSubjects();
@@ -76,7 +76,7 @@ const SubjectList = () => {
         )}
       />
       <div className="h-1/2">
-        {subjectData.map((data, i) => (
+        {subjectDatas.map((data, i) => (
           <Table
             key={i}
             columns={generateColumns(data.data_type, data.data.flat())}

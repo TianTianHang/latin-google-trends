@@ -5,8 +5,9 @@ import zhCN from "antd/locale/zh_CN";
 import { BrowserRouter } from "react-router";
 import { AppRouter } from "./router";
 import RouterBeforeEach from "./router/permission";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 function App() {
- 
+  const queryClient = new QueryClient();
   return (
     <StyleProvider layer>
       <ConfigProvider
@@ -17,12 +18,15 @@ function App() {
           },
         }}
       >
-        <Suspense fallback={<Spin size="large" className="globa_spin" />}>
+        <QueryClientProvider client={queryClient}>
+          <Suspense fallback={<Spin size="large" className="globa_spin" />}>
           <BrowserRouter>
             <AppRouter />
             <RouterBeforeEach />
           </BrowserRouter>
         </Suspense>
+        </QueryClientProvider>
+        
       </ConfigProvider>
     </StyleProvider>
   );

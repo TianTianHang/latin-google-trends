@@ -10,7 +10,7 @@ import { zip } from "lodash";
 
 interface SubjectState {
   currentSubject: ListSubjectResponse | null;
-  subjectData: SubjectDataResponse[];
+  subjectDatas: SubjectDataResponse[];
   allSubjects: ListSubjectResponse[];
   loading: boolean;
   error: string | null;
@@ -19,20 +19,21 @@ interface SubjectState {
   selectSubject: (subject_id: number) => Promise<void>;
   clearSelection: () => void;
   fetchAllSubjects: () => Promise<void>;
-  parseSubjectData(subjectData: SubjectDataResponse[]): void;
+  parseSubjectData:(subjectData: SubjectDataResponse[])=>void;
+  claerParse:() =>void;
 }
 export const useSubjectStore = create<SubjectState>((set) => ({
   currentSubject: null,
-  subjectData: [],
+  subjectDatas: [],
   allSubjects: [],
   loading: false,
   error: null,
   timeInterests: [],
   regionInterests: [],
-  parseSubjectData: (subjectData) => {
+  parseSubjectData: (subjectDatas) => {
     const timeInterests:{ interests: TimeInterest[]; meta: SubjectDataMeta }[] = [];
     const regionInterests: { interests: RegionInterest[]; meta: SubjectDataMeta }[] = [];
-    for (const data of subjectData) {
+    for (const data of subjectDatas) {
       if (data.data_type == "time") {
         for (const [interests, meta] of zip(data.data as TimeInterest[][], data.meta)) {
           if (interests && meta) {
@@ -57,9 +58,10 @@ export const useSubjectStore = create<SubjectState>((set) => ({
         subject = await getSubject(subject_id);
       }
       const data = await getSubjectData(subject_id);
+      useSubjectStore.getState().parseSubjectData(data);
       set({
         currentSubject: subject,
-        subjectData: data,
+        subjectDatas: data,
         loading: false,
       });
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -73,7 +75,7 @@ export const useSubjectStore = create<SubjectState>((set) => ({
   clearSelection: () => {
     set({
       currentSubject: null,
-      subjectData: [],
+      subjectDatas: [],
       error: null,
     });
   },
@@ -92,4 +94,10 @@ export const useSubjectStore = create<SubjectState>((set) => ({
       });
     }
   },
+  claerParse:()=>{
+    set({
+      timeInterests:[],
+      regionInterests:[]
+    })
+  }
 }));

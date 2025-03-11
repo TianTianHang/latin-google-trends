@@ -1,4 +1,4 @@
-import { CreateSubjectParams, CreateSubjectResponse, ListSubjectResponse, SubjectDataResponse } from '@/types/subject';
+import { CreateSubjectParams, CreateSubjectResponse, ListSubjectResponse, SubjectDataResponse, SubjectDataUpdate } from '@/types/subject';
 import http from '@/utils/request';
 
 const api = {
@@ -6,6 +6,7 @@ const api = {
   data: '/query/subject/{subject_id}/data',
   list: '/query/subject/list',
   subject: '/query/subject/{subject_id}',
+  updateSubjectData: '/query/subjectData/{subject_data_id}/update'
 };
 
 export function createSubject(data: CreateSubjectParams) {
@@ -19,4 +20,9 @@ export function getSubjectData(subject_id: number) {
 }
 export function getSubjectList() {
   return http.get<ListSubjectResponse[]>(api.list);
+}
+
+export function updateSubjectData(subject_data_id:number,data:SubjectDataUpdate){
+  const url=api.updateSubjectData.replace("{subject_data_id}",subject_data_id.toString())
+  return http.put<SubjectDataResponse>(url,data)
 }
