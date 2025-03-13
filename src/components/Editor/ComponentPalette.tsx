@@ -20,6 +20,7 @@ export const ComponentPalette = () => {
           className="palette-item"
           draggable
           onDragStart={(e) => handleDragStart(e, r.meta.type)}
+          unselectable="on"
           onClick={() =>
             addComponent({
               type: r.meta.type,

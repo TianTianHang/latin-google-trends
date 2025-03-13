@@ -5,6 +5,7 @@ import {
   PropsType,
   RegisteredComponent,
 } from "./types";
+import { Layout } from "react-grid-layout";
 
 export const useEditorStore = create<EditorStore>((set, get) => ({
   registered: new Map<string, RegisteredComponent<PropsType>>(),
@@ -23,9 +24,11 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     });
   },
   addComponent: (component) => {
+    const id=crypto.randomUUID();
+    (component.layout as Layout).i=id;
     const newComponent = {
       ...component,
-      id: crypto.randomUUID(),
+      id: id,
     } as ComponentData<PropsType>;
     set((state) => ({
       components: [...state.components, newComponent],

@@ -1,5 +1,5 @@
 import { RegisteredComponent } from "@/components/Editor/types";
-import { Card, Image} from "antd";
+import { Card} from "antd";
 
 // 定义组件属性类型
 interface ImageProps {
@@ -17,7 +17,7 @@ interface ImageProps {
   }) => {
     return (
       <Card className="h-full">
-        <Image src={src} alt={alt} style={{ width, height }} />
+        <img src={src} alt={alt} style={{ width, height }} />
       </Card>
     );
   };
@@ -37,8 +37,8 @@ interface ImageProps {
       defaultLayout: {
         x: 0,
         y: 0,
-        w: 8,
-        h: 6,
+        w: 1,
+        h: 1,
       },
       propSchema: {
         src: {

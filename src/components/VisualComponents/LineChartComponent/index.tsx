@@ -8,11 +8,11 @@ import { LineChartOutlined } from "@ant-design/icons";
 import { Card } from "antd";
 
 interface LineChartProps {
-  timeInterests?: {
+  timeInterests?:{
     interests: TimeInterest[];
     meta: SubjectDataMeta;
   }[];
-  lineColors?: string[];
+  lineColors?: string[]|string;
   title?: string;
   width: number;
   height: number;
@@ -41,24 +41,28 @@ const LineChart: React.FC<LineChartProps> = ({
     return () => {
       resizeObserver.disconnect();
     };
-  }, []);
+  }, [cardRef.current,echartsRef.current]);
+  //@ts-expect-error 没问题
   const option: EChartsOption = useMemo(() => {
-    if (timeInterests) {
-      const series = timeInterests.flatMap((group) => {
+  if (timeInterests&&timeInterests.length>0) {
+      if(!Array.isArray(lineColors)){
+        lineColors=lineColors.split(",");
+      }
+      const series = timeInterests.flatMap((group,gindex) => {
         return group.meta.keywords.map((keyword: string, index: number) => {
           return {
+            type: 'line',
             name: keyword,
-
             data: group.interests.map((interest: TimeInterest) => [
               new Date(interest.time_utc).getTime(),
               interest[keyword],
             ]),
             itemStyle: {
-              color: lineColors?.[index % lineColors.length],
+              color: lineColors?.[(index+gindex) % lineColors.length],
             },
           };
         });
-      });
+      }).flat();
 
       return {
         title: {
@@ -140,13 +144,14 @@ const LineChart: React.FC<LineChartProps> = ({
         ],
       };
     }
-  }, [timeInterests, lineColors, title]);
+  }, [timeInterests?.length, lineColors, title]);
 
   return (
     <Card className="w-full h-full" ref={cardRef}>
       <ReactECharts
         ref={echartsRef}
-        autoResize={false}
+        autoResize={true}
+        notMerge
         option={option}
         opts={{ renderer: "canvas" }}
       />
@@ -173,15 +178,16 @@ export const RegisteredLineChart: RegisteredComponent<LineChartProps> = {
       // 默认布局配置（假设 Layout 是一个已定义的接口）
       x: 0,
       y: 0,
-      w: 6,
-      h: 4,
+      w: 4,
+      h: 3,
     },
     propSchema: {
       // 属性编辑器配置
       timeInterests: {
-        type: "text", // 或者根据实际需求选择合适的类型
+        type: "select", // 或者根据实际需求选择合适的类型
         label: "Time Interests",
         placeholder: "Enter time interests",
+        mode:"multiple"
       },
       lineColors: {
         type: "text", // 或者根据实际需求选择合适的类型

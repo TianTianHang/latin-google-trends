@@ -2,7 +2,7 @@
 import { Layout, Responsive, WidthProvider } from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import { useEditorStore } from "./store";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import RightClickMenu from "./RightClickMenu";
 import { PropertyEditor } from "./PropertyEditor";
 //import 'react-resizable/css/styles.css'
@@ -23,7 +23,6 @@ export const Canvas = () => {
   const [selectedComponentId, setSelectedComponentId] = useState<string | null>(
     null
   );
- 
 
   const handleContextMenu = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
@@ -46,22 +45,25 @@ export const Canvas = () => {
     setMenuVisible(false);
   };
 
-  const layouts = useMemo(() => {
+  const [layouts, setLayouts] = useState({});
+  useEffect(() => {
     const layout = components.map((c) => c.layout);
     const layouts: Record<string, Layout[]> = {};
     responsiveMap.forEach((r) => (layouts[r] = layout));
-    return layouts;
+    setLayouts(layouts);
   }, [components]);
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    const type = e.dataTransfer.getData("componentType");
-    const r = registered.get(type);
-    if (r) {
-      addComponent({
-        type: r.meta.type,
-        props: r.meta.defaultProps || {},
-        layout: r.meta.defaultLayout || { x: 0, y: 0, w: 4, h: 2 },
-      });
+  const handleDrop = (_layout: Layout[], item: Layout, e: DragEvent) => {
+    item.w=4
+    const type = e.dataTransfer?.getData("componentType");
+    if (type) {
+      const r = registered.get(type);
+      if (r) {
+        addComponent({
+          type: r.meta.type,
+          props: r.meta.defaultProps || {},
+          layout: item,
+        });
+      }
     }
   };
   const handleDragStop = (
@@ -72,6 +74,7 @@ export const Canvas = () => {
     _event: MouseEvent,
     _element: HTMLElement
   ) => {
+    
     // 在这里可以执行拖拽结束时的逻辑，例如保存新的位置
     layout.forEach((l) => {
       updateLayout(l.i, l);
@@ -85,24 +88,24 @@ export const Canvas = () => {
     _event: MouseEvent,
     element: HTMLElement
   ) => {
-    const width=element.parentElement?.offsetWidth
-    const height=element.parentElement?.offsetHeight
-    console.log(element,width,height)
-    updateProps(newItem.i, { width, height});
+    const width = element.parentElement?.offsetWidth;
+    const height = element.parentElement?.offsetHeight;
+    console.log(element, width, height);
+    updateProps(newItem.i, { width, height });
   };
   return (
-    <div
-      onDrop={handleDrop}
-      onDragOver={(e) => e.preventDefault()}
-      className="h-full"
-    >
+    <div className="h-screen">
       <ResponsiveGridLayout
         className="layout"
+        style={{height:"100%"}}
         layouts={layouts}
+        onDrop={handleDrop}
         breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
         cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
         onDragStop={handleDragStop}
-    
+        isDroppable
+        useCSSTransforms
+        autoSize
       >
         {components.map((comp) => {
           const Component = registered.get(comp.type)?.component;
@@ -112,7 +115,6 @@ export const Canvas = () => {
             <div
               key={comp.id}
               onContextMenu={(e) => handleContextMenu(e, comp.id)}
-              
             >
               <Component {...props} />
               <div className="hidden">

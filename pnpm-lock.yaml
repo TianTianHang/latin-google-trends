@@ -34,6 +34,9 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.67.1
         version: 5.67.1(react@18.3.1)
+      '@types/echarts':
+        specifier: ^5.0.0
+        version: 5.0.0
       '@types/nprogress':
         specifier: ^0.2.3
         version: 0.2.3
@@ -55,6 +58,9 @@ importers:
       echarts:
         specifier: ^5.6.0
         version: 5.6.0
+      echarts-extension-amap:
+        specifier: ^1.12.0
+        version: 1.12.0
       echarts-for-react:
         specifier: ^3.0.3
         version: 3.0.3(echarts@5.6.0)(react@18.3.1)
@@ -1522,6 +1528,10 @@ packages:
   '@types/d3@7.4.3':
     resolution: {integrity: sha512-lZXZ9ckh5R8uiFVt8ogUNf+pIrK4EsWrx2Np75WvF/eTpJ0FMHNhjXk8CKEx/+gpHbNQyJWehbFaTvqmHWB3ww==}
 
+  '@types/echarts@5.0.0':
+    resolution: {integrity: sha512-5uc/16BlYpzH8kU/u8aeRRgY2FV6yRY7RjPnYfUFPowl0F3kvNgfaz09PmeVdLkqdAtMft3XkCfqiJPJjG2DNQ==}
+    deprecated: This is a stub types definition. echarts provides its own type definitions, so you do not need this installed.
+
   '@types/estree@1.0.6':
     resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
 
@@ -2100,6 +2110,9 @@ packages:
 
   earcut@2.2.4:
     resolution: {integrity: sha512-/pjZsA1b4RPHbeWZQn66SWS8nZZWLQQ23oE3Eam7aroEFGEvwKAsJfZ9ytiEMycfzXWpca4FA9QIOehf7PocBQ==}
+
+  echarts-extension-amap@1.12.0:
+    resolution: {integrity: sha512-JpCCLhafpUGSfMcAB44lTnjnNuYWQ1jPuyvOF3t/zziQ1jbDjGLTkhIFenpKMuZOz9GzS4tREXL/zGeNrZpxDw==}
 
   echarts-for-react@3.0.3:
     resolution: {integrity: sha512-KdvZGkCwmx5DTHl7vjo0CBodSaPY31hPWRC4NZ5B+utQfoW+M54OTBvkoCmktR0kJ+1Bj6rP7pIJJnxPdySyug==}
@@ -6011,6 +6024,10 @@ snapshots:
       '@types/d3-transition': 3.0.9
       '@types/d3-zoom': 3.0.8
 
+  '@types/echarts@5.0.0':
+    dependencies:
+      echarts: 5.6.0
+
   '@types/estree@1.0.6': {}
 
   '@types/geojson@7946.0.16': {}
@@ -6688,6 +6705,8 @@ snapshots:
       gopd: 1.2.0
 
   earcut@2.2.4: {}
+
+  echarts-extension-amap@1.12.0: {}
 
   echarts-for-react@3.0.3(echarts@5.6.0)(react@18.3.1):
     dependencies:

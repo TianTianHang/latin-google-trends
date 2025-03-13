@@ -19,8 +19,11 @@ interface SubjectState {
   selectSubject: (subject_id: number) => Promise<void>;
   clearSelection: () => void;
   fetchAllSubjects: () => Promise<void>;
-  parseSubjectData:(subjectData: SubjectDataResponse[])=>void;
-  claerParse:() =>void;
+  parseSubjectData: (subjectData: SubjectDataResponse[]) => {
+    timeInterests: { interests: TimeInterest[]; meta: SubjectDataMeta }[];
+    regionInterests: { interests: RegionInterest[]; meta: SubjectDataMeta }[];
+  };
+  claerParse: () => void;
 }
 export const useSubjectStore = create<SubjectState>((set) => ({
   currentSubject: null,
@@ -31,29 +34,48 @@ export const useSubjectStore = create<SubjectState>((set) => ({
   timeInterests: [],
   regionInterests: [],
   parseSubjectData: (subjectDatas) => {
-    const timeInterests:{ interests: TimeInterest[]; meta: SubjectDataMeta }[] = [];
-    const regionInterests: { interests: RegionInterest[]; meta: SubjectDataMeta }[] = [];
+    const timeInterests: {
+      interests: TimeInterest[];
+      meta: SubjectDataMeta;
+    }[] = [];
+    const regionInterests: {
+      interests: RegionInterest[];
+      meta: SubjectDataMeta;
+    }[] = [];
     for (const data of subjectDatas) {
       if (data.data_type == "time") {
-        for (const [interests, meta] of zip(data.data as TimeInterest[][], data.meta)) {
+        for (const [interests, meta] of zip(
+          data.data as TimeInterest[][],
+          data.meta
+        )) {
           if (interests && meta) {
             timeInterests.push({ interests: interests, meta: meta });
           }
         }
       } else {
-        for (const [interests, meta] of zip(data.data as RegionInterest[][], data.meta)) {
+        for (const [interests, meta] of zip(
+          data.data as RegionInterest[][],
+          data.meta
+        )) {
           if (interests && meta) {
             regionInterests.push({ interests: interests, meta: meta });
           }
         }
       }
     }
-    set(()=>({ timeInterests:[...timeInterests], regionInterests:[...regionInterests] }));
+    //set(()=>({ timeInterests:[...timeInterests], regionInterests:[...regionInterests] }));
+    return {
+      timeInterests: [...timeInterests],
+      regionInterests: [...regionInterests],
+    };
   },
   selectSubject: async (subject_id) => {
     try {
       set({ loading: true, error: null });
-      let subject = useSubjectStore.getState().allSubjects.find(s => s.subject_id === subject_id) || null;
+      let subject =
+        useSubjectStore
+          .getState()
+          .allSubjects.find((s) => s.subject_id === subject_id) || null;
       if (!subject) {
         subject = await getSubject(subject_id);
       }
@@ -94,10 +116,10 @@ export const useSubjectStore = create<SubjectState>((set) => ({
       });
     }
   },
-  claerParse:()=>{
+  claerParse: () => {
     set({
-      timeInterests:[],
-      regionInterests:[]
-    })
-  }
+      timeInterests: [],
+      regionInterests: [],
+    });
+  },
 }));
