@@ -1,210 +1,122 @@
 import {
   ColorPicker,
   Form,
+  FormInstance,
   Input,
   InputNumber,
-  Modal,
   Select,
   Space,
 } from "antd";
 import { useEditorStore } from "./store";
-import { useSubjectStore } from "@/stores/useSubjectStore";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { RegionInterest, TimeInterest } from "@/types/interest";
-import { SubjectDataMeta } from "@/types/subject";
-
-import { getSubjectData } from "@/api/subject";
-import { Schema } from "./types";
+import { ComponentData, PropsType, Schema } from "./types";
 
 interface PropertyEditorProps {
   componentId: string;
-  visible: boolean;
-  onClose: () => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  form: FormInstance<any>
 }
+
 export const PropertyEditor: React.FC<PropertyEditorProps> = ({
   componentId,
-  visible,
-  onClose,
+  form
 }) => {
-  const { components, registered, updateProps } = useEditorStore();
-  const { fetchAllSubjects, allSubjects, parseSubjectData } = useSubjectStore();
-  const [selectedValue, setSelectedValue] = useState<number | null>(null);
-  const [isInterest,setIsInterest]=useState(false);
-  const selectedComponent = useMemo(
-    () => components.find((c) => c.id === componentId),
-    [componentId, components]
-  );
+  const { components, registered, updateProps } =
+    useEditorStore();
 
-  const initialValues = useMemo(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const newChangedValues: Record<string, any> = {};
-    const props = { ...selectedComponent?.props };
-    // 遍历变更值
-    for (const key in props) {
-      if (Object.prototype.hasOwnProperty.call(props, key)) {
-        const value = props[key];
-        // 检查键名是否为 timeInterests 或 regionInterests
-        if (key === "timeInterests") {
-          newChangedValues[key] = Array.isArray(value)?value.map(i=>JSON.stringify(i)):JSON.stringify(value);
-          setIsInterest(true);
-        } else if (key === "regionInterests") {
-          
-          newChangedValues[key] = Array.isArray(value)?value.map(i=>JSON.stringify(i)):JSON.stringify(value);
-          setIsInterest(true);
-        } else {
-          newChangedValues[key] = value;
-        }
-      }
-    }
-    return newChangedValues;
-  }, [selectedComponent?.props]);
-  const [form] = Form.useForm();
-  const [timeInterests, setTimeInterests] = useState<
-    { interests: TimeInterest[]; meta: SubjectDataMeta }[]
-  >([]);
-  const [regionInterests, setRegionInterests] = useState<
-    { interests: RegionInterest[]; meta: SubjectDataMeta }[]
-  >([]);
+  // 初始化selectedComponent状态
+  const [selectedComponent, setSelectedComponent] =
+    useState<ComponentData<PropsType> | null>(null);
+
+  // 初始化propSchema状态
+  const [propSchema, setPropSchema] = useState<{
+    [key: string]: Schema;
+  } | null>(null);
+
+  // 初始化initialValues状态
+  const [initialValues, setInitialValues] = useState<PropsType>({});
+
+  // 使用useEffect来更新状态
   useEffect(() => {
-    const init = async () => {
-      await fetchAllSubjects();
-    };
-    if (allSubjects.length != 0) return;
-    init();
+    // 更新selectedComponent
+    const newSelectedComponent = components.find((c) => c.id === componentId);
+    setSelectedComponent(newSelectedComponent ?? null);
+
+    if (newSelectedComponent) {
+      // 更新propSchema
+      const newRegisteredComponent = registered.get(newSelectedComponent.type);
+      setPropSchema(newRegisteredComponent?.meta?.propSchema ?? null);
+
+      // 更新initialValues
+      setInitialValues(newSelectedComponent.props || {});
+    } else {
+      setPropSchema(null);
+      setInitialValues({});
+    }
+  }, [componentId, components, registered]);
+
+  const renderFormControl = useCallback((type: string, config: Schema) => {
+    switch (type) {
+      case "text":
+        return <Input placeholder={config.placeholder} />;
+      case "number":
+        return <InputNumber style={{ width: "100%" }} />;
+      case "color":
+        return <ColorPicker />;
+      case "select":
+        if (config.options) {
+          return (
+            <Select
+              options={
+                config.options instanceof Array
+                  ? config.options
+                  : config.options()
+              }
+              allowClear
+              mode={config.mode}
+            />
+          );
+        }
+        break;
+      default:
+        return null;
+    }
   }, []);
 
-  const renderFormControl = useCallback(
-    (
-      type: string,
-      config: Schema
-    ) => {
-      switch (type) {
-        case "text":
-          return <Input placeholder={config.placeholder} />;
-        case "number":
-          return <InputNumber style={{ width: "100%" }} />;
-        case "color":
-          return <ColorPicker />;
-        case "select":
-          if (config.label == "Time Interests") {
-            return (
-              <Select
-                mode={config.mode}
-                options={timeInterests.map((i) => ({
-                  label: `${i.meta.keywords.join(",")} ${
-                    i.meta.geo_code ? i.meta.geo_code : "World"
-                  } ${i.meta.timeframe_start}-${i.meta.timeframe_end}`,
-                  value: JSON.stringify(i),
-                }))}
-              />
-            );
-          } else if (config.label == "Region Interests") {
-            return (
-              <Select
-                mode={config.mode}
-                options={regionInterests.map((i) => ({
-                  label: `${i.meta.keywords.join(",")} ${
-                    i.meta.geo_code ? i.meta.geo_code : "World"
-                  } ${i.meta.timeframe_start}-${i.meta.timeframe_end}`,
-                  value: JSON.stringify(i),
-                }))}
-              />
-            );
-          }
-          return <Select options={config.options} />;
-        default:
-          return null;
-      }
+  const handleFinish = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (changedValues: Record<string, any>) => {
+      updateProps(componentId, changedValues);
     },
-    [timeInterests, regionInterests] // 将 timeInterests 和 regionInterests 作为依赖项
+    [componentId, updateProps]
   );
-  if (!selectedComponent) return null;
-  const registeredComponent = registered.get(selectedComponent.type);
-  const propSchema = registeredComponent?.meta.propSchema;
 
-  
+  const formItems = useMemo(() => {
+    if (!propSchema) return null;
+    return Object.entries(propSchema).map(([fieldName, config]) => (
+      <Form.Item
+        key={fieldName}
+        name={fieldName}
+        label={config.label || fieldName}
+      >
+        {renderFormControl(config.type, config)}
+      </Form.Item>
+    ));
+  }, [propSchema, renderFormControl]);
+
+  if (!selectedComponent) return null;
 
   return (
-    <Modal
-      open={visible}
-      onCancel={() => {
-        onClose();
-      }}
-      onOk={() => {
-        form.submit();
-        onClose();
-      }}
-      destroyOnClose
-    >
-      <Space direction="vertical" style={{ width: 240 }}>
-        {isInterest&&(
-          <Select
-          options={allSubjects.map((s) => ({
-            label: s.name,
-            value: s.subject_id,
-          }))}
-          value={selectedValue}
-          onChange={(value) => {
-            setSelectedValue(value);
-            getSubjectData(value).then((subjectDatas) => {
-              const { timeInterests, regionInterests } =
-                parseSubjectData(subjectDatas);
-              setTimeInterests(timeInterests);
-              setRegionInterests(regionInterests);
-            });
-          }}
-        />
-        )}
-        
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={(changedValues) => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const newChangedValues: Record<string, any> = {};
-
-            // 遍历变更值
-            for (const key in changedValues) {
-              if (Object.prototype.hasOwnProperty.call(changedValues, key)) {
-                const value = changedValues[key];
-                // 检查键名是否为 timeInterests 或 regionInterests
-                if (key === "timeInterests") {
-                  if(Array.isArray(value)){
-                    newChangedValues[key] = value.map(i=>JSON.parse(i))
-                  }else{
-                    newChangedValues[key] = [JSON.parse(value)];
-                  }
-                  
-                } else if (key === "regionInterests") {
-                  if(Array.isArray(value)){
-                    newChangedValues[key] = value.map(i=>JSON.parse(i))
-                  }else{
-                    newChangedValues[key] = [JSON.parse(value)];
-                  }
-                } else {
-                  newChangedValues[key] = value;
-                }
-              }
-            }
-
-            // 合并变更值到现有props
-            updateProps(componentId, {
-              ...newChangedValues,
-            });
-          }}
-          initialValues={initialValues}
-        >
-          {propSchema&&Object.entries(propSchema).map(([fieldName, config]) => (
-            <Form.Item
-              key={fieldName}
-              name={fieldName}
-              label={config.label || fieldName}
-            >
-              {renderFormControl(config.type, config)}
-            </Form.Item>
-          ))}
-        </Form>
-      </Space>
-    </Modal>
+    <Space direction="vertical" style={{ width: 240 }}>
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={handleFinish}
+        initialValues={initialValues}
+        preserve={false}
+      >
+        {formItems}
+      </Form>
+    </Space>
   );
 };

@@ -2,7 +2,7 @@
 import { usePermissionStore } from "@/stores/permission";
 import { RouteType } from "@/types/route";
 import { lazy, Suspense, useMemo } from "react";
-import { Outlet, useRoutes } from "react-router-dom";
+import { useRoutes } from "react-router-dom";
 /** 常驻路由 */
 export const constantRoutes: RouteType[] = [
   {

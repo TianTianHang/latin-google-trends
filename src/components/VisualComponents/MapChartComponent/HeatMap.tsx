@@ -1,137 +1,168 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { RegionInterest } from "@/types/interest";
-import { SubjectDataMeta } from "@/types/subject";
 import ReactECharts, { EChartsOption } from "echarts-for-react";
 import "echarts-extension-amap";
 import locData from "./loc_data.json";
 import { RegisteredComponent } from "@/components/Editor/types";
+import { useSubjectStore } from "@/stores/useSubjectStore";
+import { SeriesOption } from "echarts";
+import { Select } from "antd";
+import { useAutoResizeChart } from "../useAutoResizeChart";
 
 interface HeatMapProps {
-  regionInterests: { interests: RegionInterest[]; meta: SubjectDataMeta }[];
+  subjectDataId: number;
 }
 
+const HeatMap: React.FC<HeatMapProps> = ({ subjectDataId }) => {
 
-const HeatMap: React.FC<HeatMapProps> = ({ regionInterests }) => {
-  const echartsRef = useRef<InstanceType<typeof ReactECharts>>(null);
+  const { subjectDatas } = useSubjectStore();
+  const data = useMemo(() => {
+    const subject = subjectDatas.find((s) => s.id == subjectDataId);
+    return subject ? subject : null;
+  }, [subjectDataId, subjectDatas]);
+  const [index, _setIndex] = useState(0);
+  const [selectedKeyword, setSelectedKeyword] = useState<string>();
+  const { cardRef, echartsRef } = useAutoResizeChart();
 
-  useEffect(() => {
-    if (!echartsRef.current) return;
-  }, [echartsRef]);
-  //@ts-expect-error 111
-  const getOption: () => EChartsOption = () => {
-    const data = regionInterests
-      .flatMap((region) =>
-        region.meta.keywords.map((kw) =>
-          region.interests.map((interest) => {
-            const location = locData.find(
-              (loc) => loc.ISO_A2 === interest.geo_code
-            );
+  const dataOption: EChartsOption = useMemo(() => {
+    if (data) {
+      const series: SeriesOption[] = [];
+
+      // 遍历每个 SubjectDataMeta 元素
+      const metaItem = data.meta[index];
+      // 只处理选中的keyword
+      const keyword = selectedKeyword || metaItem.keywords[0];
+      // 检查 data 是否包含 RegionInterest 类型的数据
+      if (data.data instanceof Array && data.data[index] instanceof Array) {
+        // 提取 RegionInterest 数据
+        const regionInterestData = data.data[index] as RegionInterest[];
+
+        // 创建系列数据
+        const seriesData = regionInterestData.map((item) => {
+          const location = locData.find((loc) => loc.ISO_A2 === item.geo_code);
+          if (location?.LABEL_X && location?.LABEL_Y) { // 检查 LABEL_X 和 LABEL_Y 是否都有值
             return {
-              name: interest.geo_name,
+              name: item.geo_name,
               value: [
-                location?.LABEL_X || 0,
-                location?.LABEL_Y || 0,
-                interest[kw],
-                interest.geo_code,
-                kw
+                location.LABEL_X,
+                location.LABEL_Y,
+                item[keyword],
+                item.geo_code,
+                keyword,
               ],
             };
-          })
-        )
-      )
-      .flat();
+          }
+          // 如果 LABEL_X 或 LABEL_Y 无值，则不返回任何内容，相当于跳过该元素
+        }).filter(item => item); // 清除 undefined 值
 
-    return {
-      amap: {
-        viewMode: "3D",
-        center: [105.602725, 37.076636],
-        resizeEnable: true,
-        zoom: 4,
-        mapStyle: "amap://styles/dark",
-        lang: "en",
-        roam: true,
-      },
-      tooltip: {
-        trigger: "item",
-        formatter: function (params) {
-          //@ts-expect-error 111
-          return `geo_name: ${params.name}<br/>geo_code: ${params.value[3]}<br/>keyword: ${params.value[4]}<br/>loc:${params.value[0]}<br/>lan:${params.value[1]}`;
-        },
-      },
-      visualMap: {
-        show: true,
-        right: 20,
-        min: 0,
-        max: 100,
-        seriesIndex: 0,
-        calculable: true,
-        inRange: {
-          color: ['blue', 'blue', 'green', 'yellow', 'red']
-        }
-      },
-      series: [
-        {
-          type: "heatmap",
-          coordinateSystem: "amap",
-          data,
-          encode: {
-            value: 2,
-          },
-          pointSize: 8,
-          blurSize: 8
-        },
-        {
+        // 添加到 series 数组
+        series.push({
           type: "scatter",
           coordinateSystem: "amap",
-          data,
+          data: seriesData,
+          encode: {
+            value: 2,
+          },
+
+          itemStyle: {
+            opacity: 0.1,
+          },
+        });
+        //@ts-expect-error 111
+        series.push({
+          type: "heatmap",
+          coordinateSystem: "amap",
+          data: seriesData,
           encode: {
             value: 2,
           },
           pointSize: 8,
-          itemStyle :{
-            opacity:0.1
-          }
-          
+          blurSize: 8,
+        });
+      }
+
+      return {
+        amap: {
+          viewMode: "3D",
+          center: [105.602725, 37.076636],
+          resizeEnable: true,
+          zoom: 4,
+          mapStyle: "amap://styles/dark",
+          lang: "en",
+          roam: true,
         },
-      ],
-    };
-  };
+        tooltip: {
+          trigger: "item",
+          formatter: function (params) {
+            //@ts-expect-error 111
+            return `value: ${params.value[2]}<br/>geo_name: ${params.name}<br/>geo_code: ${params.value[3]}<br/>keyword: ${params.value[4]}<br/>loc:${params.value[0]}<br/>lan:${params.value[1]}`;
+          },
+        },
+        visualMap: {
+          show: true,
+          right: 20,
+          min: 0,
+          max: 100,
+          seriesIndex: 1,
+          calculable: true,
+          inRange: {
+            color: ["blue", "blue", "green", "yellow", "red"],
+          },
+        },
+        series: series,
+      };
+    } else {
+      return {};
+    }
+  }, [data, index, selectedKeyword]);
 
   return (
-    <ReactECharts
-      ref={echartsRef}
-      autoResize={true}
-      option={getOption()}
-      style={{ height: "100%", width: "100%" }}
-    />
+    <div ref={cardRef} className="h-full">
+      <div className="absolute top-2 right-2 z-10 opacity-0 hover:opacity-100 transition-opacity duration-3000">
+        <Select
+          style={{ width: 200, marginBottom: 16 }}
+          value={selectedKeyword}
+          options={data?.meta[index].keywords.map((kw) => ({
+            label: kw,
+            value: kw,
+          }))}
+          onChange={(value) => setSelectedKeyword(value)}
+        />
+      </div>
+      <ReactECharts
+        ref={echartsRef}
+        autoResize={true}
+        option={dataOption}
+        style={{ height: "100%", width: "100%" }}
+      />
+    </div>
   );
 };
 
 export default HeatMap;
 //注册组件
-export const registeredHeatMapComponent: RegisteredComponent<HeatMapProps> =
-  {
-    meta: {
-      type: "HeatMap",
-      name: "热力地图组件",
-      icon: <span>🗺️</span>,
-      defaultProps: {
-        regionInterests: [],
-      },
-      defaultLayout: {
-        x: 0,
-        y: 0,
-        w: 2,
-        h: 2,
-      },
-      propSchema: {
-        regionInterests: {
-          type: "select", // 或者根据实际需求选择合适的类型
-          label: "Region Interests",
-          placeholder: "Enter region interests",
-          mode:"multiple"
+export const registeredHeatMapComponent: RegisteredComponent<HeatMapProps> = {
+  meta: {
+    type: "HeatMap",
+    name: "热力地图组件",
+    icon: <span>🗺️</span>,
+
+    propSchema: {
+      subjectDataId: {
+        type: "select", // 或者根据实际需求选择合适的类型
+        label: "Subject Data Id",
+        placeholder: "Enter Subject Data Id",
+        options: () => {
+          return useSubjectStore
+            .getState()
+            .subjectDatas.filter((s) => s.data_type == "region")
+            .map((s) => ({
+              label: `${s.data_type}-${s.timestamp}-${s.id}`,
+              value: s.id,
+            }));
         },
       },
     },
-    component: HeatMap,
-  };
+  },
+  component: HeatMap,
+};

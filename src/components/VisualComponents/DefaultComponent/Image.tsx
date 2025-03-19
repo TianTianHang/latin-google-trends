@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { RegisteredComponent } from "@/components/Editor/types";
 import { Card} from "antd";
 
@@ -5,19 +6,15 @@ import { Card} from "antd";
 interface ImageProps {
     src: string;
     alt: string;
-    width: number;
-    height: number;
   }
   // 定义组件
   const ImageComponent: React.ComponentType<ImageProps> = ({
     src,
-    alt,
-    width,
-    height,
+    alt
   }) => {
     return (
-      <Card className="h-full">
-        <img src={src} alt={alt} style={{ width, height }} />
+      <Card className="h-full w-full">
+        <img src={src} alt={alt} />
       </Card>
     );
   };
@@ -29,16 +26,8 @@ interface ImageProps {
       name: "图片组件",
       icon: <span>🖼️</span>,
       defaultProps: {
-        src: "https://via.placeholder.com/150",
+        src: "https://pic1.zhimg.com/v2-5ae520839cbca3eb8561a44abdac2a54_720w.jpg?source=172ae18b",
         alt: "占位图片",
-        width: 150,
-        height: 100,
-      },
-      defaultLayout: {
-        x: 0,
-        y: 0,
-        w: 1,
-        h: 1,
       },
       propSchema: {
         src: {
@@ -48,15 +37,7 @@ interface ImageProps {
         alt: {
           type: "text",
           label: "替代文字",
-        },
-        width: {
-          type: "number",
-          label: "宽度",
-        },
-        height: {
-          type: "number",
-          label: "高度",
-        },
+        }
       },
     },
     component: ImageComponent,

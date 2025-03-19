@@ -8,6 +8,7 @@ export interface Meta{
     allowedRoles?:string[],
     permissionKey?:string,
     breadcrumb?: boolean; // 可选：单独控制是否显示在面包屑
+    
 }
 export type RouteType = RouteObject & {
     name?:string

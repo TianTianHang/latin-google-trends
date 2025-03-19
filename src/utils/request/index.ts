@@ -33,7 +33,7 @@ const get = <T>(
  */
 const post = <T>(
   url: string,
-  data?: string | object,
+  data?: string | object|boolean,
   config?: AxiosRequestConfig
 ): Promise<T> => {
   config = {

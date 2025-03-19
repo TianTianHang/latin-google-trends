@@ -10,7 +10,7 @@ import {
 } from "antd";
 import { useEffect, useState } from "react";
 import { Footer } from "antd/es/layout/layout";
-import GlobalMoranIndex from "@/components/VisualComponents/GlobalMoranIndex";
+import GlobalMoranIndex from "@/components/VisualComponents/DefaultComponent/GlobalMoranIndex";
 import { useSubjectStore } from "@/stores/useSubjectStore";
 import { RegionInterest, TimeInterest } from "@/types/interest";
 import { SubjectDataMeta } from "@/types/subject";

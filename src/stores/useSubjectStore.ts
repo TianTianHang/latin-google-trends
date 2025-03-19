@@ -25,7 +25,7 @@ interface SubjectState {
   };
   claerParse: () => void;
 }
-export const useSubjectStore = create<SubjectState>((set) => ({
+export const useSubjectStore = create<SubjectState>((set,get) => ({
   currentSubject: null,
   subjectDatas: [],
   allSubjects: [],
@@ -73,14 +73,13 @@ export const useSubjectStore = create<SubjectState>((set) => ({
     try {
       set({ loading: true, error: null });
       let subject =
-        useSubjectStore
-          .getState()
+      get()
           .allSubjects.find((s) => s.subject_id === subject_id) || null;
       if (!subject) {
         subject = await getSubject(subject_id);
       }
       const data = await getSubjectData(subject_id);
-      useSubjectStore.getState().parseSubjectData(data);
+      get().parseSubjectData(data);
       set({
         currentSubject: subject,
         subjectDatas: data,

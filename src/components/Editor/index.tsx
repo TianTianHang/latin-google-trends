@@ -1,24 +1,19 @@
 import { Layout } from "antd";
 import { Canvas } from "./Canvas";
-import { ComponentPalette } from "./ComponentPalette";
-import { useState } from "react";
-import { useRegisterComponent } from "../VisualComponents";
 
-const {Content,Sider}=Layout
+import { useRegisterComponent } from "../VisualComponents";
+import useLink from "./useLink";
+
+const {Content}=Layout
 
 const VisualEditor = () => {
-  useRegisterComponent()
-  const [siderVisible] = useState(true);
+  useRegisterComponent();
+  useLink();
   return (
     <Layout className="editor h-full">
       <Content className="editor-body">
         <Canvas />
       </Content>
-      {siderVisible && (
-        <Sider width="10%" className="bg-white border-black">
-          <ComponentPalette />
-        </Sider>
-      )}
     </Layout>
   );
 };

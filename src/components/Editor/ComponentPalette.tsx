@@ -2,7 +2,9 @@ import {  List, Typography } from "antd";
 import { useEditorStore } from "./store";
 
 export const ComponentPalette = () => {
-  const { addComponent, registered } = useEditorStore();
+  const [addComponent, registered, currentLayouts ] = useEditorStore(state=>[
+    state.addComponent,state.registered,state.currentLayouts
+  ]);
 
   const handleDragStart = (e: React.DragEvent, type: string) => {
     e.dataTransfer.setData("componentType", type);
@@ -25,7 +27,7 @@ export const ComponentPalette = () => {
             addComponent({
               type: r.meta.type,
               props: r.meta.defaultProps || {},
-              layout: r.meta.defaultLayout || { x: 0, y: 0, w: 4, h: 2 },
+              position: currentLayouts.findIndex(layout=>!layout.i)
             })
           }
         >

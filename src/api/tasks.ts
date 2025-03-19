@@ -59,7 +59,7 @@ export function retryHistoricalTask(serviceId: string, taskId: number) {
 // 切换定时任务状态
 export function toggleScheduledTask(serviceId: string, taskId: number, enabled: boolean) {
   const url = api.toggleScheduledTask.replace('{task_id}', taskId.toString());
-  return http.post<{ message: string }>(url, { enabled }, {
-    headers: { 'X-Service-ID': serviceId }
+  return http.post<{ message: string }>(url, enabled, {
+    headers: { 'X-Service-ID': serviceId },
   });
 }
