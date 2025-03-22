@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 
 import ReactECharts, { EChartsOption } from "echarts-for-react";
 import "echarts-extension-amap";
@@ -7,6 +7,7 @@ import { RegisteredComponent } from "@/components/Editor/types";
 
 interface MultiKeywordMapProps {
   subjectDataId?: number;
+  index:number;
 }
 import icon1 from "./icons/peitubiaotouxiang-.png";
 import icon2 from "./icons/touxiang_qinglvtouxiangnansheng3.png";
@@ -19,16 +20,14 @@ import icon8 from "./icons/touxiangshangchuan-datouxiang.png";
 import { useSubjectStore } from "@/stores/useSubjectStore";
 import { SeriesOption } from "echarts";
 import { RegionInterest } from "@/types/interest";
+import { Empty } from "antd";
+import { useSubjectData } from "@/hooks/useSubjectData";
 const icons = [icon1, icon2, icon3, icon4, icon5, icon6, icon7, icon8];
 
-const MultiKeywordMap: React.FC<MultiKeywordMapProps> = ({ subjectDataId }) => {
+const MultiKeywordMap: React.FC<MultiKeywordMapProps> = ({ subjectDataId,index }) => {
   const echartsRef = useRef<InstanceType<typeof ReactECharts>>(null);
-  const { subjectDatas } = useSubjectStore();
-  const data = useMemo(() => {
-    const subject = subjectDatas.find((s) => s.id == subjectDataId);
-    return subject ? subject : null;
-  }, [subjectDataId, subjectDatas]);
-  const [index, _setIndex] = useState(0);
+  const data=useSubjectData(subjectDataId)
+  
   useEffect(() => {
     if (!echartsRef.current) return;
   }, [echartsRef]);
@@ -114,12 +113,13 @@ const MultiKeywordMap: React.FC<MultiKeywordMapProps> = ({ subjectDataId }) => {
   }, [data, index]);
 
   return (
+    Object.keys(dataOption).length >0?
     <ReactECharts
       ref={echartsRef}
       autoResize={true}
       option={dataOption}
       style={{ height: "100%", width: "100%" }}
-    />
+    />: <Empty />
   );
 };
 
@@ -131,7 +131,9 @@ export const registeredMultiKeywordMapComponent: RegisteredComponent<MultiKeywor
       type: "MultiKeywordMap",
       name: "多关键词地图组件",
       icon: <span>🗺️</span>,
-
+      defaultProps:{
+        index:0
+      },
       propSchema: {
         subjectDataId: {
           type: "select", // 或者根据实际需求选择合适的类型

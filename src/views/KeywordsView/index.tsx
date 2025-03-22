@@ -1,6 +1,5 @@
  import { Tabs } from 'antd';
 import KeywordsList from './KeywordsList';
-import KeywordsManagement from './KeywordsManagement';
 
 const KeywordsView = () => {
   const items = [
@@ -8,11 +7,6 @@ const KeywordsView = () => {
       key: '1',
       label: '关键词列表',
       children: <KeywordsList />,
-    },
-    {
-      key: '2',
-      label: '关键词管理',
-      children: <KeywordsManagement />,
     },
   ];
 

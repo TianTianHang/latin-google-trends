@@ -1,144 +1,118 @@
-import { useState, useEffect } from 'react';
-import { Button, Form, Input, Modal, Select, message } from 'antd';
-import { 
+import React, { useState } from "react";
+import { Button, Form, Input, Modal, Select, message } from "antd";
+import { useRequest } from "ahooks";
+import {
   createKeyword,
-  updateKeyword,
+  getCategories,
   createCategory,
-  updateCategory,
-  createDefinition,
-  updateDefinition,
-  getCategories
-} from '@/api/keywords';
-import type { KeywordResponse, CategoryResponse, DefinitionResponse, KeywordData, CategoryData } from '@/types/keywords';
+} from "@/api/keywords";
+import type {
+  KeywordResponse,
+  CategoryResponse,
+  DefinitionResponse,
+} from "@/types/keywords";
 
-const KeywordsManagement = () => {
+interface ModalState {
+  keyword: { visible: boolean; data: KeywordResponse | null };
+  category: { visible: boolean; data: CategoryResponse | null };
+ 
+}
+
+const KeywordsManagement: React.FC = () => {
+  const [modalState, setModalState] = useState<ModalState>({
+    keyword: { visible: false, data: null },
+    category: { visible: false, data: null },
+  
+  });
+
   const [keywordForm] = Form.useForm();
   const [categoryForm] = Form.useForm();
-  const [definitionForm] = Form.useForm();
-  const [isKeywordModalVisible, setIsKeywordModalVisible] = useState(false);
-  const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
-  const [isDefinitionModalVisible, setIsDefinitionModalVisible] = useState(false);
-  const [selectedKeyword, setSelectedKeyword] = useState<KeywordResponse | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<CategoryResponse | null>(null);
-  const [selectedDefinition, setSelectedDefinition] = useState<DefinitionResponse | null>(null);
-  const [categories, setCategories] = useState<CategoryResponse[]>([]);
+ 
 
-  const fetchCategories = async () => {
-    try {
-      const response = await getCategories();
-      setCategories(response);
-    } catch (error) {
-      console.error('获取分类失败:', error);
-    }
+  const { data: categories, loading: categoriesLoading } =
+    useRequest(getCategories,{pollingInterval: 3000,});
+
+  const handleOpenModal = (
+    type: keyof ModalState,
+    data: KeywordResponse | CategoryResponse | DefinitionResponse | null = null
+  ) => {
+    setModalState((prev) => ({
+      ...prev,
+      [type]: { visible: true, data },
+    }));
   };
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  const handleKeywordSubmit = async (values: KeywordData) => {
-    try {
-      if (selectedKeyword) {
-        await updateKeyword(selectedKeyword.id, { ...values });
-        message.success('关键词更新成功');
-      } else {
-        await createKeyword({ ...values });
-        message.success('关键词创建成功');
-      }
-      setIsKeywordModalVisible(false);
-    } catch {
-      message.error('操作失败');
-    }
+  const handleCloseModal = (type: keyof ModalState) => {
+    setModalState((prev) => ({
+      ...prev,
+      [type]: { visible: false, data: null },
+    }));
   };
 
-  const handleCategorySubmit = async (values: CategoryData) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleSubmit = async (type: keyof ModalState, values: any) => {
     try {
-      if (selectedCategory) {
-        await updateCategory(selectedCategory.id, values);
-        message.success('分类更新成功');
-      } else {
-        await createCategory(values);
-        message.success('分类创建成功');
-      }
-      setIsCategoryModalVisible(false);
-    } catch {
-      message.error('操作失败');
-    }
-  };
+      await {
+        keyword: createKeyword,
+        category: createCategory,
+      }[type](values);
+      message.success(
+        `${
+          type === "keyword" ? "关键词" : type === "category" ? "分类" : "定义"
+        }创建成功`
+      );
 
-  const handleDefinitionSubmit = async (values: { wordId: string; definition: string }) => {
-    try {
-      if (selectedDefinition) {
-        await updateDefinition(selectedDefinition.id, { ...values, wordId: selectedDefinition.wordId });
-        message.success('定义更新成功');
-      } else {
-        await createDefinition({ ...values, wordId: '' });
-        message.success('定义创建成功');
-      }
-      setIsDefinitionModalVisible(false);
+      handleCloseModal(type);
     } catch {
-      message.error('操作失败');
+      message.error("操作失败");
     }
   };
 
   return (
     <div>
+      {/* 按钮组 */}
       <div style={{ marginBottom: 16 }}>
-        <Button 
-          type="primary" 
-          onClick={() => {
-            setSelectedKeyword(null);
-            setIsKeywordModalVisible(true);
-          }}
-        >
+        <Button onClick={() => handleOpenModal("keyword")} type="primary">
           添加关键词
         </Button>
-        <Button 
+        <Button
+          onClick={() => handleOpenModal("category")}
           style={{ marginLeft: 8 }}
-          onClick={() => {
-            setSelectedCategory(null);
-            setIsCategoryModalVisible(true);
-          }}
         >
           添加分类
         </Button>
-        <Button 
-          style={{ marginLeft: 8 }}
-          onClick={() => {
-            setSelectedDefinition(null);
-            setIsDefinitionModalVisible(true);
-          }}
-        >
-          添加定义
-        </Button>
       </div>
 
-      {/* 关键词管理 */}
+      {/* 关键词管理模态框 */}
       <Modal
-        title={selectedKeyword ? '编辑关键词' : '添加关键词'}
-        open={isKeywordModalVisible}
-        onCancel={() => setIsKeywordModalVisible(false)}
+        title={`${modalState.keyword.data ? "编辑" : "添加"}关键词`}
+        open={modalState.keyword.visible}
+        onCancel={() => handleCloseModal("keyword")}
         onOk={() => keywordForm.submit()}
       >
         <Form
           form={keywordForm}
-          onFinish={handleKeywordSubmit}
-          initialValues={selectedKeyword || {}}
+          onFinish={(values) => handleSubmit("keyword", values)}
         >
+          {/* 表单项根据需要添加 */}
+
           <Form.Item
             label="关键词"
             name="word"
-            rules={[{ required: true, message: '请输入关键词' }]}
+            rules={[{ required: true, message: "请输入关键词" }]}
           >
             <Input />
           </Form.Item>
           <Form.Item
             label="分类"
-            name="category"
-            rules={[{ required: true, message: '请选择分类' }]}
+            name="category_id"
+            rules={[{ required: false, message: "请选择分类" }]}
           >
-            <Select>
-              {categories.map(category => (
+            <Select loading={categoriesLoading}>
+            <Select.Option key={0} value={null}>
+                  {"无"}
+                </Select.Option>
+              {categories?.map((category) => (
                 <Select.Option key={category.id} value={category.id}>
                   {category.name}
                 </Select.Option>
@@ -148,70 +122,60 @@ const KeywordsManagement = () => {
           <Form.Item
             label="发音"
             name="pronunciation"
-            rules={[{ required: true, message: '请输入发音' }]}
+            rules={[{ required: true, message: "请输入发音" }]}
           >
             <Input />
           </Form.Item>
-          <Form.Item
-            label="定义"
-            name="definition"
-            rules={[{ required: true, message: '请输入定义' }]}
-          >
-            <Input.TextArea />
-          </Form.Item>
+          
         </Form>
       </Modal>
 
-      {/* 分类管理 */}
+      {/* 分类管理模态框 */}
       <Modal
-        title={selectedCategory ? '编辑分类' : '添加分类'}
-        open={isCategoryModalVisible}
-        onCancel={() => setIsCategoryModalVisible(false)}
-        onOk={() => categoryForm.submit()}
+        title={`${modalState.category.data ? "编辑" : "添加"}分类`}
+        open={modalState.category.visible}
+        onCancel={() => handleCloseModal("category")}
+        onOk={() => {categoryForm.submit()}}
       >
         <Form
           form={categoryForm}
-          onFinish={handleCategorySubmit}
-          initialValues={selectedCategory || {}}
+          onFinish={(values) => handleSubmit("category", values)}
         >
+          {/* 表单项根据需要添加 */}
           <Form.Item
             label="分类名称"
             name="name"
-            rules={[{ required: true, message: '请输入分类名称' }]}
+            rules={[{ required: true, message: "请输入分类名称" }]}
           >
             <Input />
+          </Form.Item>
+          <Form.Item
+            label="描述"
+            name="description"
+            rules={[{ required: true, message: "请输入分类名称" }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            label="父分类"
+            name="parent_id"
+            rules={[{ required: false, message: "请选择父分类" }]}
+          >
+            <Select loading={categoriesLoading}>
+            <Select.Option key={0} value={null}>
+                  {"无"}
+                </Select.Option>
+              {categories?.map((category) => (
+                <Select.Option key={category.id} value={category.id}>
+                  {category.name}
+                </Select.Option>
+              ))}
+            </Select>
           </Form.Item>
         </Form>
       </Modal>
 
-      {/* 定义管理 */}
-      <Modal
-        title={selectedDefinition ? '编辑定义' : '添加定义'}
-        open={isDefinitionModalVisible}
-        onCancel={() => setIsDefinitionModalVisible(false)}
-        onOk={() => definitionForm.submit()}
-      >
-        <Form
-          form={definitionForm}
-          onFinish={handleDefinitionSubmit}
-          initialValues={selectedDefinition || {}}
-        >
-          <Form.Item
-            label="关键词ID"
-            name="wordId"
-            rules={[{ required: true, message: '请输入关键词ID' }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="定义"
-            name="definition"
-            rules={[{ required: true, message: '请输入定义' }]}
-          >
-            <Input.TextArea />
-          </Form.Item>
-        </Form>
-      </Modal>
+      
     </div>
   );
 };

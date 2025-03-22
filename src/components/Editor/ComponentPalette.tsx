@@ -1,10 +1,10 @@
-import {  List, Typography } from "antd";
-import { useEditorStore } from "./store";
+import { List, Typography } from "antd";
+import { useComponentsStore, useLayoutsStore, useRegisteredComponentsStore } from "./stores";
 
 export const ComponentPalette = () => {
-  const [addComponent, registered, currentLayouts ] = useEditorStore(state=>[
-    state.addComponent,state.registered,state.currentLayouts
-  ]);
+  const { addComponent } = useComponentsStore();
+  const { registered } = useRegisteredComponentsStore();
+  const { currentLayouts } = useLayoutsStore();
 
   const handleDragStart = (e: React.DragEvent, type: string) => {
     e.dataTransfer.setData("componentType", type);

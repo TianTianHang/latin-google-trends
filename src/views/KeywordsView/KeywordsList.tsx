@@ -1,96 +1,83 @@
-import { useState, useEffect } from 'react';
-import { Table, Input, Select } from 'antd';
+import { useState } from 'react';
+import { Table, Input, Select, Row, Col, Space } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
+import useRequest from 'ahooks/lib/useRequest';
 import { getCategories, getKeywords } from '@/api/keywords';
 
-import type { CategoryResponse, KeywordResponse } from '@/types/keywords';
+import type { KeywordData, KeyWordQuery } from '@/types/keywords';
+import KeywordsManagement from './KeywordsManagement';
+import { KeywordAction } from './KeyWordAction';
 
-type Keyword = KeywordResponse;
+type Keyword = KeywordData;
 
 const KeywordsList = () => {
-  const [keywords, setKeywords] = useState<Keyword[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 10,
-    total: 0,
-  });
-  const [categories, setCategories] = useState<CategoryResponse[]>([]);
   const [filters, setFilters] = useState({
     name: '',
-    category: '',
+    category_id: -1,
   });
 
-  const fetchCategories = async () => {
-    try {
-      const response = await getCategories();
-      setCategories(response);
-    } catch (error) {
-      console.error('获取分类失败:', error);
-    }
-  };
+  const { data: categoriesData, loading: categoriesLoading } = useRequest(getCategories,{pollingInterval:3000});
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
+  const { data: keywordsData, loading: keywordsLoading, run,refresh } = useRequest(
+    async (params) => {
+      const response = await getKeywords(params);
+      return response;
+    },
+    {
+      defaultParams:[ { page: 1, page_size: 10 } as KeyWordQuery],
+    }
+  );
 
   const columns: ColumnsType<Keyword> = [
     {
       title: '关键词',
-      dataIndex: 'name',
-      key: 'name',
+      dataIndex: 'word',
+      key: 'word',
     },
     {
       title: '类别',
       dataIndex: 'category',
       key: 'category',
+      render:(value)=>value.name
+    },
+    {
+      title: '发音',
+      dataIndex: 'pronunciation',
+      key: 'pronunciation',
     },
     {
       title: '定义',
       dataIndex: 'definition',
       key: 'definition',
     },
+    {
+      title: '操作',
+      dataIndex: 'id',
+      render:(value)=><KeywordAction keyword_id={value} refesh={refresh}/>
+    }
   ];
 
-  const fetchKeywords = async () => {
-    setLoading(true);
-    try {
-      const response = await getKeywords();
-      setKeywords(response);
-      setPagination({
-        ...pagination,
-        total: response.length,
-      });
-    } catch (error) {
-      console.error('获取关键词失败:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchKeywords();
-  }, [pagination.current, filters]);
-
   const handleTableChange = (pagination: TablePaginationConfig) => {
-    setPagination(prev => ({
-      ...prev,
-      current: pagination.current || 1,
-      pageSize: pagination.pageSize || 10,
-    }));
+    run({ page: pagination.current || 1, page_size: pagination.pageSize || 10 });
   };
 
   const handleSearch = (value: string) => {
     setFilters({ ...filters, name: value });
+    run({ page: 1, page_size: 10, name: value });
   };
 
-  const handleCategoryFilter = (value: string) => {
-    setFilters({ ...filters, category: value });
+  const handleCategoryFilter = (value: number) => {
+    setFilters({ ...filters, category_id: value });
+    run({ page: 1, page_size: 10, category_id: value });
   };
+
+
 
   return (
     <div>
-      <div style={{ marginBottom: 16 }}>
+      <Row >
+        <Col span={8}>
+        <Space direction='horizontal'>
         <Input.Search
           placeholder="搜索关键词"
           onSearch={handleSearch}
@@ -101,20 +88,31 @@ const KeywordsList = () => {
           onChange={handleCategoryFilter}
           style={{ width: 200 }}
           allowClear
+          loading={categoriesLoading}
         >
-          {categories.map(category => (
+          {categoriesData?.map(category => (
             <Select.Option key={category.id} value={category.id}>
               {category.name}
             </Select.Option>
           ))}
         </Select>
-      </div>
+        </Space>
+        
+        </Col>
+        <Col span={12}>
+        <KeywordsManagement/>
+        </Col>
+      </Row>
       <Table
         columns={columns}
-        dataSource={keywords}
+        dataSource={keywordsData?.items}
         rowKey="id"
-        loading={loading}
-        pagination={pagination}
+        loading={keywordsLoading}
+        pagination={{
+          current: keywordsData?.page,
+          pageSize: keywordsData?.page_size,
+          total: keywordsData?.total,
+        }}
         onChange={handleTableChange}
       />
     </div>
@@ -122,3 +120,6 @@ const KeywordsList = () => {
 };
 
 export default KeywordsList;
+
+
+

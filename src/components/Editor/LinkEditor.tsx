@@ -1,13 +1,18 @@
 import { useSetState } from "ahooks";
-import { Form, FormInstance, Input, Select } from "antd";
-import { useEditorStore } from "./store";
+import { Form, FormInstance, Input, Select, Switch } from "antd";
 import { useEffect } from "react";
 import { intersection } from "lodash";
+import { useComponentsStore, useRegisteredComponentsStore, useInterlinkedStore } from "./stores";
 
 interface LinkEditorProps {
   componentId: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  form: FormInstance<{ sourceId: string; targetId: string; props: string[] }>;
+ 
+  form: FormInstance<{ 
+    sourceId: string; 
+    targetId: string; 
+    props: string[];
+    bidirectional:boolean;
+   }>;
 }
 
 interface State {
@@ -15,17 +20,27 @@ interface State {
   targetId: string | null;
   sourceProps: string[];
   targetProps: string[];
+  isBidirectional: boolean;
+  existingLinks: Array<{
+    targetId: string;
+    props: string[];
+    isBidirectional: boolean;
+  }>;
 }
 export const LinkEditor: React.FC<LinkEditorProps> = ({
   componentId,
   form,
 }) => {
-  const { components, registered,addInterlink } = useEditorStore();
+  const { components} = useComponentsStore();
+  const {registered} =useRegisteredComponentsStore();
+  const {addInterlink} =useInterlinkedStore();
   const [state, setState] = useSetState<State>({
     sourceId: componentId,
     targetId: null,
     sourceProps: [],
     targetProps: [],
+    isBidirectional: false,
+    existingLinks: [],
   });
   // 使用useEffect来更新状态
   useEffect(() => {
@@ -68,6 +83,22 @@ export const LinkEditor: React.FC<LinkEditorProps> = ({
             }))}
         />
       </Form.Item>
+      <Form.Item key={"existingLinks"} label={"Existing Links"}>
+        <ul>
+          {state.existingLinks.map((link, index) => (
+            <li key={index}>
+              {link.targetId} - {link.props.join(', ')}
+              {link.isBidirectional && ' (Bidirectional)'}
+            </li>
+          ))}
+        </ul>
+      </Form.Item>
+      <Form.Item key={"bidirectional"} name={"bidirectional"} label={"Bidirectional"} valuePropName="checked">
+        <Switch
+          checked={state.isBidirectional}
+          onChange={(checked) => setState({ isBidirectional: checked })}
+        />
+      </Form.Item>
       <Form.Item key={"props"} name={"props"} label={"Props"}>
         <Select
           options={intersection(state.sourceProps,state.targetProps).map((item) => ({
@@ -85,8 +116,23 @@ export const LinkEditor: React.FC<LinkEditorProps> = ({
   );
   return <Form 
   form={form}
-  onFinish={({targetId,props})=>{
-    addInterlink(state.sourceId,targetId,props)
+  onFinish={({targetId, props, bidirectional})=>{
+    if(state.sourceId){
+      addInterlink(state.sourceId, targetId, props);
+      if(bidirectional) {
+        addInterlink(targetId, state.sourceId, props);
+      }
+      setState({
+        existingLinks: [
+          ...state.existingLinks,
+          {
+            targetId,
+            props,
+            isBidirectional: bidirectional
+          }
+        ]
+      });
+    }
   }}
   >{formItems}</Form>;
 };

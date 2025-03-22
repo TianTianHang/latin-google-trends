@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { RegionInterest } from "@/types/interest";
 import ReactECharts, { EChartsOption } from "echarts-for-react";
 import "echarts-extension-amap";
@@ -6,21 +6,18 @@ import locData from "./loc_data.json";
 import { RegisteredComponent } from "@/components/Editor/types";
 import { useSubjectStore } from "@/stores/useSubjectStore";
 import { SeriesOption } from "echarts";
-import { Select } from "antd";
-import { useAutoResizeChart } from "../useAutoResizeChart";
+import { Empty, Select } from "antd";
+import { useAutoResizeChart } from "../hooks/useAutoResizeChart";
+import { useSubjectData } from "@/hooks/useSubjectData";
 
 interface HeatMapProps {
-  subjectDataId: number;
+  subjectDataId?: number;
+  index:number;
 }
 
-const HeatMap: React.FC<HeatMapProps> = ({ subjectDataId }) => {
+const HeatMap: React.FC<HeatMapProps> = ({ subjectDataId,index }) => {
 
-  const { subjectDatas } = useSubjectStore();
-  const data = useMemo(() => {
-    const subject = subjectDatas.find((s) => s.id == subjectDataId);
-    return subject ? subject : null;
-  }, [subjectDataId, subjectDatas]);
-  const [index, _setIndex] = useState(0);
+  const data=useSubjectData(subjectDataId)
   const [selectedKeyword, setSelectedKeyword] = useState<string>();
   const { cardRef, echartsRef } = useAutoResizeChart();
 
@@ -118,7 +115,8 @@ const HeatMap: React.FC<HeatMapProps> = ({ subjectDataId }) => {
 
   return (
     <div ref={cardRef} className="h-full">
-      <div className="absolute top-2 right-2 z-10 opacity-0 hover:opacity-100 transition-opacity duration-3000">
+{ Object.keys(dataOption).length >0?(<>
+  <div className="absolute top-2 right-2 z-10 opacity-0 hover:opacity-100 transition-opacity duration-3000">
         <Select
           style={{ width: 200, marginBottom: 16 }}
           value={selectedKeyword}
@@ -135,6 +133,7 @@ const HeatMap: React.FC<HeatMapProps> = ({ subjectDataId }) => {
         option={dataOption}
         style={{ height: "100%", width: "100%" }}
       />
+</>):<Empty/>}
     </div>
   );
 };
@@ -146,7 +145,9 @@ export const registeredHeatMapComponent: RegisteredComponent<HeatMapProps> = {
     type: "HeatMap",
     name: "热力地图组件",
     icon: <span>🗺️</span>,
-
+    defaultProps:{
+        index:0,
+    },
     propSchema: {
       subjectDataId: {
         type: "select", // 或者根据实际需求选择合适的类型

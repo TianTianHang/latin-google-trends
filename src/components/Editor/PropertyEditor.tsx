@@ -4,12 +4,19 @@ import {
   FormInstance,
   Input,
   InputNumber,
-  Select,
   Space,
+  Switch,
+  DatePicker,
+  Slider,
 } from "antd";
-import { useEditorStore } from "./store";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { ComponentData, PropsType, Schema } from "./types";
+import { AsyncSelect } from "../AsyncSelect";
+import { CodeEditor } from "@/components/CodeEditor";
+import { JsonEditor } from "@/components/JsonEditor";
+import { useCallback, useEffect, useMemo } from "react";
+import { useRequest } from "ahooks";
+import { useComponentsStore, useRegisteredComponentsStore, useInterlinkedStore } from "./stores";
+import { Schema } from "./stores/registeredComponentsStore";
+
 
 interface PropertyEditorProps {
   componentId: string;
@@ -21,63 +28,122 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({
   componentId,
   form
 }) => {
-  const { components, registered, updateProps } =
-    useEditorStore();
+  const { components, updateProps } = useComponentsStore();
+  const { registered } = useRegisteredComponentsStore();
+  const { getInterlinkedComponents } = useInterlinkedStore();
 
-  // 初始化selectedComponent状态
-  const [selectedComponent, setSelectedComponent] =
-    useState<ComponentData<PropsType> | null>(null);
-
-  // 初始化propSchema状态
-  const [propSchema, setPropSchema] = useState<{
-    [key: string]: Schema;
-  } | null>(null);
-
-  // 初始化initialValues状态
-  const [initialValues, setInitialValues] = useState<PropsType>({});
-
-  // 使用useEffect来更新状态
-  useEffect(() => {
-    // 更新selectedComponent
-    const newSelectedComponent = components.find((c) => c.id === componentId);
-    setSelectedComponent(newSelectedComponent ?? null);
-
-    if (newSelectedComponent) {
-      // 更新propSchema
-      const newRegisteredComponent = registered.get(newSelectedComponent.type);
-      setPropSchema(newRegisteredComponent?.meta?.propSchema ?? null);
-
-      // 更新initialValues
-      setInitialValues(newSelectedComponent.props || {});
-    } else {
-      setPropSchema(null);
-      setInitialValues({});
+  // 使用useRequest管理组件数据
+  const {
+    data: selectedComponent,
+    run: updateSelectedComponent,
+    loading: componentLoading,
+    error: componentError
+  } = useRequest(
+    async () => {
+      const component = components.find((c) => c.id === componentId);
+      if (!component) return null;
+      
+      // 获取联动组件
+      const linkedComponents = getInterlinkedComponents(componentId);
+      
+      return {
+        ...component,
+        linkedComponents,
+        // 添加联动属性
+        linkedProps: linkedComponents.reduce((acc, link) => {
+          link.props.forEach(prop => {
+            acc[prop] = components.find(c => c.id === link.targetId)?.props[prop];
+          });
+          return acc;
+        }, {} as Record<string, unknown>)
+      };
+    },
+    {
+      refreshDeps: [componentId, components],
+      manual: true,
+      cacheKey: `component-${componentId}`,
+      debounceWait: 300
     }
-  }, [componentId, components, registered]);
+  );
 
+  // 使用useRequest管理schema数据
+  const { data: propSchema } = useRequest(
+    async () => {
+      if (!selectedComponent) return null;
+      const registeredComponent = registered.get(selectedComponent.type);
+      return registeredComponent?.meta?.propSchema ?? null;
+    },
+    {
+      refreshDeps: [selectedComponent, registered],
+    }
+  );
+
+  // 初始化表单值
+  const initialValues = useMemo(() => {
+    return selectedComponent?.props || {};
+  }, [selectedComponent]);
+
+  // 当组件变化时自动更新
+  useEffect(() => {
+    updateSelectedComponent();
+  }, [componentId, components, updateSelectedComponent]);
+
+  // 表单控件渲染
   const renderFormControl = useCallback((type: string, config: Schema) => {
     switch (type) {
       case "text":
         return <Input placeholder={config.placeholder} />;
       case "number":
-        return <InputNumber style={{ width: "100%" }} />;
+        return (
+          <InputNumber
+            style={{ width: "100%" }}
+            min={config.min}
+            max={config.max}
+            step={config.step}
+          />
+        );
       case "color":
         return <ColorPicker />;
       case "select":
         if (config.options) {
           return (
-            <Select
-              options={
-                config.options instanceof Array
-                  ? config.options
-                  : config.options()
-              }
+            <AsyncSelect
+              options={config.options}
               allowClear
               mode={config.mode}
             />
           );
         }
         break;
+      case "boolean":
+        return <Switch />;
+      case "date":
+        return <DatePicker
+          style={{ width: "100%" }}
+          format={config.format || "YYYY-MM-DD"}
+        />;
+      case "range":
+        return (
+          <Slider
+            range
+            min={config.min}
+            max={config.max}
+            step={config.step || 1}
+          />
+        );
+      case "json":
+        return (
+          <JsonEditor
+            height={config.height || 200}
+          />
+        );
+      case "code":
+        return (
+          <CodeEditor
+            language={config.language || "javascript"}
+            height={config.height || 200}
+          />
+        );
       default:
         return null;
     }
@@ -103,6 +169,16 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({
       </Form.Item>
     ));
   }, [propSchema, renderFormControl]);
+
+  // 处理加载状态
+  if (componentLoading) {
+    return <div>加载中...</div>;
+  }
+
+  // 处理错误状态
+  if (componentError) {
+    return <div>加载组件失败，请重试</div>;
+  }
 
   if (!selectedComponent) return null;
 

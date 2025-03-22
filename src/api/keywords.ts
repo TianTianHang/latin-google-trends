@@ -1,4 +1,4 @@
-import { KeywordData, KeywordResponse, DefinitionData, DefinitionResponse, CategoryData, CategoryResponse } from '@/types/keywords';
+import { KeywordData, KeywordResponse, DefinitionData, DefinitionResponse, CategoryData, CategoryResponse, KeyWordQuery, KeywordCreate, KeywordUpdate } from '@/types/keywords';
 import http from '@/utils/request';
 
 // api接口 - 统一保存接口url路径
@@ -21,10 +21,10 @@ const api = {
 
 /**
  * @description: 创建关键词
- * @param {KeywordData} data 关键词数据
+ * @param {KeywordCreate} data 关键词数据
  * @return 返回创建结果
  */
-export function createKeyword(data: KeywordData) {
+export function createKeyword(data: KeywordCreate) {
   return http.post<KeywordResponse>(api.createKeyword, data);
 }
 
@@ -32,8 +32,8 @@ export function createKeyword(data: KeywordData) {
  * @description: 获取关键词列表
  * @return 返回关键词列表
  */
-export function getKeywords() {
-  return http.get<KeywordResponse[]>(api.getKeywords);
+export function getKeywords(query:KeyWordQuery) {
+  return http.get<KeywordResponse>(api.getKeywords,query);
 }
 
 /**
@@ -43,7 +43,7 @@ export function getKeywords() {
  */
 export function getKeyword(keywordId: number) {
   const url = api.getKeyword.replace('{keyword_id}', keywordId.toString());
-  return http.get<KeywordResponse>(url);
+  return http.get<KeywordData>(url);
 }
 
 /**
@@ -52,9 +52,9 @@ export function getKeyword(keywordId: number) {
  * @param {KeywordData} data 关键词数据
  * @return 返回更新结果
  */
-export function updateKeyword(keywordId: number, data: KeywordData) {
+export function updateKeyword(keywordId: number, data: KeywordUpdate) {
   const url = api.updateKeyword.replace('{keyword_id}', keywordId.toString());
-  return http.put<KeywordResponse>(url, data);
+  return http.put<KeywordData>(url, data);
 }
 
 /**

@@ -1,16 +1,29 @@
 /**
  * 关键词数据
  */
-export interface KeywordData {
+export interface KeywordCreate {
   word: string;  // 关键词
-  pronunciation: string; // 发音
-  category_id: number;  // 分类ID
+  pronunciation?: string; // 发音
+  category_id?: number;  // 分类ID
 }
-
+export type KeywordUpdate = KeywordCreate
+export interface KeyWordQuery{
+  name?: string;
+  category_id?: number;
+  page: number;
+  page_size: number;
+}
+export interface  KeywordResponse{
+  items: KeywordData[];
+  total: number;
+  page: number;
+  page_size: number;
+  total_pages: number; // page_size
+}
 /**
  * 关键词响应
  */
-export interface KeywordResponse {
+export interface KeywordData {
   id: number;  // 关键词ID
   word: string;  // 关键词
   pronunciation: string; // 发音
