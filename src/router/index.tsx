@@ -2,7 +2,7 @@
 import { usePermissionStore } from "@/stores/permission";
 import { RouteType } from "@/types/route";
 import { lazy, Suspense, useMemo } from "react";
-import { useRoutes } from "react-router-dom";
+import { Outlet, useRoutes } from "react-router-dom";
 /** 常驻路由 */
 export const constantRoutes: RouteType[] = [
   {
@@ -35,8 +35,8 @@ export const constantRoutes: RouteType[] = [
 ];
 export const asyncRoutes: RouteType[] = [
   {
-    path:'/keywords',
-    component: lazy(()=>import("@/views/KeywordsView")),
+    path: "/keywords",
+    component: lazy(() => import("@/views/KeywordsView")),
     meta: {
       requiresAuth: true,
       breadcrumb: true,
@@ -46,7 +46,7 @@ export const asyncRoutes: RouteType[] = [
   },
   {
     path: "/tasks",
-    component: lazy(() => import("@/views/TaskManagementPage.tsx")),
+    component: lazy(() => import("@/views/TaskManagementPage")),
     meta: {
       requiresAuth: true,
       breadcrumb: true,
@@ -56,34 +56,68 @@ export const asyncRoutes: RouteType[] = [
   },
   {
     path: "/dashboard",
-    component: lazy(() => import("@/views/DashBoardView.tsx")),
+    element: <Outlet/>,
     meta: {
       requiresAuth: true,
       breadcrumb: true,
       allowedRoles: ["user", "admin"],
       title: "面板",
     },
+    children:[
+      {
+        path:"/dashboard/default",
+        component:lazy(() => import("@/views/PreviewPage")),
+        meta:{
+          requiresAuth: false,
+          breadcrumb: true,
+          allowedRoles: ["user", "admin"],
+          title: "default",
+        }
+      }
+    ]
   },
   {
-    path: "/subject",
-    component: lazy(() => import("@/views/SubjectView")),
+    path: "/data",
+    element: <Outlet/>,
     meta: {
       requiresAuth: true,
       breadcrumb: true,
       allowedRoles: ["user", "admin"],
-      title: "主题",
+      title: "数据管理",
     },
+    children: [
+      {
+        path: "/data/subject",
+        component: lazy(() => import("@/views/SubjectView")),
+        meta: {
+          requiresAuth: true,
+          breadcrumb: true,
+          allowedRoles: ["user", "admin"],
+          title: "主题管理",
+        },
+      },
+      {
+        path: "/data/data-source",
+        component: lazy(() => import("@/views/DataSourceManagementPage")),
+        meta: {
+          requiresAuth: true,
+          breadcrumb: true,
+          allowedRoles: ["user", "admin"],
+          title: "数据源管理",
+        },
+      },
+    ],
   },
   {
-    path:"/test",
-    component:  lazy(()=>import("@/views/VisualEditorView")),
+    path: "/test",
+    component: lazy(() => import("@/views/VisualEditorView")),
     meta: {
       requiresAuth: true,
       breadcrumb: true,
       allowedRoles: ["user", "admin"],
       title: "测试",
     },
-  }
+  },
 ];
 // 路由处理方式
 const generateRouter = (routers: RouteType[]) => {
@@ -91,8 +125,7 @@ const generateRouter = (routers: RouteType[]) => {
     if (item.children) {
       item.children = generateRouter(item.children);
     }
-    item.element = 
-      item.element || (
+    item.element = item.element || (
       <Suspense fallback={""}>
         {/* 把懒加载的异步路由变成组件装载进去 */}
         {item.component && <item.component />}

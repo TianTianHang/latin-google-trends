@@ -4,9 +4,9 @@ import { useInterlinkedStore } from "./interlinkedStore";
 import { getSubjectData } from "@/api/subject";
 import { useSubjectStore } from "@/stores/useSubjectStore";
 
-interface DataSource {
+export interface DataSource {
   id: string;
-  type: "static" | "api" | "websocket";
+  type: "static" | "api" | "websocket" | "csv" | "excel";
   config: Record<string, unknown>;
   fetch: () => Promise<unknown>;
   subscribe?: (callback: (data: unknown) => void) => void;
@@ -73,7 +73,9 @@ useSubjectStore.getState().fetchAllSubjects().then(()=>{
         useDataProviderStore.getState().registerDataSource({
           id: `subject-${s.subject_id}`,
           type: "api",
-          config: {},
+          config: {
+            renderData:"data=>data.map(item=>item.data)"
+          },
           fetch: async () => {
             return await getSubjectData(s.subject_id);
           },

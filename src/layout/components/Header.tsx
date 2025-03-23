@@ -6,6 +6,7 @@ const { Text } = Typography;
 
 const HeaderComp: React.FC = () => {
   return (
+    <>
     <Row justify="space-between" align="middle">
       <Col>
         <Text strong style={{ fontSize: 18 }}>
@@ -16,6 +17,8 @@ const HeaderComp: React.FC = () => {
         <RightContent />
       </Col>
     </Row>
+   
+    </>
   );
 };
 
