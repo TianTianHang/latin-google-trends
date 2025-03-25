@@ -118,6 +118,38 @@ export const asyncRoutes: RouteType[] = [
       title: "测试",
     },
   },
+  {
+    path:"/permission",
+    element: <Outlet/>,
+    meta:{
+      requiresAuth: true,
+      breadcrumb: true,
+      allowedRoles: ["user", "admin"],
+      title: "权限管理",
+    },
+    children:[
+      {
+        path:"/permission/endpoint",
+        component: lazy(()=>import("@/views/PermissionManagementPage")),
+        meta:{
+          requiresAuth: true,
+          breadcrumb: true,
+          allowedRoles: ["user", "admin"],
+          title: "接口权限管理",
+        },
+      },
+      {
+        path:"/permission/user-role",
+        component: lazy(()=>import('@/views/UserRoleManagementPage')),
+        meta:{
+          requiresAuth: true,
+          breadcrumb: true,
+          allowedRoles: [ "admin"],
+          title: "用户权限管理",
+        },
+      }
+    ]
+  }
 ];
 // 路由处理方式
 const generateRouter = (routers: RouteType[]) => {

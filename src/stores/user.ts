@@ -30,7 +30,7 @@ export const useUserStore = create<usersStoreType>()(
         const data= await userInfo()
         set({ 
           username: data.username, 
-          roles: data.role ? [data.role] : ['DEFAULTROLE'], 
+          roles: data.roles.map(role=>role.name) || ['DEFAULTROLE'],
           id: data.id 
         })
       },
