@@ -31,7 +31,7 @@ export const constantRoutes: RouteType[] = [
   {
     path: "/login",
     component: lazy(() => import("@/views/LoginPage")),
-  },
+  }
 ];
 export const asyncRoutes: RouteType[] = [
   {
@@ -109,13 +109,13 @@ export const asyncRoutes: RouteType[] = [
     ],
   },
   {
-    path: "/test",
+    path: "/editor",
     component: lazy(() => import("@/views/VisualEditorView")),
     meta: {
       requiresAuth: true,
       breadcrumb: true,
       allowedRoles: ["user", "admin"],
-      title: "测试",
+      title: "编辑器",
     },
   },
   {
@@ -124,7 +124,7 @@ export const asyncRoutes: RouteType[] = [
     meta:{
       requiresAuth: true,
       breadcrumb: true,
-      allowedRoles: ["user", "admin"],
+      allowedRoles: ["admin"],
       title: "权限管理",
     },
     children:[
@@ -134,7 +134,7 @@ export const asyncRoutes: RouteType[] = [
         meta:{
           requiresAuth: true,
           breadcrumb: true,
-          allowedRoles: ["user", "admin"],
+          allowedRoles: ["admin"],
           title: "接口权限管理",
         },
       },

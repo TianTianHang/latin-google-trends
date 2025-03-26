@@ -1,4 +1,4 @@
-import { login, userInfo } from '@/api/user';
+import { changePassword, login, register, userInfo } from '@/api/user';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
@@ -14,6 +14,8 @@ export interface usersStoreType {
   getInfo:()=>Promise<void>
   resetToken:()=>void
   login: (values: { username: string; password: string }) => Promise<void>;
+  register: (values: { username: string; password: string }) => Promise<void>;
+  changePassword: (values: { oldPassword: string; newPassword: string }) => Promise<void>;
 }
 
 export const useUserStore = create<usersStoreType>()(
@@ -45,8 +47,19 @@ export const useUserStore = create<usersStoreType>()(
         const { access_token } = await login(values);
         set({ token: access_token });
         await useUserStore.getState().getInfo();
-      }
+      },
+      register: async (values: { username: string; password: string }) => {
+        await register(values);
+      },
+      /** 修改密码 */
+      changePassword: async (values: { oldPassword: string; newPassword: string }) => {
+        await changePassword({
+          old_password: values.oldPassword,
+          new_password: values.newPassword
+        });
+      },
     }),
+   
     {
       // 进行持久化存储
       name: 'userStorage', // 本地存储的名称

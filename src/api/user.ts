@@ -18,7 +18,8 @@ const api = {
   getAllRoles: '/user_management/roles/list', // 获取所有角色
   assignRoles: '/user_management/users/{userId}/roles/assign', // 分配角色
   getUserRoles: '/user_management/users/{userId}/roles/list', // 获取用户角色
-  getAllUsers: '/user_management/users/list' //获取所有用户
+  getAllUsers: '/user_management/users/list', //获取所有用户
+  change_password:'/user_management/users/change_password' //修改密码
 };
 
 /**
@@ -98,4 +99,13 @@ export  function userInfo() {
  */
 export function getAllUsers(){
   return http.get<userInfoType[]>(api.getAllUsers);
+}
+
+/**
+ * @description: 修改密码
+ * @param {object} data 包含旧密码和新密码
+ * @return 修改结果
+ */
+export function changePassword(data: { old_password: string; new_password: string }) {
+  return http.post(api.change_password, data);
 }
