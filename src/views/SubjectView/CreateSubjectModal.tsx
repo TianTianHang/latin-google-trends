@@ -5,34 +5,8 @@ import { createSubject } from "@/api/subject";
 import { useTranslation } from "react-i18next";
 import { useUserStore } from "@/stores/user";
 import type { RealtimeTask, HistoricalTask, HistoricalTaskStringDate, RealtimeTaskStringDate } from "@/types/subject";
-const countries = [
-  { name: "World", code: "World" },
-  { name: "Afghanistan", code: "AF" },
-  { name: "Albania", code: "AL" },
-  { name: "Algeria", code: "DZ" },
-  { name: "Andorra", code: "AD" },
-  { name: "Angola", code: "AO" },
-  { name: "Antigua and Barbuda", code: "AG" },
-  { name: "Argentina", code: "AR" },
-  { name: "Armenia", code: "AM" },
-  { name: "Australia", code: "AU" },
-  { name: "Austria", code: "AT" },
-  { name: "Azerbaijan", code: "AZ" },
-  { name: "Bahamas", code: "BS" },
-  { name: "Bahrain", code: "BH" },
-  { name: "Bangladesh", code: "BD" },
-  { name: "Barbados", code: "BB" },
-  { name: "Belarus", code: "BY" },
-  { name: "Belgium", code: "BE" },
-  { name: "Belize", code: "BZ" },
-  { name: "Benin", code: "BJ" },
-  { name: "Bhutan", code: "BT" },
-  { name: "Bolivia", code: "BO" },
-  { name: "Bosnia and Herzegovina", code: "BA" },
-  { name: "Botswana", code: "BW" },
-  { name: "Brazil", code: "BR" },
-  { name: "Brunei", code: "BN" },
-];
+import { countries } from "../countries";
+
 const { Option } = Select;
 
 interface FormValues {
@@ -48,7 +22,7 @@ interface CreateSubjectModalProps {
 
 const CreateSubjectModal: React.FC<CreateSubjectModalProps> = ({ visible, onClose }) => {
   const [form] = Form.useForm<FormValues>();
-  const { t } = useTranslation();
+  const { t } = useTranslation("views");
   const { id } = useUserStore();
 
   const onFinish = async (values: FormValues) => {
@@ -82,12 +56,12 @@ const CreateSubjectModal: React.FC<CreateSubjectModalProps> = ({ visible, onClos
       };
 
       const { subject_id } = await createSubject(formattedValues);
-      message.success(t("subject.createSuccess", { subject_id }));
+      message.success(t("subject.modal.create.message.createSuccess", { subject_id }));
       form.resetFields();
       onClose();
     } catch (error: unknown) {
       if (error instanceof Error) {
-        message.error(t("subject.createFailed", { error: error.message }));
+        message.error(t("subject.modal.create.message.createFailed", { error: error.message }));
       } else if (
         typeof error === "object" &&
         error !== null &&
@@ -95,12 +69,12 @@ const CreateSubjectModal: React.FC<CreateSubjectModalProps> = ({ visible, onClos
       ) {
         const err = error as { response?: { data?: { detail?: string } } };
         message.error(
-          t("subject.createFailed", {
+          t("subject.modal.create.message.createFailed", {
             error: err.response?.data?.detail || "Unknown error",
           })
         );
       } else {
-        message.error(t("subject.createFailed", { error: "Unknown error" }));
+        message.error(t("subject.modal.create.message.createFailed", { error: "Unknown error" }));
       }
     }
   };
@@ -108,7 +82,7 @@ const CreateSubjectModal: React.FC<CreateSubjectModalProps> = ({ visible, onClos
   return (
     <Modal
       open={visible}
-      title={t("subject.createTitle")}
+      title={t("subject.modal.create.title")}
       onCancel={onClose}
       footer={null}
     >
@@ -120,26 +94,26 @@ const CreateSubjectModal: React.FC<CreateSubjectModalProps> = ({ visible, onClos
       >
         <Form.Item
           name="name"
-          label={t("subject.name")}
+          label={t("subject.modal.create.form.name")}
           rules={[
             {
               required: true,
-              message: t("subject.nameRequired"),
+              message: t("subject.modal.create.form.nameRequired"),
             },
           ]}
         >
-          <Input placeholder={t("subject.enterName")} />
+          <Input placeholder={t("subject.modal.create.form.enterName")} />
         </Form.Item>
         <Form.Item
           name="description"
-          label={t("subject.description")}
+          label={t("subject.modal.create.form.description")}
           rules={[
             {
               required: false,
             },
           ]}
         >
-          <Input.TextArea placeholder={t("subject.enterDescription")} rows={4} />
+          <Input.TextArea placeholder={t("subject.modal.create.form.enterDescription")} rows={4} />
         </Form.Item>
         <Form.List name="parameters">
           {(fields, { add, remove }) => (
@@ -155,20 +129,20 @@ const CreateSubjectModal: React.FC<CreateSubjectModalProps> = ({ visible, onClos
                   <Form.Item
                     {...restField}
                     name={[name, "type"]}
-                    label={t("subject.taskType")}
+                    label={t("subject.modal.create.form.taskType")}
                     rules={[
                       {
                         required: true,
-                        message: t("subject.taskTypeRequired"),
+                        message: t("subject.modal.create.form.taskTypeRequired"),
                       },
                     ]}
                   >
-                    <Select placeholder={t("subject.selectTaskType")}>
+                    <Select placeholder={t("subject.modal.create.form.selectTaskType")}>
                       <Option value="realtime">
-                        {t("subject.realtimeTask")}
+                        {t("subject.modal.create.form.realtimeTask")}
                       </Option>
                       <Option value="historical">
-                        {t("subject.historicalTask")}
+                        {t("subject.modal.create.form.historicalTask")}
                       </Option>
                     </Select>
                   </Form.Item>
@@ -176,34 +150,34 @@ const CreateSubjectModal: React.FC<CreateSubjectModalProps> = ({ visible, onClos
                   <Form.Item
                     {...restField}
                     name={[name, "data_type"]}
-                    label={t("subject.dataType")}
+                    label={t("subject.modal.create.form.dataType")}
                     rules={[
                       {
                         required: true,
-                        message: t("subject.dataTypeRequired"),
+                        message: t("subject.modal.create.form.dataTypeRequired"),
                       },
                     ]}
                   >
-                    <Select placeholder={t("subject.enterDataType")}>
-                      <Option value="time">{t("subject.timeJob")}</Option>
-                      <Option value="region">{t("subject.regionJob")}</Option>
+                    <Select placeholder={t("subject.modal.create.form.enterDataType")}>
+                      <Option value="time">{t("subject.modal.create.form.timeJob")}</Option>
+                      <Option value="region">{t("subject.modal.create.form.regionJob")}</Option>
                     </Select>
                   </Form.Item>
 
                   <Form.Item
                     {...restField}
                     name={[name, "keywords"]}
-                    label={t("subject.keywords")}
+                    label={t("subject.modal.create.form.keywords")}
                     rules={[
                       {
                         required: true,
-                        message: t("subject.keywordsRequired"),
+                        message: t("subject.modal.create.form.keywordsRequired"),
                       },
                     ]}
                   >
                     <Select
                       mode="tags"
-                      placeholder={t("subject.enterKeywords")}
+                      placeholder={t("subject.modal.create.form.enterKeywords")}
                       maxTagCount={5}
                     />
                   </Form.Item>
@@ -211,12 +185,12 @@ const CreateSubjectModal: React.FC<CreateSubjectModalProps> = ({ visible, onClos
                   <Form.Item
                     {...restField}
                     name={[name, "geo_code"]}
-                    label={t("subject.geoCode")}
+                    label={t("subject.modal.create.form.geoCode")}
                     rules={[
-                      { required: true, message: t("subject.geoCodeRequired") },
+                      { required: true, message: t("subject.modal.create.form.geoCodeRequired") },
                     ]}
                   >
-                    <Select showSearch placeholder={t("subject.enterGeoCode")}>
+                    <Select showSearch placeholder={t("subject.modal.create.form.enterGeoCode")}>
                       {countries.map((country: { name: string; code: string }) => (
                         <Option key={country.code} value={country.code}>
                           {country.name}
@@ -228,11 +202,11 @@ const CreateSubjectModal: React.FC<CreateSubjectModalProps> = ({ visible, onClos
                   <Form.Item
                     {...restField}
                     name={[name, "start_date"]}
-                    label={t("subject.startDate")}
+                    label={t("subject.modal.create.form.startDate")}
                     rules={[
                       {
                         required: true,
-                        message: t("subject.startDateRequired"),
+                        message: t("subject.modal.create.form.startDateRequired"),
                       },
                     ]}
                   >
@@ -253,17 +227,17 @@ const CreateSubjectModal: React.FC<CreateSubjectModalProps> = ({ visible, onClos
                           <Form.Item
                             {...restField}
                             name={[name, "duration"]}
-                            label={t("subject.duration")}
+                            label={t("subject.modal.create.form.duration")}
                             rules={[
                               {
                                 required: true,
-                                message: t("subject.durationRequired"),
+                                message: t("subject.modal.create.form.durationRequired"),
                               },
                             ]}
                           >
                             <Input
                               type="number"
-                              placeholder={t("subject.enterDuration")}
+                              placeholder={t("subject.modal.create.form.enterDuration")}
                             />
                           </Form.Item>
                         </>
@@ -272,11 +246,11 @@ const CreateSubjectModal: React.FC<CreateSubjectModalProps> = ({ visible, onClos
                           <Form.Item
                             {...restField}
                             name={[name, "end_date"]}
-                            label={t("subject.endDate")}
+                            label={t("subject.modal.create.form.endDate")}
                             rules={[
                               {
                                 required: true,
-                                message: t("subject.endDateRequired"),
+                                message: t("subject.modal.create.form.endDateRequired"),
                               },
                             ]}
                           >
@@ -293,9 +267,9 @@ const CreateSubjectModal: React.FC<CreateSubjectModalProps> = ({ visible, onClos
                   <Form.Item
                     {...restField}
                     name={[name, "interval"]}
-                    label={t("subject.interval")}
+                    label={t("subject.modal.create.form.interval")}
                   >
-                    <Input placeholder={t("subject.enterInterval")} />
+                    <Input placeholder={t("subject.modal.create.form.enterInterval")} />
                   </Form.Item>
 
                   <MinusCircleOutlined
@@ -313,7 +287,7 @@ const CreateSubjectModal: React.FC<CreateSubjectModalProps> = ({ visible, onClos
                   icon={<PlusOutlined />}
                   className="mt-2"
                 >
-                  {t("subject.addParam")}
+                  {t("subject.modal.create.form.addParam")}
                 </Button>
               </Form.Item>
             </>
@@ -326,7 +300,7 @@ const CreateSubjectModal: React.FC<CreateSubjectModalProps> = ({ visible, onClos
             htmlType="submit"
             className="w-32 h-10 text-lg"
           >
-            {t("subject.submit")}
+            {t("subject.modal.create.form.submit")}
           </Button>
         </Form.Item>
       </Form>

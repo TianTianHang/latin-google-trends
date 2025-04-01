@@ -1,32 +1,169 @@
 import { useComponentsStore } from '../stores/componentsStore';
 import { useLayoutsStore } from '../stores/layoutsStore';
 import { useInterlinkedStore } from '../stores/interlinkedStore';
+import { SaveData, SaveList } from '@/types/layouts';
+import { saveLayout, listLayouts, deleteLayout } from '@/api/layouts';
 
-interface SaveData {
-  id: string;
-  name: string;
-  version: string;
-  timestamp: number;
-  components: ReturnType<typeof useComponentsStore.getState>['components'];
-  layouts: ReturnType<typeof useLayoutsStore.getState>['currentLayouts'];
-  interlinks: ReturnType<typeof useInterlinkedStore.getState>['interlinked'];
+
+
+interface ISaveStrategy {
+  save(id: string, name: string): boolean | Promise<boolean>;
+  deleteSave(id: string): boolean | Promise<boolean>;
+  getSaveList(): SaveList | Promise<SaveList>;
+  load(id?: string): SaveData | null | Promise<SaveData | null>;
 }
 
-interface SaveList {
-  [id: string]: SaveData;
+class LocalStorageStrategy implements ISaveStrategy {
+  constructor(private saveService: SaveService) {}
+
+  public save(id: string, name: string): boolean {
+    try {
+      const baseData = this.saveService['collectData']();
+      const data: SaveData = {
+        ...baseData,
+        id,
+        name
+      };
+      
+      const saveList = this.getSaveList();
+      saveList[id] = data;
+      localStorage.setItem('editorStates', JSON.stringify(saveList));
+      return true;
+    } catch (error) {
+      console.error('保存到本地存储失败:', error);
+      return false;
+    }
+  }
+
+  public deleteSave(id: string): boolean {
+    try {
+      const saveList = this.getSaveList();
+      delete saveList[id];
+      localStorage.setItem('editorStates', JSON.stringify(saveList));
+      return true;
+    } catch (error) {
+      console.error('删除存档失败:', error);
+      return false;
+    }
+  }
+
+  public getSaveList(): SaveList {
+    try {
+      const saveList = localStorage.getItem('editorStates');
+      return saveList ? JSON.parse(saveList) as SaveList : {};
+    } catch (error) {
+      console.error('获取存档列表失败:', error);
+      return {};
+    }
+  }
+
+  public load(id?: string): SaveData | null {
+    try {
+      const saveList = this.getSaveList();
+      
+      if (!id) {
+        const latest = Object.values(saveList).sort((a, b) => b.timestamp - a.timestamp)[0];
+        return latest || null;
+      }
+      
+      return saveList[id] || null;
+    } catch (error) {
+      console.error('从本地存储加载数据失败:', error);
+      return null;
+    }
+  }
+}
+
+class RemoteAPIStrategy implements ISaveStrategy {
+  constructor(private saveService: SaveService) {}
+
+  public async save(id: string, name: string): Promise<boolean> {
+    try {
+      const data = this.saveService['collectData']();
+      const saveData = {
+        ...data,
+        id,
+        name
+      };
+      
+      const response = await saveLayout(saveData);
+      return !!response;
+    } catch (error) {
+      console.error('保存到远程API失败:', error);
+      return false;
+    }
+  }
+
+  public async deleteSave(id: string): Promise<boolean> {
+    try {
+      const response = await deleteLayout(id);
+      return !!response;
+    } catch (error) {
+      console.error('删除远程存档失败:', error);
+      return false;
+    }
+  }
+
+  public async getSaveList(): Promise<SaveList> {
+    try {
+      const layouts = await listLayouts();
+      const saveList: SaveList = {};
+      layouts.forEach(layout => {
+        saveList[layout.id] = layout;
+      });
+      return saveList;
+    } catch (error) {
+      console.error('获取远程存档列表失败:', error);
+      return {};
+    }
+  }
+
+  public async load(id?: string): Promise<SaveData | null> {
+    try {
+      if (!id) {
+        const saveList = await this.getSaveList();
+        const latest = Object.values(saveList).sort((a, b) => b.timestamp - a.timestamp)[0];
+        return latest || null;
+      }
+      
+      const saveList = await this.getSaveList();
+      return saveList[id] || null;
+    } catch (error) {
+      console.error('从远程加载数据失败:', error);
+      return null;
+    }
+  }
 }
 
 class SaveService {
   private static instance: SaveService;
   private version = '1.0.0';
+  private currentStrategy: ISaveStrategy;
   
-  private constructor() {}
+  private constructor() {
+    // 默认使用本地存储策略
+    this.currentStrategy = new RemoteAPIStrategy(this);
+  }
 
   public static getInstance(): SaveService {
     if (!SaveService.instance) {
       SaveService.instance = new SaveService();
     }
     return SaveService.instance;
+  }
+
+  // 设置保存策略
+  public setStrategy(strategy: 'local' | 'remote'): void {
+    this.currentStrategy = strategy === 'local'
+      ? new LocalStorageStrategy(this)
+      : new RemoteAPIStrategy(this);
+  }
+
+  // 获取当前策略类型
+  public getCurrentStrategyType(): 'local' | 'remote' {
+    return this.currentStrategy instanceof LocalStorageStrategy
+      ? 'local'
+      : 'remote';
   }
 
   // 收集数据
@@ -40,96 +177,25 @@ class SaveService {
     };
   }
 
-  // 序列化数据
-  private serializeData(data: SaveData | Omit<SaveData, 'id' | 'name'>): string {
-    return JSON.stringify(data, null, 2);
+
+  // 使用当前策略保存
+  public save(id: string, name: string): boolean | Promise<boolean> {
+    return this.currentStrategy.save(id, name);
   }
 
-  // 保存到本地存储
-  public saveToLocalStorage(id: string, name: string): boolean {
-    try {
-      const baseData = this.collectData();
-      const data: SaveData = {
-        ...baseData,
-        id,
-        name
-      };
-      
-      // 获取现有存档列表
-      const saveList = this.getSaveList();
-      saveList[id] = data;
-      
-      // 保存更新后的存档列表
-      localStorage.setItem('editorStates', JSON.stringify(saveList));
-      return true;
-    } catch (error) {
-      console.error('保存到本地存储失败:', error);
-      return false;
-    }
+  // 使用当前策略删除
+  public deleteSave(id: string): boolean | Promise<boolean> {
+    return this.currentStrategy.deleteSave(id);
   }
 
-  // 获取所有存档列表
-  public getSaveList(): SaveList {
-    try {
-      const saveList = localStorage.getItem('editorStates');
-      return saveList ? JSON.parse(saveList) as SaveList : {};
-    } catch (error) {
-      console.error('获取存档列表失败:', error);
-      return {};
-    }
+  // 使用当前策略获取列表
+  public getSaveList(): SaveList | Promise<SaveList> {
+    return this.currentStrategy.getSaveList();
   }
 
-  // 保存到远程API
-  public async saveToRemoteAPI(): Promise<boolean> {
-    try {
-      const data = this.collectData();
-      const serializedData = this.serializeData(data);
-      
-      const response = await fetch('/api/save', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: serializedData,
-      });
-
-      return response.ok;
-    } catch (error) {
-      console.error('保存到远程API失败:', error);
-      return false;
-    }
-  }
-
-  // 删除存档
-  public deleteSave(id: string): boolean {
-    try {
-      const saveList = this.getSaveList();
-      delete saveList[id];
-      localStorage.setItem('editorStates', JSON.stringify(saveList));
-      return true;
-    } catch (error) {
-      console.error('删除存档失败:', error);
-      return false;
-    }
-  }
-
-  // 加载数据
-  public loadFromLocalStorage(id?: string): SaveData | null {
-    try {
-      const saveList = this.getSaveList();
-      
-      // 如果没有指定id，返回最新存档
-      if (!id) {
-        const latest = Object.values(saveList).sort((a, b) => b.timestamp - a.timestamp)[0];
-        return latest || null;
-      }
-      
-      // 返回指定id的存档
-      return saveList[id] || null;
-    } catch (error) {
-      console.error('从本地存储加载数据失败:', error);
-      return null;
-    }
+  // 使用当前策略加载
+  public load(id?: string): SaveData | null | Promise<SaveData | null> {
+    return this.currentStrategy.load(id);
   }
 }
 

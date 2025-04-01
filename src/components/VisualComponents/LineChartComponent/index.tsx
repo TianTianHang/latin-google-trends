@@ -35,26 +35,27 @@ interface LineChartProps {
 
 // 将数据处理逻辑提取到自定义hook中
 const useChartData = (subjectDatas?: SubjectDataResponse[]) => {
+  const filterSubjectDatas = useMemo(() => {
+    return subjectDatas?.filter((sd) => sd.data_type == "time");
+  }, [subjectDatas]);
   const [index, setIndex] = useState(0);
   const data = useMemo(() => {
-    if (!subjectDatas || subjectDatas.length === 0) return null;
+    if (!filterSubjectDatas || filterSubjectDatas.length === 0) return null;
 
     // 缓存计算结果
-    const cachedData = subjectDatas[index];
+    const cachedData = filterSubjectDatas[index];
     if (!cachedData) return null;
 
     // 返回深拷贝数据以避免直接修改
     return JSON.parse(JSON.stringify(cachedData));
-  }, [index, subjectDatas]);
+  }, [index, filterSubjectDatas]);
   const options = useMemo(
     () =>
-      subjectDatas
-        ?.filter((sd) => sd.data_type == "time")
-        .map((sd, index) => ({
-          label: `${sd.id}-${sd.data_type}`,
-          value: index,
-        })),
-    [subjectDatas]
+      filterSubjectDatas?.map((sd, index) => ({
+        label: `${sd.id}-${sd.data_type}`,
+        value: index,
+      })),
+    [filterSubjectDatas]
   );
   return { data, index, setIndex, options };
 };
@@ -148,7 +149,7 @@ const useFitData = (data: SubjectDataResponse | null, index: number) => {
     };
 
     fetchFitData();
-  }, [index, generateFitData,fitRef.current]);
+  }, [index, generateFitData, fitRef.current]);
 
   return { fit, setFit, isFitting, progress, fitData };
 };
@@ -206,6 +207,7 @@ const generateChartOptions = (
         axisPointer: {
           type: "line",
         },
+        
       },
       xAxis: {
         type: "time",
@@ -226,7 +228,7 @@ const generateChartOptions = (
         axisLabel: {
           customValues: [
             0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-            10, 20, 30, 40, 50, 60, 70, 80, 90, 100,
+            10, 20, 30, 40, 50, 60, 70, 80, 90, 100
           ],
         },
         name: "Value",

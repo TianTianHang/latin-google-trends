@@ -1,0 +1,345 @@
+{
+  "dataSource": {
+    "title": "数据源管理",
+    "button": {
+      "add": "添加数据源",
+      "delete": "删除",
+      "preview": "预览",
+      "upload": "点击上传"
+    },
+    "table": {
+      "id": "ID",
+      "type": "类型",
+      "actions": "操作"
+    },
+    "modal": {
+      "addTitle": "添加数据源"
+    },
+    "form": {
+      "id": "ID",
+      "type": "类型",
+      "apiUrl": "API地址",
+      "httpMethod": "HTTP方法",
+      "headers": "请求头",
+      "params": "参数",
+      "dataTransform": "数据转换函数",
+      "dataTransformTooltip": "请输入JavaScript函数体，如：data => data.map(item => ({...item, newField: item.value * 2}))",
+      "file": "文件",
+      "validation": {
+        "id": "请输入数据源ID",
+        "type": "请选择数据源类型",
+        "apiUrl": "请输入API地址",
+        "file": "请上传文件"
+      }
+    },
+    "select": {
+      "api": "API",
+      "csv": "CSV",
+      "excel": "Excel",
+      "get": "GET",
+      "post": "POST",
+      "put": "PUT",
+      "delete": "DELETE"
+    },
+    "message": {
+      "addSuccess": "数据源添加成功",
+      "addFailed": "数据源添加失败",
+      "deleteSuccess": "数据源删除成功"
+    }
+  },
+  "preview": {
+    "message": {
+      "layoutNotFound": "未找到指定的布局",
+      "loadLayoutFailed": "加载布局失败"
+    },
+    "status": {
+      "loading": "加载中..."
+    }
+  },
+  "taskManagement": {
+    "title": {
+      "serviceSelection": "服务选择",
+      "historicalTasks": "历史任务",
+      "scheduledTasks": "定时任务"
+    },
+    "table": {
+      "id": "ID",
+      "jobType": "任务类型",
+      "keywords": "关键词",
+      "status": "状态",
+      "createdAt": "创建时间",
+      "action": "操作",
+      "startDate": "开始日期",
+      "duration": "持续时间",
+      "enabled": "启用状态"
+    },
+    "form": {
+      "jobType": "任务类型",
+      "keywords": "关键词",
+      "geoCode": "地区代码",
+      "startDate": "开始日期",
+      "endDate": "结束日期",
+      "interval": "间隔",
+      "cronExpression": "Cron表达式",
+      "duration": "持续时间",
+      "placeholder": {
+        "country": "选择国家",
+        "serviceInstance": "选择服务实例"
+      }
+    },
+    "button": {
+      "terminate": "终止",
+      "retry": "重试",
+      "createHistoricalTask": "创建历史任务",
+      "createScheduledTask": "创建定时任务",
+      "refresh": "刷新"
+    },
+    "jobType": {
+      "time": "时间",
+      "region": "地区"
+    },
+    "interval": {
+      "yearly": "每年",
+      "monthly": "每月"
+    }
+  },
+  "profile": {
+    "title": {
+      "userInfo": "用户信息",
+      "changePassword": "修改密码"
+    },
+    "form": {
+      "oldPassword": "旧密码",
+      "newPassword": "新密码",
+      "confirmPassword": "确认新密码",
+      "placeholder": {
+        "oldPassword": "请输入当前密码",
+        "newPassword": "请输入新密码",
+        "confirmPassword": "请再次输入新密码"
+      },
+      "validation": {
+        "oldPassword": "请输入旧密码",
+        "newPassword": "请输入新密码",
+        "passwordLength": "密码长度不能少于6位",
+        "confirmPassword": "请确认新密码",
+        "passwordMismatch": "两次输入的新密码不一致"
+      }
+    },
+    "button": {
+      "changePassword": "修改密码"
+    },
+    "message": {
+      "changeSuccess": "密码修改成功",
+      "changeFailed": "密码修改失败",
+      "passwordMismatch": "两次输入的新密码不一致"
+    },
+    "userInfo": {
+      "username": "用户名: "
+    }
+  },
+  "login": {
+    "tab": {
+      "login": "登录",
+      "register": "注册"
+    },
+    "form": {
+      "username": "用户名",
+      "password": "密码",
+      "confirmPassword": "确认密码",
+      "validation": {
+        "username": "请输入用户名",
+        "password": "请输入密码",
+        "confirmPassword": "请确认密码",
+        "passwordMismatch": "两次输入的密码不一致"
+      }
+    },
+    "button": {
+      "login": "登录",
+      "register": "注册"
+    },
+    "message": {
+      "registerSuccess": "注册成功，请登录"
+    }
+  },
+  "permission": {
+    "title": "权限管理",
+    "button": {
+      "add": "新增权限",
+      "edit": "编辑",
+      "delete": "删除"
+    },
+    "table": {
+      "serviceName": "服务名称",
+      "path": "路径",
+      "requiredPermission": "所需权限",
+      "action": "操作"
+    },
+    "modal": {
+      "addTitle": "新增权限",
+      "editTitle": "编辑权限"
+    },
+    "form": {
+      "serviceName": "服务名称",
+      "path": "路径",
+      "requiredPermission": "所需权限(多个权限用逗号分隔)",
+      "validation": {
+        "serviceName": "请输入服务名称",
+        "path": "请输入路径",
+        "requiredPermission": "请输入所需权限"
+      }
+    },
+    "message": {
+      "fetchFailed": "获取权限列表失败",
+      "createSuccess": "创建成功",
+      "createFailed": "创建失败",
+      "updateSuccess": "更新成功",
+      "updateFailed": "更新失败",
+      "deleteSuccess": "删除成功",
+      "deleteFailed": "删除失败",
+      "validationFailed": "表单验证失败"
+    }
+  },
+  "userRole": {
+    "title": {
+      "userRoleManagement": "用户角色管理",
+      "currentRoles": "当前角色",
+      "roleAssignment": "角色分配",
+      "createNewRole": "创建新角色"
+    },
+    "table": {
+      "username": "用户名",
+      "action": "操作"
+    },
+    "button": {
+      "manageRoles": "管理角色",
+      "createNewRole": "创建新角色",
+      "save": "保存"
+    },
+    "form": {
+      "roleName": "角色名称",
+      "roleDescription": "角色描述"
+    },
+    "placeholder": {
+      "selectRoles": "选择角色",
+      "enterRoleName": "请输入角色名称",
+      "enterRoleDescription": "请输入角色描述"
+    },
+    "message": {
+      "fetchDataFailed": "获取数据失败",
+      "fetchUserRolesFailed": "获取用户角色失败",
+      "assignRolesSuccess": "角色分配成功",
+      "assignRolesFailed": "角色分配失败",
+      "createRoleSuccess": "角色创建成功",
+      "createRoleFailed": "角色创建失败",
+      "roleNameRequired": "请输入角色名称"
+    }
+  },
+  "subject": {
+    "modal": {
+      "create": {
+        "title": "创建主题",
+        "message": {
+          "createSuccess": "主题 {{subject_id}} 创建成功",
+          "createFailed": "创建主题失败: {{error}}"
+        },
+        "form": {
+          "name": "名称",
+          "nameRequired": "请输入主题名称",
+          "enterName": "输入主题名称",
+          "description": "描述",
+          "enterDescription": "输入描述",
+          "taskType": "任务类型",
+          "taskTypeRequired": "请选择任务类型",
+          "selectTaskType": "选择任务类型",
+          "realtimeTask": "实时任务",
+          "historicalTask": "历史任务",
+          "dataType": "数据类型",
+          "dataTypeRequired": "请选择数据类型",
+          "enterDataType": "输入数据类型",
+          "timeJob": "时间任务",
+          "regionJob": "区域任务",
+          "keywords": "关键词",
+          "keywordsRequired": "请输入关键词",
+          "enterKeywords": "输入关键词",
+          "geoCode": "地理编码",
+          "geoCodeRequired": "请选择地理编码",
+          "enterGeoCode": "输入地理编码",
+          "startDate": "开始日期",
+          "startDateRequired": "请选择开始日期",
+          "endDate": "结束日期",
+          "endDateRequired": "请选择结束日期",
+          "duration": "持续时间",
+          "durationRequired": "请输入持续时间",
+          "enterDuration": "输入持续时间",
+          "interval": "间隔",
+          "enterInterval": "输入间隔",
+          "addParam": "添加参数",
+          "submit": "提交"
+        }
+      },
+      "detail": {
+        "title": "主题详情",
+        "panel": {
+          "subjectDataHeader": "主题数据 {{index}}",
+          "dataType": "数据类型",
+          "timestamp": "时间戳",
+          "collectionHeader": "采集 {{index}}",
+          "keywords": "关键词",
+          "geoCode": "地理编码",
+          "timeframe": "时间范围",
+          "timeUTC": "时间 (UTC)",
+          "geoName": "地理名称"
+        }
+      },
+      "edit": {
+        "title": "编辑主题"
+      }
+    },
+    "form": {
+      "name": "名称",
+      "namePlaceholder": "输入主题名称",
+      "description": "描述",
+      "descriptionPlaceholder": "输入描述",
+      "taskType": "任务类型",
+      "dataType": "数据类型",
+      "keywords": "关键词",
+      "geoCode": "地理编码",
+      "startDate": "开始日期",
+      "endDate": "结束日期",
+      "duration": "持续时间",
+      "interval": "间隔",
+      "validation": {
+        "required": "{{field}} 必填",
+        "invalid": "无效的{ {field}}"
+      }
+    },
+    "button": {
+      "create": "创建",
+      "submit": "提交",
+      "cancel": "取消",
+      "details": "详情",
+      "edit": "编辑",
+      "delete": "删除",
+      "addParam": "添加参数"
+    },
+    "card": {
+      "name": "名称",
+      "description": "描述",
+      "status": "状态",
+      "dataCount": "数据数量",
+      "actions": "操作",
+      "noDescription": "无描述",
+      "dataNum": "数据数量",
+      "showData":"展示数据"
+    },
+    "status": {
+      "completed": "已完成",
+      "failed": "失败",
+      "processing": "处理中"
+    },
+    "message": {
+      "dataFetched": "数据获取成功",
+      "fetchFailed": "获取数据失败: {{error}}"
+    }
+  }
+}

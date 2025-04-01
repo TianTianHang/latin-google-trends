@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Table,
   Button,
@@ -31,6 +32,7 @@ const UserRoleManagementPage: React.FC = () => {
   const [selectedRoles, setSelectedRoles] = useState<number[]>([]);
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const [form] = Form.useForm();
+  const { t } = useTranslation("views");
 
   const { run: fetchData, loading: fetchLoading } = useRequest(
     async () => {
@@ -47,7 +49,7 @@ const UserRoleManagementPage: React.FC = () => {
         setRoles(rolesRes);
       },
       onError: () => {
-        message.error("获取数据失败");
+        message.error(t("userRole.message.fetchDataFailed"));
       },
     }
   );
@@ -60,7 +62,7 @@ const UserRoleManagementPage: React.FC = () => {
         setSelectedRoles(userRoles.map((role) => role.id));
       },
       onError: () => {
-        message.error("获取用户角色失败");
+        message.error(t("userRole.message.fetchUserRolesFailed"));
       },
     }
   );
@@ -79,11 +81,11 @@ const UserRoleManagementPage: React.FC = () => {
     {
       manual: true,
       onSuccess: () => {
-        message.success("角色分配成功");
+        message.success(t("userRole.message.assignRolesSuccess"));
         fetchData();
       },
       onError: () => {
-        message.error("角色分配失败");
+        message.error(t("userRole.message.assignRolesFailed"));
       },
     }
   );
@@ -93,13 +95,13 @@ const UserRoleManagementPage: React.FC = () => {
     {
       manual: true,
       onSuccess: () => {
-        message.success("角色创建成功");
+        message.success(t("userRole.message.createRoleSuccess"));
         setCreateModalVisible(false);
         form.resetFields();
         fetchData();
       },
       onError: () => {
-        message.error("角色创建失败");
+        message.error(t("userRole.message.createRoleFailed"));
       },
     }
   );
@@ -117,23 +119,23 @@ const UserRoleManagementPage: React.FC = () => {
 
   const columns = [
     {
-      title: "用户名",
+      title: t("userRole.table.username"),
       dataIndex: "username",
       key: "username",
     },
     {
-      title: "操作",
+      title: t("userRole.table.action"),
       key: "action",
       render: (_: unknown, record: userInfoType) => (
         <Button type="link" onClick={() => handleUserSelect(record.id)}>
-          管理角色
+          {t("userRole.button.manageRoles")}
         </Button>
       ),
     },
   ];
 
   return (
-    <Card title="用户角色管理">
+    <Card title={t("userRole.title.userRoleManagement")}>
       <Space direction="vertical" style={{ width: "100%" }}>
         <Table
           columns={columns}
@@ -146,7 +148,7 @@ const UserRoleManagementPage: React.FC = () => {
         {selectedUser && (
           <Row gutter={16}>
             <Col span={12}>
-              <Card title="当前角色" >
+              <Card title={t("userRole.title.currentRoles")}>
                 {userRoleLoading ? (
                   <Spin />
                 ) : (
@@ -163,20 +165,20 @@ const UserRoleManagementPage: React.FC = () => {
             </Col>
             <Col span={12}>
               <Card
-                title="角色分配"
+                title={t("userRole.title.roleAssignment")}
                 extra={
                   <Button
                     type="link"
                     onClick={() => setCreateModalVisible(true)}
                   >
-                    创建新角色
+                    {t("userRole.button.createNewRole")}
                   </Button>
                 }
               >
                 <Select
                   mode="multiple"
                   style={{ width: "100%" }}
-                  placeholder="选择角色"
+                  placeholder={t("userRole.placeholder.selectRoles")}
                   value={selectedRoles}
                   onChange={handleRoleChange}
                   loading={fetchLoading}
@@ -193,7 +195,7 @@ const UserRoleManagementPage: React.FC = () => {
                   loading={assignLoading}
                   style={{ marginTop: 16 }}
                 >
-                  保存
+                  {t("userRole.button.save")}
                 </Button>
               </Card>
             </Col>
@@ -201,7 +203,7 @@ const UserRoleManagementPage: React.FC = () => {
         )}
 
         <Modal
-          title="创建新角色"
+          title={t("userRole.title.createNewRole")}
           open={createModalVisible}
           onOk={handleCreateRole}
           confirmLoading={createLoading}
@@ -210,13 +212,13 @@ const UserRoleManagementPage: React.FC = () => {
           <Form form={form} layout="vertical">
             <Form.Item
               name="name"
-              label="角色名称"
-              rules={[{ required: true, message: "请输入角色名称" }]}
+              label={t("userRole.form.roleName")}
+              rules={[{ required: true, message: t("userRole.message.roleNameRequired") }]}
             >
-              <Input placeholder="请输入角色名称" />
+              <Input placeholder={t("userRole.placeholder.enterRoleName")} />
             </Form.Item>
-            <Form.Item name="description" label="角色描述">
-              <Input.TextArea placeholder="请输入角色描述" />
+            <Form.Item name="description" label={t("userRole.form.roleDescription")}>
+              <Input.TextArea placeholder={t("userRole.placeholder.enterRoleDescription")} />
             </Form.Item>
           </Form>
         </Modal>

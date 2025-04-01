@@ -1,8 +1,9 @@
-import { Button, Form, Input, message, Tabs } from 'antd';
-import { LockOutlined, UserOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
-import { useUserStore } from '@/stores/user';
-import { useState } from 'react';
+import { Button, Form, Input, message, Tabs, TabsProps } from "antd";
+import { LockOutlined, UserOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
+import { useUserStore } from "@/stores/user";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface LoginForm {
   username: string;
@@ -14,105 +15,115 @@ interface RegisterForm extends LoginForm {
 }
 
 export default function LoginPage() {
+  const { t } = useTranslation("views");
   const navigate = useNavigate();
   const { login, register } = useUserStore();
-  const [activeTab, setActiveTab] = useState('login');
+  const [activeTab, setActiveTab] = useState("login");
 
   const onFinishLogin = async (values: LoginForm) => {
     try {
       await login(values);
-      navigate('/home');
+      navigate("/home");
     } catch (error) {
-      console.error('Login failed:', error);
+      console.error("Login failed:", error);
     }
   };
 
   const onFinishRegister = async (values: RegisterForm) => {
     try {
       await register(values);
-      message.success('注册成功，请登录');
-      setActiveTab('login');
+      message.success(t("login.message.registerSuccess"));
+      setActiveTab("login");
     } catch (error) {
-      console.error('Register failed:', error);
+      console.error("Register failed:", error);
     }
   };
+  const items: TabsProps["items"] = [
+    {
+      key: "login",
+      label: t("login.tab.login"),
+      children: (
+        <Form
+          name="login"
+          initialValues={{ remember: true }}
+          onFinish={onFinishLogin}
+        >
+          <Form.Item
+            name="username"
+            rules={[{ required: true, message: t("login.form.validation.username") }]}
+          >
+            <Input prefix={<UserOutlined />} placeholder={t("login.form.username")} />
+          </Form.Item>
 
+          <Form.Item
+            name="password"
+            rules={[{ required: true, message: t("login.form.validation.password") }]}
+          >
+            <Input.Password prefix={<LockOutlined />} placeholder={t("login.form.password")} />
+          </Form.Item>
+
+          <Form.Item>
+            <Button type="primary" htmlType="submit" block>
+              {t("login.button.login")}
+            </Button>
+          </Form.Item>
+        </Form>
+      ),
+    },
+    {
+      key: "register",
+      label: t("login.tab.register"),
+      children: (
+        <Form name="register" onFinish={onFinishRegister}>
+          <Form.Item
+            name="username"
+            rules={[{ required: true, message: t("login.form.validation.username") }]}
+          >
+            <Input prefix={<UserOutlined />} placeholder= {t("login.form.username")} />
+          </Form.Item>
+
+          <Form.Item
+            name="password"
+            rules={[{ required: true, message: t("login.form.validation.password") }]}
+          >
+            <Input.Password prefix={<LockOutlined />} placeholder={t("login.form.password")} />
+          </Form.Item>
+
+          <Form.Item
+            name="confirmPassword"
+            dependencies={["password"]}
+            rules={[
+              { required: true, message: t("login.form.validation.confirmPassword") },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue("password") === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error(t("login.form.validation.passwordMismatch")));
+                },
+              }),
+            ]}
+          >
+            <Input.Password prefix={<LockOutlined />} placeholder={t("login.form.confirmPassword")} />
+          </Form.Item>
+
+          <Form.Item>
+            <Button type="primary" htmlType="submit" block>
+              {t("login.button.register")}
+            </Button>
+          </Form.Item>
+        </Form>
+      ),
+    },
+  ];
   return (
-    <div style={{ maxWidth: 300, margin: '100px auto' }}>
-      <Tabs activeKey={activeTab} onChange={setActiveTab} centered>
-        <Tabs.TabPane tab="登录" key="login">
-          <Form
-            name="login"
-            initialValues={{ remember: true }}
-            onFinish={onFinishLogin}
-          >
-            <Form.Item
-              name="username"
-              rules={[{ required: true, message: '请输入用户名' }]}
-            >
-              <Input prefix={<UserOutlined />} placeholder="用户名" />
-            </Form.Item>
-
-            <Form.Item
-              name="password"
-              rules={[{ required: true, message: '请输入密码' }]}
-            >
-              <Input.Password prefix={<LockOutlined />} placeholder="密码" />
-            </Form.Item>
-
-            <Form.Item>
-              <Button type="primary" htmlType="submit" block>
-                登录
-              </Button>
-            </Form.Item>
-          </Form>
-        </Tabs.TabPane>
-
-        <Tabs.TabPane tab="注册" key="register">
-          <Form
-            name="register"
-            onFinish={onFinishRegister}
-          >
-            <Form.Item
-              name="username"
-              rules={[{ required: true, message: '请输入用户名' }]}
-            >
-              <Input prefix={<UserOutlined />} placeholder="用户名" />
-            </Form.Item>
-
-            <Form.Item
-              name="password"
-              rules={[{ required: true, message: '请输入密码' }]}
-            >
-              <Input.Password prefix={<LockOutlined />} placeholder="密码" />
-            </Form.Item>
-
-            <Form.Item
-              name="confirmPassword"
-              dependencies={['password']}
-              rules={[
-                { required: true, message: '请确认密码' },
-                ({ getFieldValue }) => ({
-                  validator(_, value) {
-                    if (!value || getFieldValue('password') === value) {
-                      return Promise.resolve();
-                    }
-                    return Promise.reject(new Error('两次输入的密码不一致'));
-                  },
-                }),
-              ]}
-            >
-              <Input.Password prefix={<LockOutlined />} placeholder="确认密码" />
-            </Form.Item>
-
-            <Form.Item>
-              <Button type="primary" htmlType="submit" block>
-                注册
-              </Button>
-            </Form.Item>
-          </Form>
-        </Tabs.TabPane>
-      </Tabs>
+    <div style={{ maxWidth: 300, margin: "100px auto" }}>
+      <Tabs
+        activeKey={activeTab}
+        onChange={setActiveTab}
+        centered
+        items={items}
+      />
     </div>
   );
 }

@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { Form, Input, Button, message, Typography, Divider, Row, Col } from 'antd';
 import { useUserStore } from '@/stores/user';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 
 const { Title } = Typography;
 
 const ProfilePage: React.FC = () => {
+  const { t } = useTranslation("views");
   const { username, changePassword } = useUserStore();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
@@ -16,7 +18,7 @@ const ProfilePage: React.FC = () => {
     confirmPassword: string;
   }) => {
     if (values.newPassword !== values.confirmPassword) {
-      message.error('两次输入的新密码不一致');
+      message.error(t("profile.message.passwordMismatch"));
       return;
     }
 
@@ -26,10 +28,10 @@ const ProfilePage: React.FC = () => {
         oldPassword: values.oldPassword,
         newPassword: values.newPassword
       });
-      message.success('密码修改成功');
+      message.success(t("profile.message.changeSuccess"));
       form.resetFields();
     } catch  {
-      message.error('密码修改失败');
+      message.error(t("profile.message.changeFailed"));
     } finally {
       setLoading(false);
     }
@@ -41,14 +43,14 @@ const ProfilePage: React.FC = () => {
         <Col span={24}>
           <Title level={4} style={{ marginBottom: 16 }}>
             <UserOutlined style={{ marginRight: 8 }} />
-            用户信息
+            {t("profile.title.userInfo")}
           </Title>
           <div style={{ 
             background: '#fafafa',
             padding: 16,
             borderRadius: 4
           }}>
-            <p style={{ margin: 0 }}>用户名: {username}</p>
+            <p style={{ margin: 0 }}>{t("profile.userInfo.username")}{username}</p>
           </div>
         </Col>
 
@@ -56,7 +58,7 @@ const ProfilePage: React.FC = () => {
           <Divider />
           <Title level={4} style={{ marginBottom: 16 }}>
             <LockOutlined style={{ marginRight: 8 }} />
-            修改密码
+            {t("profile.button.changePassword")}
           </Title>
           <Form
             form={form}
@@ -66,48 +68,48 @@ const ProfilePage: React.FC = () => {
             autoComplete="off"
           >
             <Form.Item
-              label="旧密码"
+              label={t("profile.form.oldPassword")}
               name="oldPassword"
-              rules={[{ required: true, message: '请输入旧密码' }]}
+              rules={[{ required: true, message: t("profile.form.validation.oldPassword") }]}
             >
               <Input.Password 
-                placeholder="请输入当前密码" 
+                placeholder={t("profile.form.placeholder.oldPassword")}
                 prefix={<LockOutlined />}
               />
             </Form.Item>
 
             <Form.Item
-              label="新密码"
+              label={t("profile.form.newPassword")}
               name="newPassword"
               rules={[
-                { required: true, message: '请输入新密码' },
-                { min: 6, message: '密码长度不能少于6位' }
+                { required: true, message: t("profile.form.validation.newPassword") },
+                { min: 6, message: t("profile.form.validation.passwordLength") }
               ]}
             >
               <Input.Password 
-                placeholder="请输入新密码" 
+                placeholder={t("profile.form.placeholder.newPassword")}
                 prefix={<LockOutlined />}
               />
             </Form.Item>
 
             <Form.Item
-              label="确认新密码"
+              label={t("profile.form.confirmPassword")}
               name="confirmPassword"
               dependencies={['newPassword']}
               rules={[
-                { required: true, message: '请确认新密码' },
+                { required: true, message: t("profile.form.validation.confirmPassword") },
                 ({ getFieldValue }) => ({
                   validator(_, value) {
                     if (!value || getFieldValue('newPassword') === value) {
                       return Promise.resolve();
                     }
-                    return Promise.reject(new Error('两次输入的新密码不一致'));
+                    return Promise.reject(new Error(t("profile.form.validation.passwordMismatch")));
                   },
                 }),
               ]}
             >
               <Input.Password 
-                placeholder="请再次输入新密码" 
+                placeholder={t("profile.form.placeholder.confirmPassword")}
                 prefix={<LockOutlined />}
               />
             </Form.Item>
@@ -119,7 +121,7 @@ const ProfilePage: React.FC = () => {
                 loading={loading}
                 style={{ width: '100%' }}
               >
-                修改密码
+                {t("profile.button.changePassword")}
               </Button>
             </Form.Item>
           </Form>

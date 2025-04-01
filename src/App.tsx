@@ -2,16 +2,26 @@ import { StyleProvider } from "@ant-design/cssinjs";
 import { ConfigProvider, Spin } from "antd";
 import { Suspense } from "react";
 import zhCN from "antd/locale/zh_CN";
+import enUS from "antd/locale/en_US";
 import { BrowserRouter } from "react-router";
 import { AppRouter } from "./router";
 import RouterBeforeEach from "./router/permission";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useGlobalStore } from "./stores/global";
+
+const antdLocales = {
+  zh: zhCN,
+  en: enUS
+};
+
 function App() {
   const queryClient = new QueryClient();
+  const { language } = useGlobalStore();
+  
   return (
     <StyleProvider layer>
       <ConfigProvider
-        locale={zhCN}
+        locale={antdLocales[language as keyof typeof antdLocales]}
         theme={{
           token: {
             

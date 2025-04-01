@@ -3,6 +3,7 @@ import { Collapse, Descriptions, Modal, Table } from "antd";
 const { Panel } = Collapse;
 import { useEffect } from "react";
 import type { TimeInterest, RegionInterest } from "@/types/interest";
+import { useTranslation } from "react-i18next";
 
 interface DetailSubjectModalProps {
     visible: boolean;
@@ -16,40 +17,42 @@ const DetailSubjectModal = ({ visible, subject_id, onClose }: DetailSubjectModal
   useEffect(() => {
     if(!subject_id) return
     selectSubject(subject_id);
-  }, [subject_id]);
+  }, [selectSubject, subject_id]);
 
+  const { t } = useTranslation("views");
+  
   return (
     <Modal
       open={visible}
       onCancel={() => {
         onClose();
       }}
-      title={"Detail"}
+      title={t("subject.modal.detail.title")}
       width={800}
       footer={null}
     >
       <Collapse accordion>
         {subjectDatas && subjectDatas.map((data, index) => (
-          <Panel 
-            header={`SubjectData #${index+1}`} 
+          <Panel
+            header={t("subject.modal.detail.panel.subjectDataHeader", {index: index+1})}
             key={index}
           >
             <Descriptions bordered column={2}>
-              <Descriptions.Item label="Data Type">{data.data_type}</Descriptions.Item>
-              <Descriptions.Item label="Timestamp">{data.timestamp}</Descriptions.Item>
+              <Descriptions.Item label={t("subject.modal.detail.panel.dataType")}>{data.data_type}</Descriptions.Item>
+              <Descriptions.Item label={t("subject.modal.detail.panel.timestamp")}>{data.timestamp}</Descriptions.Item>
             </Descriptions>
 
             {data.meta.map((meta, metaIndex) => (
               <Collapse key={`meta-collapse-${metaIndex}`} style={{ marginTop: 16 }}>
-                <Panel key={`meta-panel-${metaIndex}`} header={`collection #${metaIndex + 1}`}>
+                <Panel key={`meta-panel-${metaIndex}`} header={t("subject.modal.detail.panel.collectionHeader", {index: metaIndex + 1})}>
                   <Descriptions bordered column={2}>
-                    <Descriptions.Item label="Keywords">
+                    <Descriptions.Item label={t("subject.modal.detail.panel.keywords")}>
                       {meta.keywords.join(', ')}
                     </Descriptions.Item>
-                    <Descriptions.Item label="Geo Code">
+                    <Descriptions.Item label={t("subject.modal.detail.panel.geoCode")}>
                       {meta.geo_code==""?"World":meta.geo_code}
                     </Descriptions.Item>
-                    <Descriptions.Item label="Timeframe">
+                    <Descriptions.Item label={t("subject.modal.detail.panel.timeframe")}>
                       {`${meta.timeframe_start} - ${meta.timeframe_end}`}
                     </Descriptions.Item>
                   </Descriptions>
@@ -59,7 +62,7 @@ const DetailSubjectModal = ({ visible, subject_id, onClose }: DetailSubjectModal
                       dataSource={data.data[metaIndex] as TimeInterest[]}
                       columns={[
                       {
-                        title: 'Time [UTC]',
+                        title: t("subject.modal.detail.panel.timeUTC"),
                         dataIndex: 'time_utc',
                         key: 'time_utc',
                       },
@@ -80,7 +83,7 @@ const DetailSubjectModal = ({ visible, subject_id, onClose }: DetailSubjectModal
                       dataSource={data.data[metaIndex] as RegionInterest[]}
                       columns={[
                       {
-                        title: 'geo_name',
+                        title: t("subject.modal.detail.panel.geoName"),
                         dataIndex: 'geo_name',
                         key: 'geo_name',
                       },

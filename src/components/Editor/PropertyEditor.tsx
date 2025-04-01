@@ -14,19 +14,22 @@ import { CodeEditor } from "@/components/CodeEditor";
 import { JsonEditor } from "@/components/JsonEditor";
 import { useCallback, useEffect, useMemo } from "react";
 import { useRequest } from "ahooks";
-import { useComponentsStore, useRegisteredComponentsStore, useInterlinkedStore } from "./stores";
+import {
+  useComponentsStore,
+  useRegisteredComponentsStore,
+  useInterlinkedStore,
+} from "./stores";
 import { Schema } from "./stores/registeredComponentsStore";
-
 
 interface PropertyEditorProps {
   componentId: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  form: FormInstance<any>
+  form: FormInstance<any>;
 }
 
 export const PropertyEditor: React.FC<PropertyEditorProps> = ({
   componentId,
-  form
+  form,
 }) => {
   const { components, updateProps } = useComponentsStore();
   const { registered } = useRegisteredComponentsStore();
@@ -37,32 +40,34 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({
     data: selectedComponent,
     run: updateSelectedComponent,
     loading: componentLoading,
-    error: componentError
+    error: componentError,
   } = useRequest(
     async () => {
       const component = components.find((c) => c.id === componentId);
       if (!component) return null;
-      
+
       // 获取联动组件
       const linkedComponents = getInterlinkedComponents(componentId);
-      
+
       return {
         ...component,
         linkedComponents,
         // 添加联动属性
         linkedProps: linkedComponents.reduce((acc, link) => {
-          link.props.forEach(prop => {
-            acc[prop] = components.find(c => c.id === link.targetId)?.props[prop];
+          link.props.forEach((prop) => {
+            acc[prop] = components.find((c) => c.id === link.targetId)?.props[
+              prop
+            ];
           });
           return acc;
-        }, {} as Record<string, unknown>)
+        }, {} as Record<string, unknown>),
       };
     },
     {
       refreshDeps: [componentId, components],
       manual: true,
       cacheKey: `component-${componentId}`,
-      debounceWait: 300
+      debounceWait: 300,
     }
   );
 
@@ -108,6 +113,12 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({
         if (config.options) {
           return (
             <AsyncSelect
+              showSearch
+              filterOption={(input, option) =>
+                ((option?.label ?? "") as string)
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
               options={config.options}
               allowClear
               mode={config.mode}
@@ -118,10 +129,12 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({
       case "boolean":
         return <Switch />;
       case "date":
-        return <DatePicker
-          style={{ width: "100%" }}
-          format={config.format || "YYYY-MM-DD"}
-        />;
+        return (
+          <DatePicker
+            style={{ width: "100%" }}
+            format={config.format || "YYYY-MM-DD"}
+          />
+        );
       case "range":
         return (
           <Slider
@@ -132,11 +145,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({
           />
         );
       case "json":
-        return (
-          <JsonEditor
-            height={config.height || 200}
-          />
-        );
+        return <JsonEditor height={config.height || 200} />;
       case "code":
         return (
           <CodeEditor

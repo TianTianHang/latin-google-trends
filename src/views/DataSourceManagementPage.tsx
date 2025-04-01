@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Modal, Form, Input, Select, Upload, message, Space } from 'antd';
+import { useTranslation } from 'react-i18next';
 import PreviewModal from '@/components/Editor/PreviewModal';
 import { UploadOutlined } from '@ant-design/icons';
 import { useDataProviderStore } from '@/components/Editor/stores/dataProviderStore';
@@ -27,6 +28,7 @@ interface DataSourceFormValues {
 }
 
 const DataSourceManagementPage: React.FC = () => {
+  const { t } = useTranslation("views");
   const [dataSources, setDataSources] = useState<DataSource[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm<DataSourceFormValues>();
@@ -81,46 +83,46 @@ const DataSourceManagementPage: React.FC = () => {
       useDataProviderStore.getState().registerDataSource(newSource);
       setDataSources(prev => [...prev, newSource]);
       setIsModalVisible(false);
-      message.success('Data source added successfully');
+      message.success(t("dataSource.message.addSuccess"));
     } catch (error: unknown) {
       if (error instanceof Error) {
         message.error(error.message);
       } else {
         message.error('An unknown error occurred');
       }
-      message.error('Failed to add data source');
+      message.error(t("dataSource.message.addFailed"));
     }
   };
 
   const handleDeleteDataSource = (id: string) => {
     useDataProviderStore.getState().unregisterDataSource(id);
     setDataSources(prev => prev.filter(source => source.id !== id));
-    message.success('Data source deleted successfully');
+    message.success(t("dataSource.message.deleteSuccess"));
   };
 
   return (
     <div className="data-source-management">
       <div className="actions">
         <Button type="primary" onClick={handleAddDataSource}>
-          Add Data Source
+          {t("dataSource.button.add")}
         </Button>
       </div>
 
       <Table dataSource={dataSources} rowKey="id">
-        <Column title="ID" dataIndex="id" />
-        <Column title="Type" dataIndex="type" />
+        <Column title={t("dataSource.table.id")} dataIndex="id" />
+        <Column title={t("dataSource.table.type")} dataIndex="type" />
         <Column
-          title="Actions"
+          title={t("dataSource.table.actions")}
           render={(_, record: DataSource) => (
             <Space>
               <Button danger onClick={() => handleDeleteDataSource(record.id)}>
-                Delete
+                {t("dataSource.button.delete")}
               </Button>
               <Button onClick={() => {
                 setPreviewDataSource(record);
                 setPreviewVisible(true);
               }}>
-                预览
+                {t("dataSource.button.preview")}
               </Button>
             </Space>
           )}
@@ -128,76 +130,76 @@ const DataSourceManagementPage: React.FC = () => {
       </Table>
 
       <Modal
-        title="Add Data Source"
+       title={t("dataSource.modal.addTitle")}
         open={isModalVisible}
         onCancel={() => setIsModalVisible(false)}
         onOk={() => form.submit()}
       >
         <Form form={form} onFinish={handleSaveDataSource}>
           <Form.Item
-            label="ID"
+            label={t("dataSource.form.id")}
             name="id"
-            rules={[{ required: true, message: 'Please input data source ID' }]}
+            rules={[{ required: true, message: t("dataSource.form.validation.id") }]}
           >
             <Input />
           </Form.Item>
 
           <Form.Item
-            label="Type"
+            label={t("dataSource.form.type")}
             name="type"
-            rules={[{ required: true, message: 'Please select data source type' }]}
+            rules={[{ required: true, message: t("dataSource.form.validation.type") }]}
           >
             <Select
             value={type}
             onChange={(value)=>setType(value)}
             >
-              <Option value="api">API</Option>
-              <Option value="csv">CSV</Option>
-              <Option value="excel">Excel</Option>
+              <Option value="api">{t("dataSource.select.api")}</Option>
+              <Option value="csv">{t("dataSource.select.csv")}</Option>
+              <Option value="excel">{t("dataSource.select.excel")}</Option>
             </Select>
           </Form.Item>
 
           {type === 'api' && (
             <>
               <Form.Item
-                label="API URL"
+                label={t("dataSource.form.apiUrl")}
                 name={['config', 'url']}
-                rules={[{ required: true, message: 'Please input API URL' }]}
+                rules={[{ required: true, message: t("dataSource.form.validation.apiUrl") }]}
               >
                 <Input />
               </Form.Item>
 
               <Form.Item
-                label="HTTP Method"
+                label={t("dataSource.form.httpMethod")}
                 name={['config', 'method']}
                 initialValue="GET"
               >
                 <Select>
-                  <Option value="GET">GET</Option>
-                  <Option value="POST">POST</Option>
-                  <Option value="PUT">PUT</Option>
-                  <Option value="DELETE">DELETE</Option>
+                  <Option value="GET">{t("dataSource.select.get")}</Option>
+                  <Option value="POST">{t("dataSource.select.post")}</Option>
+                  <Option value="PUT">{t("dataSource.select.put")}</Option>
+                  <Option value="DELETE">{t("dataSource.select.delete")}</Option>
                 </Select>
               </Form.Item>
 
               <Form.Item
-                label="Headers"
+                label={t("dataSource.form.headers")}
                 name={['config', 'headers']}
               >
                 <Input.TextArea rows={2} />
               </Form.Item>
 
               <Form.Item
-                label="Parameters"
+                label={t("dataSource.form.params")}
                 name={['config', 'params']}
               >
                 <Input.TextArea rows={2} />
               </Form.Item>
 
               <Form.Item
-                label="数据转换函数"
+                label={t("dataSource.form.dataTransform")}
                 name={['config', 'renderData']}
-                tooltip="请输入JavaScript函数体，如：data => data.map(item => ({...item, newField: item.value * 2}))"
+                tooltip={t("dataSource.form.dataTransformTooltip")}
               >
                 <Input.TextArea rows={4} />
               </Form.Item>
@@ -206,14 +208,14 @@ const DataSourceManagementPage: React.FC = () => {
 
           {(type === 'csv' || type === 'excel') && (
             <Form.Item
-              label="File"
+              label={t("dataSource.form.file")}
               name="config"
               valuePropName="file"
               getValueFromEvent={e => e.file}
-              rules={[{ required: true, message: 'Please upload a file' }]}
+              rules={[{ required: true, message: t("dataSource.form.validation.file") }]}
             >
               <Upload accept={type === 'csv' ? '.csv' : '.xlsx,.xls'}>
-                <Button icon={<UploadOutlined />}>Click to Upload</Button>
+                <Button icon={<UploadOutlined />}>{t("dataSource.button.upload")}</Button>
               </Upload>
             </Form.Item>
           )}

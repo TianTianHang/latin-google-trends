@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { message } from "antd";
 import { saveService } from "@/components/Editor/services/saveService";
@@ -13,6 +14,7 @@ const ResponsiveGridLayout = WidthProvider(Responsive);
 const responsiveMap = ["lg", "md", "sm", "xs", "xxs"];
 
 const PreviewPage:React.FC = () => {
+  const { t } = useTranslation("views");
   const { id } = useParams();
   const { renderComponent } = useComponentRenderer();
   const [loading, setLoading] = useState(true);
@@ -22,7 +24,7 @@ const PreviewPage:React.FC = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const data = await saveService.loadFromLocalStorage(id);
+        const data = await saveService.load(id);
         if (data) {
           const { components, layouts } = data;
           setComponents(components);
@@ -35,11 +37,11 @@ const PreviewPage:React.FC = () => {
           
           setLayouts(responsiveLayouts);
         } else {
-          message.error("未找到指定的布局");
+          message.error(t("preview.message.layoutNotFound"));
         }
       } catch (error) {
         console.error("加载布局失败:", error);
-        message.error("加载布局失败");
+        message.error(t("preview.message.loadLayoutFailed"));
       } finally {
         setLoading(false);
       }
@@ -50,7 +52,7 @@ const PreviewPage:React.FC = () => {
 
 
   if (loading) {
-    return <div>加载中...</div>;
+    return <div>{t("preview.status.loading")}</div>;
   }
 
   return (

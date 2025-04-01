@@ -6,7 +6,7 @@ import {
   useLayoutsStore,
 } from "./stores";
 import { useComponentRenderer } from "./hooks/useComponentRenderer";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import RightClickMenu from "./RightClickMenu";
 import { PropertyEditor } from "./PropertyEditor";
 import "react-resizable/css/styles.css";
@@ -24,6 +24,8 @@ import {
 } from "antd";
 import { LinkEditor } from "./LinkEditor";
 import { saveService } from "./services/saveService";
+import { useBoolean, useInterval, useRequest } from "ahooks";
+
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 const responsiveMap = ["lg", "md", "sm", "xs", "xxs"];
@@ -33,16 +35,17 @@ export const Canvas = () => {
   const { currentLayouts, updateLayout } = useLayoutsStore();
   const { renderComponent } = useComponentRenderer();
 
-  const [menuVisible, setMenuVisible] = useState(false);
+  const [menuVisible, { setTrue: showMenu, setFalse: hideMenu }] =
+    useBoolean(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
-  const [editorVisible, setEditorVisible] = useState(false);
+  const [editorVisible, { setTrue: showEditor, setFalse: hideEditor }] =
+    useBoolean(false);
   const [selectedComponentId, setSelectedComponentId] = useState<string | null>(
     null
   );
   const [editForm] = Form.useForm();
   const [linkForm] = Form.useForm();
   const [tabKey, setTabKey] = useState("1");
-  const [autoSaveInterval, setAutoSaveInterval] = useState<number>();
   const [currentSaveId] = useState<string>("default");
 
   // 加载数据
@@ -52,104 +55,114 @@ export const Canvas = () => {
     timestamp: number;
   }
 
-  const [loadDrawerVisible, setLoadDrawerVisible] = useState(false);
+  const [
+    loadDrawerVisible,
+    { setTrue: showLoadDrawer, setFalse: hideLoadDrawer },
+  ] = useBoolean(false);
   const [saveList, setSaveList] = useState<SaveListItem[]>([]);
 
-  const handleLoad = () => {
-    const saves = saveService.getSaveList();
-    setSaveList(
-      Object.values(saves).map((save) => ({
-        id: save.id,
-        name: save.name,
-        timestamp: save.timestamp,
-      }))
-    );
-    setLoadDrawerVisible(true);
-  };
-  const [loading, setLoading] = useState(false);
-
-  const handleLoadConfirm = useCallback(async (id?: string) => {
-    setLoading(true);
-    try {
-      const data = saveService.loadFromLocalStorage(id);
-      if (data) {
-        const { components, layouts, interlinks } = data;
-        useComponentsStore.setState({ components });
-        useLayoutsStore.setState({ currentLayouts: layouts });
-        useInterlinkedStore.setState({ interlinked: interlinks });
-        message.success("加载成功");
-      } else {
-        message.info("没有找到保存的数据");
-      }
-    } catch (error) {
-      message.error("加载失败");
-      console.error("加载数据时出错:", error);
-    } finally {
-      setLoading(false);
+  const { run: handleLoad } = useRequest(
+    async () => {
+      showLoadDrawer();
+      return saveService.getSaveList();
+    },
+    {
+      manual: true,
+      onSuccess: (saves) => {
+        setSaveList(
+          Object.values(saves).map((save) => ({
+            id: save.id,
+            name: save.name,
+            timestamp: save.timestamp,
+          }))
+        );
+      },
     }
-  }, []);
+  );
+
+  const { loading: loadLoading, run: handleLoadConfirm } = useRequest(
+    async (id?: string) => {
+      const data = await saveService.load(id);
+      if (!data) {
+        message.info("没有找到保存的数据");
+        return;
+      }
+      return data;
+    },
+    {
+      manual: true,
+      onSuccess: (data) => {
+        if (data) {
+          const { components, layouts, interlinks } = data;
+          useComponentsStore.setState({ components });
+          useLayoutsStore.setState({ currentLayouts: layouts });
+          useInterlinkedStore.setState({ interlinked: interlinks });
+          message.success("加载成功");
+        }
+      },
+      onError: (error) => {
+        message.error("加载失败");
+        console.error("加载数据时出错:", error);
+      },
+    }
+  );
 
   // 手动保存
-  const [saveModalVisible, setSaveModalVisible] = useState(false);
+  const [
+    saveModalVisible,
+    { setTrue: showSaveModal, setFalse: hideSaveModal },
+  ] = useBoolean(false);
   const [saveForm] = Form.useForm();
 
-  const handleSave = async () => {
-    setSaveModalVisible(true);
+  const handleSave = () => {
+    showSaveModal();
   };
 
-  const handleSaveModalCancel = () => {
-    setSaveModalVisible(false);
-  };
+  const handleSaveModalCancel = hideSaveModal;
 
-  const handleSaveConfirm = async () => {
-    try {
+  const { run: handleSaveConfirm } = useRequest(
+    async () => {
       const values = await saveForm.validateFields();
-      const success = saveService.saveToLocalStorage(values.id, values.name);
-      if (success) {
-        message.success("保存成功");
-        setSaveModalVisible(false);
-      } else {
-        message.error("保存失败");
-      }
-    } catch (error) {
-      message.error("保存出错");
-      console.error(error);
+      return saveService.save(values.id, values.name);
+    },
+    {
+      manual: true,
+      onSuccess: (success) => {
+        if (success) {
+          message.success("保存成功");
+          hideSaveModal();
+        } else {
+          message.error("保存失败");
+        }
+      },
+      onError: (error) => {
+        message.error("保存出错");
+        console.error(error);
+      },
     }
-  };
+  );
 
   // 自动保存
-  useEffect(() => {
-    const interval = setInterval(() => {
-      saveService.saveToLocalStorage(
-        currentSaveId,
-        `自动保存-${new Date().toLocaleString()}`
-      );
-    }, 30000); // 每30秒自动保存一次
-    setAutoSaveInterval(interval);
-
-    return () => {
-      if (autoSaveInterval) {
-        clearInterval(autoSaveInterval);
-      }
-    };
-  }, [currentSaveId]);
+  useInterval(() => {
+    saveService.save(currentSaveId, `自动保存-${new Date().toLocaleString()}`);
+  }, 30000);
 
   const handleContextMenu = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
     setMenuPosition({ x: e.clientX, y: e.clientY });
     setSelectedComponentId(id);
-    setMenuVisible(true);
+    showMenu();
   };
 
   const handleClickOutside = () => {
-    setMenuVisible(false);
+    hideMenu();
     setMenuPosition({ x: 0, y: 0 });
   };
 
   const handleEdit = () => {
     console.log("Edit component:", selectedComponentId);
-    setEditorVisible(true);
-    setMenuVisible(false);
+    showEditor();
+    hideMenu();
   };
 
   const handleDelete = () => {
@@ -157,7 +170,7 @@ export const Canvas = () => {
     if (selectedComponentId) {
       deleteComponent(selectedComponentId);
     }
-    setMenuVisible(false);
+    hideMenu();
   };
 
   const { layouts, missIds } = useMemo(() => {
@@ -206,15 +219,15 @@ export const Canvas = () => {
       </div>
       <Skeleton
         active
-        loading={loading}
-        paragraph={{ rows: 18, width: ['100%', '80%', '60%', '40%', '20%'] }}
-        title={{ width: '30%' }}
+        loading={loadLoading}
+        paragraph={{ rows: 18, width: ["100%", "80%", "60%", "40%", "20%"] }}
+        title={{ width: "30%" }}
         style={{
           padding: 24,
-          background: '#fff',
+          background: "#fff",
           borderRadius: 8,
-          margin: '0 auto',
-          maxWidth: 1200
+          margin: "0 auto",
+          maxWidth: 1200,
         }}
       >
         <ResponsiveGridLayout
@@ -253,13 +266,13 @@ export const Canvas = () => {
           onDelete={handleDelete}
           onClickOutside={handleClickOutside}
           onClose={() => {
-            setMenuVisible(false);
+            hideMenu();
           }}
         />
       )}
       <Modal
         open={editorVisible}
-        onClose={() => setEditorVisible(false)}
+        onClose={hideEditor}
         onOk={() => {
           if (tabKey === "1") {
             editForm.submit();
@@ -267,11 +280,9 @@ export const Canvas = () => {
             linkForm.submit();
           }
 
-          setEditorVisible(false);
+          hideEditor();
         }}
-        onCancel={() => {
-          setEditorVisible(false);
-        }}
+        onCancel={hideEditor}
       >
         <Tabs
           activeKey={tabKey}
@@ -317,7 +328,7 @@ export const Canvas = () => {
       <Drawer
         title="选择存档"
         placement="right"
-        onClose={() => setLoadDrawerVisible(false)}
+        onClose={hideLoadDrawer}
         open={loadDrawerVisible}
         width={400}
         extra={
@@ -360,7 +371,7 @@ export const Canvas = () => {
                   type="link"
                   onClick={() => {
                     handleLoadConfirm(item.id);
-                    setLoadDrawerVisible(false);
+                    hideLoadDrawer();
                   }}
                 >
                   加载

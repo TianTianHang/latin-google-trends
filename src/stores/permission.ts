@@ -20,9 +20,10 @@ const filterAsyncRoutes = (routes: RouteType[], roles: string[]) => {
   return res
 }
 interface PermissionStore{
-  routes:RouteType[]
-  dynamicRoutes:RouteType[]
-  setRoutes:(roles: string[])=>void
+  routes:RouteType[];
+  dynamicRoutes:RouteType[];
+  setRoutes:(roles: string[])=>void;
+  addRoutes:(newRoutes: RouteType[], roles: string[])=>void;
 }
 export const usePermissionStore = create<PermissionStore>((set) => ({
   routes:[],
@@ -34,7 +35,15 @@ export const usePermissionStore = create<PermissionStore>((set) => ({
       routes: [...constantRoutes, ...accessedRoutes],
       dynamicRoutes: accessedRoutes,
     });
-  
+  },
+  addRoutes:(newRoutes: RouteType[], roles: string[]) => {
+    const mergedRoutes = [...asyncRoutes, ...newRoutes];
+    const accessedRoutes = filterAsyncRoutes(mergedRoutes, roles);
+    
+    set({
+      routes: [...constantRoutes, ...accessedRoutes],
+      dynamicRoutes: accessedRoutes,
+    });
   }
 }));
 

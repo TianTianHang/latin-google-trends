@@ -3,12 +3,13 @@ import { RegionInterest } from "@/types/interest";
 import ReactECharts, { EChartsOption } from "echarts-for-react";
 import "echarts-extension-amap";
 import locData from "./loc_data.json";
-import { RegisteredComponent } from "@/components/Editor/types";
+
 import { useSubjectStore } from "@/stores/useSubjectStore";
 import { SeriesOption } from "echarts";
 import { Empty, Select } from "antd";
 import { useAutoResizeChart } from "../hooks/useAutoResizeChart";
 import { useSubjectData } from "@/hooks/useSubjectData";
+import { RegisteredComponent } from "@/components/Editor/stores/registeredComponentsStore";
 
 interface HeatMapProps {
   subjectDataId?: number;
@@ -140,6 +141,7 @@ const HeatMap: React.FC<HeatMapProps> = ({ subjectDataId,index }) => {
 
 export default HeatMap;
 //注册组件
+// eslint-disable-next-line react-refresh/only-export-components
 export const registeredHeatMapComponent: RegisteredComponent<HeatMapProps> = {
   meta: {
     type: "HeatMap",

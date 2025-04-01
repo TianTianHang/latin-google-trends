@@ -1,0 +1,345 @@
+{
+  "dataSource": {
+    "title": "Data Source Management",
+    "button": {
+      "add": "Add Data Source",
+      "delete": "Delete",
+      "preview": "Preview",
+      "upload": "Click to Upload"
+    },
+    "table": {
+      "id": "ID",
+      "type": "Type",
+      "actions": "Actions"
+    },
+    "modal": {
+      "addTitle": "Add Data Source"
+    },
+    "form": {
+      "id": "ID",
+      "type": "Type",
+      "apiUrl": "API URL",
+      "httpMethod": "HTTP Method",
+      "headers": "Headers",
+      "params": "Parameters",
+      "dataTransform": "Data Transform Function",
+      "dataTransformTooltip": "Please enter JavaScript function body, e.g.: data => data.map(item => ({...item, newField: item.value * 2}))",
+      "file": "File",
+      "validation": {
+        "id": "Please input data source ID",
+        "type": "Please select data source type",
+        "apiUrl": "Please input API URL",
+        "file": "Please upload a file"
+      }
+    },
+    "select": {
+      "api": "API",
+      "csv": "CSV",
+      "excel": "Excel",
+      "get": "GET",
+      "post": "POST",
+      "put": "PUT",
+      "delete": "DELETE"
+    },
+    "message": {
+      "addSuccess": "Data source added successfully",
+      "addFailed": "Failed to add data source",
+      "deleteSuccess": "Data source deleted successfully"
+    }
+  },
+  "preview": {
+    "message": {
+      "layoutNotFound": "Layout not found",
+      "loadLayoutFailed": "Failed to load layout"
+    },
+    "status": {
+      "loading": "Loading..."
+    }
+  },
+  "taskManagement": {
+    "title": {
+      "serviceSelection": "Service Selection",
+      "historicalTasks": "Historical Tasks",
+      "scheduledTasks": "Scheduled Tasks"
+    },
+    "table": {
+      "id": "ID",
+      "jobType": "Job Type",
+      "keywords": "Keywords",
+      "status": "Status",
+      "createdAt": "Created At",
+      "action": "Action",
+      "startDate": "Start Date",
+      "duration": "Duration",
+      "enabled": "Enabled"
+    },
+    "form": {
+      "jobType": "Job Type",
+      "keywords": "Keywords",
+      "geoCode": "Geo Code",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "interval": "Interval",
+      "cronExpression": "Cron Expression",
+      "duration": "Duration",
+      "placeholder": {
+        "country": "Select a country",
+        "serviceInstance": "Select a service instance"
+      }
+    },
+    "button": {
+      "terminate": "Terminate",
+      "retry": "Retry",
+      "createHistoricalTask": "Create Historical Task",
+      "createScheduledTask": "Create Scheduled Task",
+      "refresh": "Refresh"
+    },
+    "jobType": {
+      "time": "Time",
+      "region": "Region"
+    },
+    "interval": {
+      "yearly": "Yearly",
+      "monthly": "Monthly"
+    }
+  },
+  "profile": {
+    "title": {
+      "userInfo": "User Information",
+      "changePassword": "Change Password"
+    },
+    "form": {
+      "oldPassword": "Old Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password",
+      "placeholder": {
+        "oldPassword": "Please enter current password",
+        "newPassword": "Please enter new password",
+        "confirmPassword": "Please enter new password again"
+      },
+      "validation": {
+        "oldPassword": "Please enter old password",
+        "newPassword": "Please enter new password",
+        "passwordLength": "Password must be at least 6 characters",
+        "confirmPassword": "Please confirm new password",
+        "passwordMismatch": "The two new passwords do not match"
+      }
+    },
+    "button": {
+      "changePassword": "Change Password"
+    },
+    "message": {
+      "changeSuccess": "Password changed successfully",
+      "changeFailed": "Failed to change password",
+      "passwordMismatch": "The two new passwords do not match"
+    },
+    "userInfo": {
+      "username": "Username: "
+    }
+  },
+  "login": {
+    "tab": {
+      "login": "Login",
+      "register": "Register"
+    },
+    "form": {
+      "username": "Username",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "validation": {
+        "username": "Please enter username",
+        "password": "Please enter password",
+        "confirmPassword": "Please confirm password",
+        "passwordMismatch": "Passwords do not match"
+      }
+    },
+    "button": {
+      "login": "Login",
+      "register": "Register"
+    },
+    "message": {
+      "registerSuccess": "Registration successful, please login"
+    }
+  },
+  "permission": {
+    "title": "Permission Management",
+    "button": {
+      "add": "Add Permission",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "table": {
+      "serviceName": "Service Name",
+      "path": "Path",
+      "requiredPermission": "Required Permission",
+      "action": "Actions"
+    },
+    "modal": {
+      "addTitle": "Add Permission",
+      "editTitle": "Edit Permission"
+    },
+    "form": {
+      "serviceName": "Service Name",
+      "path": "Path",
+      "requiredPermission": "Required Permissions (comma separated)",
+      "validation": {
+        "serviceName": "Please enter service name",
+        "path": "Please enter path",
+        "requiredPermission": "Please enter required permissions"
+      }
+    },
+    "message": {
+      "fetchFailed": "Failed to fetch permissions",
+      "createSuccess": "Created successfully",
+      "createFailed": "Creation failed",
+      "updateSuccess": "Updated successfully",
+      "updateFailed": "Update failed",
+      "deleteSuccess": "Deleted successfully",
+      "deleteFailed": "Deletion failed",
+      "validationFailed": "Form validation failed"
+    }
+  },
+  "userRole": {
+    "title": {
+      "userRoleManagement": "User Role Management",
+      "currentRoles": "Current Roles",
+      "roleAssignment": "Role Assignment",
+      "createNewRole": "Create New Role"
+    },
+    "table": {
+      "username": "Username",
+      "action": "Action"
+    },
+    "button": {
+      "manageRoles": "Manage Roles",
+      "createNewRole": "Create New Role",
+      "save": "Save"
+    },
+    "form": {
+      "roleName": "Role Name",
+      "roleDescription": "Role Description"
+    },
+    "placeholder": {
+      "selectRoles": "Select roles",
+      "enterRoleName": "Enter role name",
+      "enterRoleDescription": "Enter role description"
+    },
+    "message": {
+      "fetchDataFailed": "Failed to fetch data",
+      "fetchUserRolesFailed": "Failed to fetch user roles",
+      "assignRolesSuccess": "Roles assigned successfully",
+      "assignRolesFailed": "Failed to assign roles",
+      "createRoleSuccess": "Role created successfully",
+      "createRoleFailed": "Failed to create role",
+      "roleNameRequired": "Please enter role name"
+    }
+  },
+ "subject": {
+     "modal": {
+       "create": {
+         "title": "Create Subject",
+         "message": {
+           "createSuccess": "Subject {{subject_id}} created successfully",
+           "createFailed": "Failed to create subject:{ {error}}"
+         },
+         "form": {
+           "name": "Name",
+           "nameRequired": "Please enter subject name",
+           "enterName": "Enter subject name",
+           "description": "Description",
+           "enterDescription": "Enter description",
+           "taskType": "Task Type",
+           "taskTypeRequired": "Please select task type",
+           "selectTaskType": "Select task type",
+           "realtimeTask": "Realtime Task",
+           "historicalTask": "Historical Task",
+           "dataType": "Data Type",
+           "dataTypeRequired": "Please select data type",
+           "enterDataType": "Enter data type",
+           "timeJob": "Time Job",
+           "regionJob": "Region Job",
+           "keywords": "Keywords",
+           "keywordsRequired": "Please enter keywords",
+           "enterKeywords": "Enter keywords",
+           "geoCode": "Geo Code",
+           "geoCodeRequired": "Please select geo code",
+           "enterGeoCode": "Enter geo code",
+           "startDate": "Start Date",
+           "startDateRequired": "Please select start date",
+           "endDate": "End Date",
+           "endDateRequired": "Please select end date",
+           "duration": "Duration",
+           "durationRequired": "Please enter duration",
+           "enterDuration": "Enter duration",
+           "interval": "Interval",
+           "enterInterval": "Enter interval",
+           "addParam": "Add Parameter",
+           "submit": "Submit"
+         }
+       },
+       "detail": {
+         "title": "Subject Details",
+         "panel": {
+           "subjectDataHeader": "Subject Data {{index}}",
+           "dataType": "Data Type",
+           "timestamp": "Timestamp",
+           "collectionHeader": "Collection {{index}}",
+           "keywords": "Keywords",
+           "geoCode": "Geo Code",
+           "timeframe": "Timeframe",
+           "timeUTC": "Time (UTC)",
+           "geoName": "Geo Name"
+         }
+       },
+       "edit": {
+         "title": "Edit Subject"
+       }
+     },
+     "form": {
+       "name": "Name",
+       "namePlaceholder": "Enter subject name",
+       "description": "Description",
+       "descriptionPlaceholder": "Enter description",
+       "taskType": "Task Type",
+       "dataType": "Data Type",
+       "keywords": "Keywords",
+       "geoCode": "Geo Code",
+       "startDate": "Start Date",
+       "endDate": "End Date",
+       "duration": "Duration",
+       "interval": "Interval",
+       "validation": {
+         "required": "{{field}} is required",
+        "invalid": "Invalid {{field}}"
+       }
+     },
+     "button": {
+       "create": "Create",
+       "submit": "Submit",
+       "cancel": "Cancel",
+       "details": "Details",
+       "edit": "Edit",
+       "delete": "Delete",
+       "addParam": "Add Parameter"
+     },
+     "card": {
+       "name": "Name",
+       "description": "Description",
+       "status": "Status",
+       "dataCount": "Data Count",
+       "actions": "Actions",
+       "noDescription": "No description",
+       "dataNum": "Data Number",
+       "showData":"Show data"
+     },
+     "status": {
+       "completed": "Completed",
+       "failed": "Failed",
+       "processing": "Processing"
+     },
+     "message": {
+       "dataFetched": "Data fetched successfully",
+       "fetchFailed": "Failed to fetch data: {{error}}"
+     }
+   }
+}

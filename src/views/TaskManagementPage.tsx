@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useTaskStore } from '@/stores/taskStore';
 import { Button, Table, Space, Input, Form, Select, DatePicker, Switch } from 'antd';
 import { createHistoricalTask, createScheduledTask, terminateHistoricalTask, retryHistoricalTask, toggleScheduledTask } from '@/api/tasks';
@@ -6,37 +7,12 @@ import type { HistoricalTaskRequest, ScheduledTaskRequest, HistoricalTaskRespons
 import dayjs from 'dayjs';
 import { ServiceInstance } from '@/types/service';
 import { getServices } from '@/api/services';
-
+import {countries} from "@/views/countries"
 const { Option } = Select;
-const countries = [
-  {name:"World",code:""},
-  { name: 'Afghanistan', code: 'AF' },
-  { name: 'Albania', code: 'AL' },
-  { name: 'Algeria', code: 'DZ' },
-  { name: 'Andorra', code: 'AD' },
-  { name: 'Angola', code: 'AO' },
-  { name: 'Antigua and Barbuda', code: 'AG' },
-  { name: 'Argentina', code: 'AR' },
-  { name: 'Armenia', code: 'AM' },
-  { name: 'Australia', code: 'AU' },
-  { name: 'Austria', code: 'AT' },
-  { name: 'Azerbaijan', code: 'AZ' },
-  { name: 'Bahamas', code: 'BS' },
-  { name: 'Bahrain', code: 'BH' },
-  { name: 'Bangladesh', code: 'BD' },
-  { name: 'Barbados', code: 'BB' },
-  { name: 'Belarus', code: 'BY' },
-  { name: 'Belgium', code: 'BE' },
-  { name: 'Belize', code: 'BZ' },
-  { name: 'Benin', code: 'BJ' },
-  { name: 'Bhutan', code: 'BT' },
-  { name: 'Bolivia', code: 'BO' },
-  { name: 'Bosnia and Herzegovina', code: 'BA' },
-  { name: 'Botswana', code: 'BW' },
-  { name: 'Brazil', code: 'BR' },
-  { name: 'Brunei', code: 'BN' },]
+
 
 const TaskManagement: React.FC = () => {
+  const { t } = useTranslation();
   const { historicalTasks, scheduledTasks, fetchHistoricalTasks, fetchScheduledTasks } = useTaskStore();
   const [serviceInstances, setServiceInstances] = useState<ServiceInstance[]>([]);
   const [selectedServiceId, setSelectedServiceId] = useState<string>('');
@@ -87,39 +63,43 @@ const TaskManagement: React.FC = () => {
 
   const columnsHistorical = [
     {
-      title: 'ID',
+      title: t('taskManagement.table.id'),
       dataIndex: 'id',
       key: 'id',
     },
     {
-      title: 'Job Type',
+      title: t('taskManagement.table.jobType'),
       dataIndex: 'job_type',
       key: 'job_type',
     },
     {
-      title: 'Keywords',
+      title: t('taskManagement.table.keywords'),
       dataIndex: 'keywords',
       key: 'keywords',
       render: (keywords: string[]) => keywords.join(', '),
     },
     {
-      title: 'Status',
+      title: t('taskManagement.table.status'),
       dataIndex: 'status',
       key: 'status',
     },
     {
-      title: 'Created At',
+      title: t('taskManagement.table.createdAt'),
       dataIndex: 'created_at',
       key: 'created_at',
       render: (text: string) => dayjs(text).format('YYYY-MM-DD HH:mm:ss'),
     },
     {
-      title: 'Action',
+      title: t('taskManagement.table.action'),
       key: 'action',
       render: (text: string, record: HistoricalTaskResponse) => (
         <Space size="middle">
-          {record.status === 'running' && <Button onClick={() => handleTerminateHistoricalTask(record.id)}>Terminate</Button>}
-          {record.status === 'failed' && <Button onClick={() => handleRetryHistoricalTask(record.id)}>Retry</Button>}
+          {record.status === 'running' && <Button onClick={() => handleTerminateHistoricalTask(record.id)}>
+            {t("taskManagement.button.terminate")}
+          </Button>}
+          {record.status === 'failed' && <Button onClick={() => handleRetryHistoricalTask(record.id)}>
+            {t("taskManagement.button.retry")}
+          </Button>}
         </Space>
       ),
     },
@@ -127,34 +107,34 @@ const TaskManagement: React.FC = () => {
 
   const columnsScheduled = [
     {
-      title: 'ID',
+      title: t('taskManagement.table.id'),
       dataIndex: 'id',
       key: 'id',
     },
     {
-      title: 'Job Type',
+      title: t('taskManagement.table.jobType'),
       dataIndex: 'job_type',
       key: 'job_type',
     },
     {
-      title: 'Keywords',
+      title: t('taskManagement.table.keywords'),
       dataIndex: 'keywords',
       key: 'keywords',
       render: (keywords: string[]) => keywords.join(', '),
     },
     {
-      title: 'Start Date',
+      title: t('taskManagement.table.startDate'),
       dataIndex: 'start_date',
       key: 'start_date',
       render: (text: string) => dayjs(text).format('YYYY-MM-DD'),
     },
     {
-      title: 'Duration',
+      title: t('taskManagement.table.duration'),
       dataIndex: 'duration',
       key: 'duration',
     },
     {
-      title: 'Enabled',
+      title: t('taskManagement.table.enabled'),
       key: 'enabled',
       render: (text: string, record: ScheduledTaskResponse) => (
         <Switch
@@ -167,11 +147,11 @@ const TaskManagement: React.FC = () => {
 
   return (
     <div>
-      <h2>Service Selection</h2>
+      <h2>{t("taskManagement.title.serviceSelection")}</h2>
       <Select
         value={selectedServiceId}
         onChange={setSelectedServiceId}
-        placeholder="Select a service instance"
+        placeholder={t("taskManagement.form.placeholder.serviceInstance")}
         style={{ width: 200 }}
       >
         {serviceInstances.map(instance => (
@@ -181,22 +161,22 @@ const TaskManagement: React.FC = () => {
         ))}
       </Select>
 
-      <h2>Historical Tasks</h2>
+      <h2>{t("taskManagement.title.historicalTasks")}</h2>
      
       <Form onFinish={handleCreateHistoricalTask}>
-        <Form.Item name="job_type" label="Job Type">
+        <Form.Item name="job_type" label={t("taskManagement.form.jobType")}>
           <Select>
-            <Option value="time">Time</Option>
-            <Option value="region">Region</Option>
+            <Option value="time">{t("taskManagement.jobType.time")}</Option>
+            <Option value="region">{t("taskManagement.jobType.region")}</Option>
           </Select>
         </Form.Item>
-        <Form.Item name="keywords" label="Keywords">
+        <Form.Item name="keywords" label={t("taskManagement.form.keywords")}>
           <Select mode="tags" />
         </Form.Item>
-        <Form.Item name="geo_code" label="Geo Code">
+        <Form.Item name="geo_code" label={t("taskManagement.form.geoCode")}>
         <Select
           showSearch
-          placeholder="Select a country"
+          placeholder={t("taskManagement.form.placeholder.country")}
         >
             {countries.map(country => (
               <Option key={country.code} value={country.code}>
@@ -205,43 +185,45 @@ const TaskManagement: React.FC = () => {
             ))}
           </Select>
         </Form.Item>
-        <Form.Item name="start_date" label="Start Date">
+        <Form.Item name="start_date" label={t("taskManagement.form.startDate")}>
           <DatePicker format="YYYY-MM-DD" />
         </Form.Item>
-        <Form.Item name="end_date" label="End Date">
+        <Form.Item name="end_date" label={t("taskManagement.form.endDate")}>
           <DatePicker format="YYYY-MM-DD" />
         </Form.Item>
-        <Form.Item name="interval" label="Interval">
+        <Form.Item name="interval" label={t("taskManagement.form.interval")}>
           <Select defaultValue="MS">
-            <Option value="YS">Yearly</Option>
-            <Option value="MS">Monthly</Option>
+            <Option value="YS">{t("taskManagement.interval.yearly")}</Option>
+            <Option value="MS">{t("taskManagement.interval.monthly")}</Option>
           </Select>
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit">
-            Create Historical Task
+            {t("taskManagement.button.createHistoricalTask")}
           </Button>
         </Form.Item>
       </Form>
-      <Button onClick={()=>fetchHistoricalTasks(selectedServiceId)} style={{ marginBottom: 16 }}>Refresh</Button>
+      <Button onClick={()=>fetchHistoricalTasks(selectedServiceId)} style={{ marginBottom: 16 }}>
+        {t("taskManagement.button.refresh")}
+      </Button>
       <Table dataSource={historicalTasks} columns={columnsHistorical} rowKey="id" />
 
-      <h2>Scheduled Tasks</h2>
+      <h2>{t("taskManagement.title.scheduledTasks")}</h2>
       
       <Form onFinish={handleCreateScheduledTask}>
-        <Form.Item name="job_type" label="Job Type">
+        <Form.Item name="job_type" label={t("taskManagement.form.jobType")}>
           <Select>
-            <Option value="time">Time</Option>
-            <Option value="region">Region</Option>
+            <Option value="time">{t("taskManagement.jobType.time")}</Option>
+            <Option value="region">{t("taskManagement.jobType.region")}</Option>
           </Select>
         </Form.Item>
-        <Form.Item name="keywords" label="Keywords">
+        <Form.Item name="keywords" label={t("taskManagement.form.keywords")}>
           <Select mode="tags" />
         </Form.Item>
-        <Form.Item name="geo_code" label="Geo Code">
+        <Form.Item name="geo_code" label={t("taskManagement.form.geoCode")}>
         <Select
           showSearch
-          placeholder="Select a country"
+          placeholder={t("taskManagement.form.placeholder.country")}
         >
             {countries.map(country => (
               <Option key={country.code} value={country.code}>
@@ -250,28 +232,30 @@ const TaskManagement: React.FC = () => {
             ))}
           </Select>
         </Form.Item>
-        <Form.Item name="cron_expression" label="Cron Expression">
+        <Form.Item name="cron_expression" label={t("taskManagement.form.cronExpression")}>
           <Input />
         </Form.Item>
-        <Form.Item name="start_date" label="Start Date">
+        <Form.Item name="start_date" label={t("taskManagement.form.startDate")}>
           <DatePicker format="YYYY-MM-DD" />
         </Form.Item>
-        <Form.Item name="duration" label="Duration">
+        <Form.Item name="duration" label={t("taskManagement.form.duration")}>
           <Input />
         </Form.Item>
-        <Form.Item name="interval" label="Interval">
+        <Form.Item name="interval" label={t("taskManagement.form.interval")}>
           <Select defaultValue="MS">
-            <Option value="YS">Yearly</Option>
-            <Option value="MS">Monthly</Option>
+            <Option value="YS">{t("taskManagement.interval.yearly")}</Option>
+            <Option value="MS">{t("taskManagement.interval.monthly")}</Option>
           </Select>
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit">
-            Create Scheduled Task
+            {t("taskManagement.button.createScheduledTask")}
           </Button>
         </Form.Item>
       </Form>
-      <Button onClick={()=>fetchScheduledTasks(selectedServiceId)} style={{ marginBottom: 16 }}>Refresh</Button>
+      <Button onClick={()=>fetchScheduledTasks(selectedServiceId)} style={{ marginBottom: 16 }}>
+        {t("taskManagement.button.refresh")}
+      </Button>
       <Table dataSource={scheduledTasks} columns={columnsScheduled} rowKey="id" />
     </div>
   );
