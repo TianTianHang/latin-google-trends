@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Button, Form, Input, Modal, Select, message } from "antd";
 import { useRequest } from "ahooks";
+import { useTranslation } from "react-i18next";
 import {
   createKeyword,
   getCategories,
@@ -19,6 +20,7 @@ interface ModalState {
 }
 
 const KeywordsManagement: React.FC = () => {
+  const { t } = useTranslation('views');
   const [modalState, setModalState] = useState<ModalState>({
     keyword: { visible: false, data: null },
     category: { visible: false, data: null },
@@ -57,14 +59,12 @@ const KeywordsManagement: React.FC = () => {
         category: createCategory,
       }[type](values);
       message.success(
-        `${
-          type === "keyword" ? "关键词" : type === "category" ? "分类" : "定义"
-        }创建成功`
+        t(`keywords.message.${type}CreateSuccess`)
       );
 
       handleCloseModal(type);
     } catch {
-      message.error("操作失败");
+      message.error(t('keywords.message.operationFailed'));
     }
   };
 
@@ -73,19 +73,19 @@ const KeywordsManagement: React.FC = () => {
       {/* 按钮组 */}
       <div style={{ marginBottom: 16 }}>
         <Button onClick={() => handleOpenModal("keyword")} type="primary">
-          添加关键词
+          {t('keywords.button.addKeyword')}
         </Button>
         <Button
           onClick={() => handleOpenModal("category")}
           style={{ marginLeft: 8 }}
         >
-          添加分类
+          {t('keywords.button.addCategory')}
         </Button>
       </div>
 
       {/* 关键词管理模态框 */}
       <Modal
-        title={`${modalState.keyword.data ? "编辑" : "添加"}关键词`}
+        title={modalState.keyword.data ? t('keywords.modal.editKeyword') : t('keywords.modal.addKeyword')}
         open={modalState.keyword.visible}
         onCancel={() => handleCloseModal("keyword")}
         onOk={() => keywordForm.submit()}
@@ -97,20 +97,20 @@ const KeywordsManagement: React.FC = () => {
           {/* 表单项根据需要添加 */}
 
           <Form.Item
-            label="关键词"
+            label={t('keywords.form.keyword')}
             name="word"
-            rules={[{ required: true, message: "请输入关键词" }]}
+            rules={[{ required: true, message: t('keywords.validation.keyword') }]}
           >
             <Input />
           </Form.Item>
           <Form.Item
-            label="分类"
+            label={t('keywords.form.category')}
             name="category_id"
-            rules={[{ required: false, message: "请选择分类" }]}
+            rules={[{ required: false, message: t('keywords.validation.category') }]}
           >
             <Select loading={categoriesLoading}>
             <Select.Option key={0} value={null}>
-                  {"无"}
+                  {t('keywords.text.none')}
                 </Select.Option>
               {categories?.map((category) => (
                 <Select.Option key={category.id} value={category.id}>
@@ -120,9 +120,9 @@ const KeywordsManagement: React.FC = () => {
             </Select>
           </Form.Item>
           <Form.Item
-            label="发音"
+            label={t('keywords.form.pronunciation')}
             name="pronunciation"
-            rules={[{ required: true, message: "请输入发音" }]}
+            rules={[{ required: true, message: t('keywords.validation.pronunciation') }]}
           >
             <Input />
           </Form.Item>
@@ -132,7 +132,7 @@ const KeywordsManagement: React.FC = () => {
 
       {/* 分类管理模态框 */}
       <Modal
-        title={`${modalState.category.data ? "编辑" : "添加"}分类`}
+        title={modalState.category.data ? t('keywords.modal.editCategory') : t('keywords.modal.addCategory')}
         open={modalState.category.visible}
         onCancel={() => handleCloseModal("category")}
         onOk={() => {categoryForm.submit()}}
@@ -143,27 +143,27 @@ const KeywordsManagement: React.FC = () => {
         >
           {/* 表单项根据需要添加 */}
           <Form.Item
-            label="分类名称"
+            label={t('keywords.form.categoryName')}
             name="name"
-            rules={[{ required: true, message: "请输入分类名称" }]}
+            rules={[{ required: true, message: t('keywords.validation.categoryName') }]}
           >
             <Input />
           </Form.Item>
           <Form.Item
-            label="描述"
+            label={t('keywords.form.description')}
             name="description"
-            rules={[{ required: true, message: "请输入分类名称" }]}
+            rules={[{ required: true, message: t('keywords.validation.description') }]}
           >
             <Input />
           </Form.Item>
           <Form.Item
-            label="父分类"
+            label={t('keywords.form.parentCategory')}
             name="parent_id"
-            rules={[{ required: false, message: "请选择父分类" }]}
+            rules={[{ required: false, message: t('keywords.validation.parentCategory') }]}
           >
             <Select loading={categoriesLoading}>
             <Select.Option key={0} value={null}>
-                  {"无"}
+                  {t('keywords.text.none')}
                 </Select.Option>
               {categories?.map((category) => (
                 <Select.Option key={category.id} value={category.id}>

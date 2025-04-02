@@ -48,7 +48,7 @@ const PreviewPage:React.FC = () => {
     };
 
     loadData();
-  }, [id]);
+  }, [id, t]);
 
 
   if (loading) {

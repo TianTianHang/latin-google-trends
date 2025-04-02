@@ -4,11 +4,12 @@ import { BellOutlined } from "@ant-design/icons";
 import { useUserStore } from "@/stores/user";
 import LanguageSwitcher from "./LanguageSwitcher";
 import ProfilePage from "@/views/ProfilePage";
+import { useTranslation } from "react-i18next";
 
 const RightContent: React.FC = () => {
   const { resetToken } = useUserStore();
   const [profileVisible, setProfileVisible] = useState(false);
-
+  const {t}=useTranslation()
   const logoutHandle = () => {
     resetToken();
   };
@@ -16,11 +17,11 @@ const RightContent: React.FC = () => {
   const items: MenuProps["items"] = [
     {
       key: "1",
-      label: <span onClick={logoutHandle}>退出登录</span>,
+      label: <span onClick={logoutHandle}>{t('layout.logout')}</span>,
     },
     {
       key: "2",
-      label: <span onClick={() => setProfileVisible(true)}>个人中心</span>,
+      label: <span onClick={() => setProfileVisible(true)}>{t('layout.profile')}</span>,
     },
   ];
 
@@ -44,13 +45,13 @@ const RightContent: React.FC = () => {
       </Row>
 
       <Modal
-        title="个人中心"
-        open={profileVisible}
-        onCancel={() => setProfileVisible(false)}
-        footer={null}
-        width={800}
-        destroyOnClose
-      >
+       title={t('layout.profile')}
+       open={profileVisible}
+       onCancel={() => setProfileVisible(false)}
+       footer={null}
+       width={800}
+       destroyOnClose
+     >
         <ProfilePage />
       </Modal>
     </Space>

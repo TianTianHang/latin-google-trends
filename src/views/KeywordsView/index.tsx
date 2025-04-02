@@ -1,11 +1,14 @@
- import { Tabs } from 'antd';
+import { Tabs } from 'antd';
+import { useTranslation } from 'react-i18next';
 import KeywordsList from './KeywordsList';
 
 const KeywordsView = () => {
+  const { t } = useTranslation('views');
+  
   const items = [
     {
       key: '1',
-      label: '关键词列表',
+      label: t('keywords.tabs.list'),
       children: <KeywordsList />,
     },
   ];

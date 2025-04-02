@@ -3,9 +3,11 @@ import { Card, Select, Space, Statistic, StatisticProps } from "antd";
 import { calculateGlobalMoran } from "@/api/moran";
 import CountUp from "react-countup";
 import { RegionInterest } from "@/types/interest";
-import { SubjectDataMeta } from "@/types/subject";
-import { RegisteredComponent } from "../../Editor/types";
+import { SubjectDataResponse } from "@/types/subject";
 import { useSubjectStore } from "@/stores/useSubjectStore";
+import { RegisteredComponent } from "@/components/Editor/stores/registeredComponentsStore";
+import { useDataBinding } from "@/components/Editor/hooks/useDataBinding";
+import { useTranslation } from "react-i18next";
 
 interface DataItem {
   value: number;
@@ -13,33 +15,46 @@ interface DataItem {
 }
 
 interface GlobalMoranIndexProps {
-  subjectDataId: number;
+  componentId: string;
+  subjectId?: number;
+  subjectDatas?: SubjectDataResponse[];
+  index:number; // x选择的subject data
+  step:number; // 在某个data中的第几个
 }
 
 const GlobalMoranIndex: React.FC<GlobalMoranIndexProps> = ({
-  subjectDataId,
+  componentId,
+  subjectId,
+  subjectDatas,
+  index=0,
+  step=0
 }) => {
+  const { t } = useTranslation("visualComponents");
+  useDataBinding(`subject-${subjectId}`, componentId, "subjectDatas");
   const [globalMoranIndex, setGlobalMoranIndex] = useState<number | null>(null);
   const [selectedKeyword, setSelectedKeyword] = useState<string>();
-  const [index, _setIndex] = useState(0);
-  const { subjectDatas } = useSubjectStore();
+  
+  const filterSubjectDatas = useMemo(() => {
+    return subjectDatas?.filter((sd) => sd.data_type == "region");
+  }, [subjectDatas]);
 
   const moranData = useMemo(() => {
-    const subject = subjectDatas.find((s) => s.id == subjectDataId);
-    return subject ? subject : null;
-  }, [subjectDataId, subjectDatas]);
+    if (!filterSubjectDatas || filterSubjectDatas.length === 0) return null;
+
+    return filterSubjectDatas[index];
+  }, [index, filterSubjectDatas]);
 
   const data: DataItem[] = useMemo(() => {
     if (moranData) {
-      const metaItem = moranData.meta[index];
+      const metaItem = moranData.meta[step];
       // 只处理选中的keyword
       const keyword = selectedKeyword || metaItem.keywords[0];
       if (
         moranData.data instanceof Array &&
-        moranData.data[index] instanceof Array
+        moranData.data[step] instanceof Array
       ) {
         // 提取 RegionInterest 数据
-        const regionInterestData = moranData.data[index] as RegionInterest[];
+        const regionInterestData = moranData.data[step] as RegionInterest[];
         return regionInterestData.map((i) => ({
           value: i[keyword],
           geo_code: i.geo_code,
@@ -50,7 +65,7 @@ const GlobalMoranIndex: React.FC<GlobalMoranIndexProps> = ({
     } else {
       return [];
     }
-  }, [index, moranData, selectedKeyword]);
+  }, [moranData, selectedKeyword, step]);
 
   useEffect(() => {
     if (data.length === 0) return;
@@ -82,14 +97,14 @@ const GlobalMoranIndex: React.FC<GlobalMoranIndexProps> = ({
           style={{ width: "100%" }}
           defaultValue={moranData?.meta[index].keywords[0]}
           value={selectedKeyword}
-          options={moranData?.meta[index].keywords.map((kw) => ({
+          options={moranData?.meta[index].keywords.map((kw: string) => ({
             label: kw,
             value: kw,
           }))}
           onChange={(value) => setSelectedKeyword(value)}
         />
         <Statistic
-          title={<span>全局莫兰指数</span>}
+          title={<span>{t("component.globalMoran.title")}</span>}
           value={globalMoranIndex || "null"}
           formatter={formatter}
         />
@@ -100,27 +115,36 @@ const GlobalMoranIndex: React.FC<GlobalMoranIndexProps> = ({
 
 export default GlobalMoranIndex;
 // 注册组件
+// eslint-disable-next-line react-refresh/only-export-components
 export const registeredGlobalMoranIndexComponent: RegisteredComponent<GlobalMoranIndexProps> =
   {
     meta: {
       type: "GlobalMoranIndex",
-      name: "全局 Moran's I 组件",
+      name: "globalMoran",
       icon: <span>📊</span>,
+      defaultProps: {
+        index: 0,
+        step: 0,
+        componentId: ""
+      },
       propSchema: {
-        subjectDataId: {
-          type: "select", // 或者根据实际需求选择合适的类型
-          label: "Subject Data Id",
-          placeholder: "Enter Subject Data Id",
-          options: () => {
-            return useSubjectStore
-              .getState()
-              .subjectDatas.filter((s) => s.data_type == "region")
-              .map((s) => ({
-                label: `${s.data_type}-${s.timestamp}-${s.id}`,
-                value: s.id,
-              }));
+        subjectId: {
+          type: "select",
+          label: "Subject Id",
+          placeholder: "Enter Subject Id",
+          options: async () => {
+            const subjects = useSubjectStore.getState().allSubjects;
+            return subjects.map((s) => ({
+              label: `${s.subject_id}-${s.name}-${s.data_num}`,
+              value: s.subject_id,
+            }));
           },
         },
+        step: {
+          type: "number",
+          label: "Step",
+          placeholder: "Enter Step",
+        }
       },
     },
     component: GlobalMoranIndex,

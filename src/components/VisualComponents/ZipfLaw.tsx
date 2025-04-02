@@ -2,9 +2,9 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";
 import { Card } from "antd";
-import { RegisteredComponent } from "../Editor/types";
 import { TimeInterest } from "@/types/interest";
 import { SubjectDataMeta } from "@/types/subject";
+import { RegisteredComponent } from "../Editor/stores/registeredComponentsStore";
 
 interface ZipfLawProps {
   timeInterests: {
@@ -120,6 +120,7 @@ const echartsRef = useRef<InstanceType<typeof ReactECharts>>(null);
 export default ZipfLaw;
 
 // 注册组件
+// eslint-disable-next-line react-refresh/only-export-components
 export const registeredZipfLawComponent: RegisteredComponent<ZipfLawProps> = {
   meta: {
     type: "analysis",
@@ -127,12 +128,6 @@ export const registeredZipfLawComponent: RegisteredComponent<ZipfLawProps> = {
     icon: <span>📈</span>,
     defaultProps: {
       timeInterests: [],
-    },
-    defaultLayout: {
-      x: 0,
-      y: 0,
-      w: 3,
-      h: 3,
     },
     propSchema: {
       timeInterests: {

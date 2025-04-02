@@ -18,6 +18,7 @@ import { RegisteredComponent } from "@/components/Editor/stores/registeredCompon
 import { useSubjectStore } from "@/stores/useSubjectStore";
 import { useDataBinding } from "@/components/Editor/hooks/useDataBinding";
 import { SubjectDataResponse } from "@/types/subject";
+import { useTranslation } from "react-i18next";
 
 interface ChartData {
   time: string;
@@ -41,13 +42,7 @@ const useChartData = (subjectDatas?: SubjectDataResponse[]) => {
   const [index, setIndex] = useState(0);
   const data = useMemo(() => {
     if (!filterSubjectDatas || filterSubjectDatas.length === 0) return null;
-
-    // 缓存计算结果
-    const cachedData = filterSubjectDatas[index];
-    if (!cachedData) return null;
-
-    // 返回深拷贝数据以避免直接修改
-    return JSON.parse(JSON.stringify(cachedData));
+    return filterSubjectDatas[index];
   }, [index, filterSubjectDatas]);
   const options = useMemo(
     () =>
@@ -149,6 +144,7 @@ const useFitData = (data: SubjectDataResponse | null, index: number) => {
     };
 
     fetchFitData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [index, generateFitData, fitRef.current]);
 
   return { fit, setFit, isFitting, progress, fitData };
@@ -285,6 +281,7 @@ const LineChart: React.FC<LineChartProps> = ({
   lineColors,
   title,
 }) => {
+  const {t}=useTranslation("visualComponents");
   useDataBinding(`subject-${subjectId}`, componentId, "subjectDatas");
   const { cardRef, echartsRef } = useAutoResizeChart();
   const [error, setError] = useState<Error | null>(null);
@@ -339,7 +336,7 @@ const LineChart: React.FC<LineChartProps> = ({
       )}
       {error ? (
         <div className="flex flex-col items-center justify-center h-full">
-          <div className="text-red-500 mb-4">图表加载失败: {error.message}</div>
+          <div className="text-red-500 mb-4">{t(`component.lineChart.error`,{error:error.message})}</div>
           <Button type="primary" onClick={handleRetry}>
             重试
           </Button>

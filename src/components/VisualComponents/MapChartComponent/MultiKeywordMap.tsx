@@ -1,33 +1,44 @@
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import ReactECharts, { EChartsOption } from "echarts-for-react";
 import "echarts-extension-amap";
 import locData from "./loc_data.json";
-import { RegisteredComponent } from "@/components/Editor/types";
-
-interface MultiKeywordMapProps {
-  subjectDataId?: number;
-  index:number;
-}
-import icon1 from "./icons/peitubiaotouxiang-.png";
-import icon2 from "./icons/touxiang_qinglvtouxiangnansheng3.png";
-import icon3 from "./icons/touxiang_qinglvtouxiangnansheng4.png";
-import icon4 from "./icons/touxiang_qinglvtouxiangnansheng5.png";
-import icon5 from "./icons/touxiang_qinglvtouxiangnansheng6.png";
-import icon6 from "./icons/touxiang_qinglvtouxiangnvsheng3.png";
-import icon7 from "./icons/touxiang_qinglvtouxiangnvsheng5.png";
-import icon8 from "./icons/touxiangshangchuan-datouxiang.png";
 import { useSubjectStore } from "@/stores/useSubjectStore";
 import { SeriesOption } from "echarts";
 import { RegionInterest } from "@/types/interest";
 import { Empty } from "antd";
-import { useSubjectData } from "@/hooks/useSubjectData";
-const icons = [icon1, icon2, icon3, icon4, icon5, icon6, icon7, icon8];
+import { RegisteredComponent } from "@/components/Editor/stores/registeredComponentsStore";
+import { useDataBinding } from "@/components/Editor/hooks/useDataBinding";
+import { SubjectDataResponse } from "@/types/subject";
+const icons = Object.values(
+  import.meta.glob("./icons/*.png", { eager: true, import: "default" })
+).map((module) => module as string);
+interface MultiKeywordMapProps {
+  subjectId?: number;
+  componentId: string;
+  subjectDatas?: SubjectDataResponse[];
+  index: number;
+  step: number;
+}
+const MultiKeywordMap: React.FC<MultiKeywordMapProps> = ({
+  subjectId,
+  componentId,
+  subjectDatas,
+  index,
+  step,
+}) => {
+  useDataBinding(`subject-${subjectId}`, componentId, "subjectDatas");
+  const filterSubjectDatas = useMemo(() => {
+    return subjectDatas?.filter((sd) => sd.data_type == "region");
+  }, [subjectDatas]);
+  const data = useMemo(() => {
+    if (!filterSubjectDatas || filterSubjectDatas.length === 0) return null;
 
-const MultiKeywordMap: React.FC<MultiKeywordMapProps> = ({ subjectDataId,index }) => {
+    return filterSubjectDatas[index];
+  }, [index, filterSubjectDatas]);
   const echartsRef = useRef<InstanceType<typeof ReactECharts>>(null);
-  const data=useSubjectData(subjectDataId)
-  
+  const [zoom]=useState(2);
+
   useEffect(() => {
     if (!echartsRef.current) return;
   }, [echartsRef]);
@@ -36,30 +47,35 @@ const MultiKeywordMap: React.FC<MultiKeywordMapProps> = ({ subjectDataId,index }
       const series: SeriesOption[] = [];
 
       // 遍历每个 SubjectDataMeta 元素
-      const metaItem = data.meta[index];
+      const metaItem = data.meta[step];
       // 遍历每个 keyword，创建一个系列
-      metaItem.keywords.forEach((keyword) => {
+      metaItem.keywords.forEach((keyword:string) => {
         // 检查 data 是否包含 RegionInterest 类型的数据
-        if (data.data instanceof Array && data.data[index] instanceof Array) {
+        if (data.data instanceof Array && data.data[step] instanceof Array) {
           // 提取 RegionInterest 数据
-          const regionInterestData = data.data[index] as RegionInterest[];
+          const regionInterestData = data.data[step] as RegionInterest[];
 
-          const seriesData = regionInterestData.map((item) => {
-            const location = locData.find((loc) => loc.ISO_A2 === item.geo_code);
-            if (location?.LABEL_X && location?.LABEL_Y) { // 检查 LABEL_X 和 LABEL_Y 是否都有值
-              return {
-                name: item.geo_name,
-                value: [
-                  location.LABEL_X,
-                  location.LABEL_Y,
-                  item[keyword],
-                  item.geo_code,
-                  keyword,
-                ],
-              };
-            }
-            // 如果 LABEL_X 或 LABEL_Y 无值，则不返回任何内容，相当于跳过该元素
-          }).filter(item => item); // 清除 undefined 值
+          const seriesData = regionInterestData
+            .map((item) => {
+              const location = locData.find(
+                (loc) => loc.ISO_A2 === item.geo_code
+              );
+              if (location?.LABEL_X && location?.LABEL_Y) {
+                // 检查 LABEL_X 和 LABEL_Y 是否都有值
+                return {
+                  name: item.geo_name,
+                  value: [
+                    location.LABEL_X,
+                    location.LABEL_Y,
+                    item[keyword],
+                    item.geo_code,
+                    keyword,
+                  ],
+                };
+              }
+              // 如果 LABEL_X 或 LABEL_Y 无值，则不返回任何内容，相当于跳过该元素
+            })
+            .filter((item) => item); // 清除 undefined 值
 
           // 添加到 series 数组
           series.push({
@@ -73,12 +89,12 @@ const MultiKeywordMap: React.FC<MultiKeywordMapProps> = ({ subjectDataId,index }
               return "image://" + icons[value[2] % icons.length];
             },
             label: {
-              show:true,
-              position:"top",
-              formatter:(params)=>{
+              show: true,
+              position: "top",
+              formatter: (params) => {
                 //@ts-expect-error 111
                 return params.value[4];
-              }
+              },
             },
             symbolSize: 15,
             symbolOffset: [Math.random() * 20 - 10, Math.random() * 20 - 10],
@@ -91,9 +107,9 @@ const MultiKeywordMap: React.FC<MultiKeywordMapProps> = ({ subjectDataId,index }
       return {
         amap: {
           viewMode: "3D",
-          center: [105.602725, 37.076636],
+          center: [12.4964, 41.9028],
           resizeEnable: true,
-          zoom: 4,
+          zoom: zoom,
           mapStyle: "amap://styles/dark",
           lang: "en",
           roam: true,
@@ -107,47 +123,54 @@ const MultiKeywordMap: React.FC<MultiKeywordMapProps> = ({ subjectDataId,index }
         },
         series: series,
       };
-    }else{
-      return {}
+    } else {
+      return {};
     }
-  }, [data, index]);
+  }, [data, step, zoom]);
 
-  return (
-    Object.keys(dataOption).length >0?
+  return Object.keys(dataOption).length > 0 ? (
     <ReactECharts
       ref={echartsRef}
       autoResize={true}
       option={dataOption}
       style={{ height: "100%", width: "100%" }}
-    />: <Empty />
+    />
+  ) : (
+    <Empty />
   );
 };
 
 export default MultiKeywordMap;
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const registeredMultiKeywordMapComponent: RegisteredComponent<MultiKeywordMapProps> =
   {
     meta: {
       type: "MultiKeywordMap",
-      name: "多关键词地图组件",
+      name: "multiKeywordMap",
       icon: <span>🗺️</span>,
-      defaultProps:{
-        index:0
+      defaultProps: {
+        index: 0,
+        componentId: "",
+        step: 0
       },
       propSchema: {
-        subjectDataId: {
-          type: "select", // 或者根据实际需求选择合适的类型
-          label: "Subject Data Id",
-          placeholder: "Enter Subject Data Id",
-          options: () => {
-            return useSubjectStore
-              .getState()
-              .subjectDatas.filter((s) => s.data_type == "region")
-              .map((s) => ({
-                label: `${s.data_type}-${s.timestamp}-${s.id}`,
-                value: s.id,
-              }));
+        subjectId: {
+          type: "select",
+          label: "Subject Id",
+          placeholder: "Enter Subject Id",
+          options: async () => {
+            const subjects = useSubjectStore.getState().allSubjects;
+            return subjects.map((s) => ({
+              label: `${s.subject_id}-${s.name}-${s.data_num}`,
+              value: s.subject_id,
+            }));
           },
+        },
+        step: {
+          type: "number",
+          label: "Step",
+          placeholder: "Enter Step",
         },
       },
     },

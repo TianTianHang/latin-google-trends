@@ -1,4 +1,77 @@
 {
+  "keywords": {
+    "title": "Keywords Management",
+    "tabs": {
+      "list": "Keywords List"
+    },
+    "button": {
+      "delete": "Delete",
+      "edit": "Edit",
+      "add": "Add",
+      "addKeyword": "Add Keyword",
+      "addCategory": "Add Category",
+      "addDefinition": "Add Definition",
+      "confirm": "Confirm",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "modal": {
+      "confirmDelete": "Confirm Delete",
+      "deleteContent": "Are you sure to delete this keyword?",
+      "edit": "Edit",
+      "definition": "Definition",
+      "addKeyword": "Add Keyword",
+      "addCategory": "Add Category",
+      "editKeyword": "Edit Keyword",
+      "editCategory": "Edit Category"
+    },
+    "form": {
+      "keyword": "Keyword",
+      "category": "Category",
+      "pronunciation": "Pronunciation",
+      "definition": "Definition",
+      "isPrimary": "Is Primary",
+      "categoryName": "Category Name",
+      "description": "Description",
+      "parentCategory": "Parent Category",
+      "validation": {
+        "keywordRequired": "Please input keyword",
+        "pronunciationRequired": "Please input pronunciation",
+        "definitionRequired": "Please input definition",
+        "categoryNameRequired": "Please input category name",
+        "descriptionRequired": "Please input description"
+      }
+    },
+    "table": {
+      "keyword": "Keyword",
+      "category": "Category",
+      "pronunciation": "Pronunciation",
+      "definition": "Definition",
+      "actions": "Actions"
+    },
+    "message": {
+      "deleteSuccess": "Delete successfully",
+      "updateSuccess": "Update successfully",
+      "addSuccess": "Add successfully",
+      "createSuccess": "Create successfully",
+      "keywordCreated": "Keyword created successfully",
+      "categoryCreated": "Category created successfully",
+      "definitionCreated": "Definition created successfully"
+    },
+    "select": {
+      "yes": "Yes",
+      "no": "No",
+      "none": "None"
+    },
+    "radio":{
+      "yes": "yes",
+      "no": "no"
+    },
+    "search": {
+      "placeholder": "Search keywords",
+      "categoryPlaceholder": "Select category"
+    }
+  },
   "dataSource": {
     "title": "Data Source Management",
     "button": {
@@ -235,12 +308,47 @@
     }
   },
  "subject": {
+   "tabs": {
+     "list": "Subject List",
+     "management": "Subject Management"
+   },
+   "list": {
+     "card": {
+       "name": "Name",
+       "description": "Description",
+       "status": "Status",
+       "dataCount": "Data Count",
+       "actions": "Actions",
+       "noDescription": "No description",
+       "dataNum": "Data Number",
+       "showData":"Show data"
+     },
+     "message": {
+       "dataFetched": "Data fetched successfully",
+       "fetchFailed": "Failed to fetch data: {{error}}"
+     }
+   },
+   "management": {
+     "title": "Subject Management",
+     "name": "Name",
+     "description": "Description",
+     "status": "Status",
+     "dataNum": "Data Number",
+     "actions": "Actions",
+     "noDescription": "No description",
+     "button": {
+       "create": "Create",
+       "details": "Details",
+       "edit": "Edit",
+       "delete": "Delete"
+     }
+   },
      "modal": {
        "create": {
          "title": "Create Subject",
          "message": {
            "createSuccess": "Subject {{subject_id}} created successfully",
-           "createFailed": "Failed to create subject:{ {error}}"
+           "createFailed": "Failed to create subject: {{error}}"
          },
          "form": {
            "name": "Name",
@@ -292,54 +400,18 @@
          }
        },
        "edit": {
-         "title": "Edit Subject"
+         "title": "Edit Subject",
+         "form": {
+           "selectSubject": "Select subject",
+           "save": "Save",
+           "error": "Error",
+           "loadingError": "Error loading collections"
+         },
+         "transfer": {
+           "notBind": "Available",
+           "bind": "Selected"
+         }
        }
-     },
-     "form": {
-       "name": "Name",
-       "namePlaceholder": "Enter subject name",
-       "description": "Description",
-       "descriptionPlaceholder": "Enter description",
-       "taskType": "Task Type",
-       "dataType": "Data Type",
-       "keywords": "Keywords",
-       "geoCode": "Geo Code",
-       "startDate": "Start Date",
-       "endDate": "End Date",
-       "duration": "Duration",
-       "interval": "Interval",
-       "validation": {
-         "required": "{{field}} is required",
-        "invalid": "Invalid {{field}}"
-       }
-     },
-     "button": {
-       "create": "Create",
-       "submit": "Submit",
-       "cancel": "Cancel",
-       "details": "Details",
-       "edit": "Edit",
-       "delete": "Delete",
-       "addParam": "Add Parameter"
-     },
-     "card": {
-       "name": "Name",
-       "description": "Description",
-       "status": "Status",
-       "dataCount": "Data Count",
-       "actions": "Actions",
-       "noDescription": "No description",
-       "dataNum": "Data Number",
-       "showData":"Show data"
-     },
-     "status": {
-       "completed": "Completed",
-       "failed": "Failed",
-       "processing": "Processing"
-     },
-     "message": {
-       "dataFetched": "Data fetched successfully",
-       "fetchFailed": "Failed to fetch data: {{error}}"
      }
    }
 }

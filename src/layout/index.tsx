@@ -1,4 +1,4 @@
-import React, { useState, Suspense, useMemo } from "react";
+import React, { useState, Suspense, useMemo, useCallback } from "react";
 import {
   Outlet,
   useNavigate,
@@ -13,6 +13,7 @@ import "antd/dist/reset.css";
 import { useUserStore } from "@/stores/user";
 import { RouteType } from "@/types/route";
 import { usePermissionStore } from "@/stores/permission";
+import { useTranslation } from "react-i18next";
 
 
 
@@ -27,10 +28,10 @@ const BasicLayout: React.FC = () => {
   const {
     token: { colorBgContainer },
   } = theme.useToken();
-
+  const {t,i18n}=useTranslation()
   const isAdmin  = true
 
-  const getItems = (children: RouteType[]): MenuProps["items"] => {
+  const getItems = useCallback((children: RouteType[]): MenuProps["items"] => {
     return children.map((item) => {
       return {
         key: item.index
@@ -39,18 +40,19 @@ const BasicLayout: React.FC = () => {
           ? item.path
           : `/${item.path}`,
         icon: item.meta?.icon,
-        label: item.meta?.title,
+        label: t(`route.${item.meta?.title}`),
         children: item.children ? getItems(item.children) : null,
       };
     });
-  };
+  },[t])
 
   const menuItems: MenuProps["items"] = useMemo(()=>{
     if (routes.length === 0) return [];
     return getItems(
       routes[0]?.children?.filter((item) => item.path !== "*") || []
     );
-  },[routes])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[getItems, routes,i18n.language])
 
   const onMenuClick: MenuProps["onClick"] = ({ key }) => {
     navigate(key);

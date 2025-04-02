@@ -1,6 +1,7 @@
 import React from "react";
 import { Button, Modal, Form, Space, message, Input, Select, Radio } from "antd";
 import { useBoolean, useRequest } from "ahooks";
+import { useTranslation } from "react-i18next";
 import {
   createDefinition,
   deleteKeyword,
@@ -19,6 +20,7 @@ export const KeywordAction: React.FC<KeywordActionProp> = ({
   keyword_id,
   refesh,
 }) => {
+  const { t } = useTranslation('views');
   // 初始化状态，比如是否显示编辑或添加表单等
   const [
     isEditVisible,
@@ -51,7 +53,7 @@ export const KeywordAction: React.FC<KeywordActionProp> = ({
     // 实现删除逻辑
     console.log("Deleting keyword with id:", keyword_id);
     const msg = await deleteKeyword(keyword_id);
-    message.success(`删除成功 msg: ${msg.message}`);
+    message.success(t('keywords.message.deleteSuccess', { msg: msg.message }));
     refesh();
     hideDeleteConfirm();
   };
@@ -63,7 +65,7 @@ export const KeywordAction: React.FC<KeywordActionProp> = ({
   // 编辑操作处理函数（示例）
   const handleEdit = async (keyword: KeywordUpdate) => {
     const kw = await updateKeyword(keyword_id, keyword);
-    message.success(`${kw.id} 更新成功`);
+    message.success(t('keywords.message.updateSuccess', { id: kw.id }));
     refesh();
     hideEditConfirm();
   };
@@ -72,7 +74,7 @@ export const KeywordAction: React.FC<KeywordActionProp> = ({
   const handleAddDefinition = async (value: DefinitionData) => {
     
     await createDefinition({...value,word_id:keyword_id});
-    message.success(`定义创建成功`)
+    message.success(t('keywords.message.createDefinitionSuccess'))
     hideDefinitionConfirm();
   };
 
@@ -80,27 +82,27 @@ export const KeywordAction: React.FC<KeywordActionProp> = ({
     <Space direction={"horizontal"}>
       {/* 删除按钮 */}
       <Button type="primary" danger onClick={handleDelete}>
-        删除
+        {t('keywords.button.delete')}
       </Button>
 
       {/* 确认删除对话框 */}
       <Modal
-        title="确认删除"
+        title={t('keywords.modal.confirmDelete')}
         open={isDeleteConfirmVisible}
         onOk={confirmDelete}
         onCancel={cancelDelete}
       >
-        <p>确定要删除此关键词吗？</p>
+        <p>{t('keywords.message.confirmDelete')}</p>
       </Modal>
 
       {/* 编辑按钮 */}
       <Button type="primary" onClick={showEditVisible}>
-        编辑
+        {t('keywords.button.edit')}
       </Button>
 
       {/* 根据 isEditVisible 显示编辑表单 */}
       <Modal
-        title="编辑"
+        title={t('keywords.modal.edit')}
         open={isEditVisible}
         onOk={() => keywordForm.submit()}
         onCancel={hideEditConfirm}
@@ -109,20 +111,20 @@ export const KeywordAction: React.FC<KeywordActionProp> = ({
         <Form form={keywordForm} initialValues={keyword} onFinish={handleEdit}>
           {/* 编辑表单内容 */}
           <Form.Item
-            label="关键词"
+            label={t('keywords.form.keyword')}
             name="word"
-            rules={[{ required: true, message: "请输入关键词" }]}
+            rules={[{ required: true, message: t('keywords.validation.keyword') }]}
           >
             <Input />
           </Form.Item>
           <Form.Item
-            label="分类"
+            label={t('keywords.form.category')}
             name="category_id"
-            rules={[{ required: false, message: "请选择分类" }]}
+            rules={[{ required: false, message: t('keywords.validation.category') }]}
           >
             <Select loading={categoriesLoading}>
               <Select.Option key={0} value={null}>
-                {"无"}
+                {t('keywords.text.none')}
               </Select.Option>
               {categories?.map((category) => (
                 <Select.Option key={category.id} value={category.id}>
@@ -132,9 +134,9 @@ export const KeywordAction: React.FC<KeywordActionProp> = ({
             </Select>
           </Form.Item>
           <Form.Item
-            label="发音"
+            label={t('keywords.form.pronunciation')}
             name="pronunciation"
-            rules={[{ required: true, message: "请输入发音" }]}
+            rules={[{ required: true, message: t('keywords.validation.pronunciation') }]}
           >
             <Input />
           </Form.Item>
@@ -143,29 +145,29 @@ export const KeywordAction: React.FC<KeywordActionProp> = ({
 
       {/* 添加按钮 */}
       <Button type="primary" onClick={showDefinitionVisible}>
-        添加
+        {t('keywords.button.add')}
       </Button>
 
       <Modal
-        title={`定义`}
+        title={t('keywords.modal.definition')}
         open={isDefinitionVisible}
         onCancel={hideDefinitionConfirm}
         onOk={() => definitionForm.submit()}
       >
         <Form form={definitionForm} onFinish={handleAddDefinition}>
           <Form.Item
-            label="定义"
+            label={t('keywords.form.definition')}
             name="definition"
-            rules={[{ required: true, message: "请输入定义" }]}
+            rules={[{ required: true, message: t('keywords.validation.definition') }]}
           >
             <Input.TextArea />
           </Form.Item>
-          <Form.Item label="是否为主定义" name="is_primary"  rules={[{ required: true, message: "请选择" }]}>
+          <Form.Item label={t('keywords.form.isPrimary')} name="is_primary"  rules={[{ required: true, message: t('keywords.validation.select') }]}>
             <Radio.Group
             defaultValue={true}
               options={[
-                { value: true, label: "是" },
-                { value: false, label: "否" },
+                { value: true, label: t('keywords.radio.yes') },
+                { value: false, label: t('keywords.radio.no') },
                 
               ]}
             />

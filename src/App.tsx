@@ -6,37 +6,31 @@ import enUS from "antd/locale/en_US";
 import { BrowserRouter } from "react-router";
 import { AppRouter } from "./router";
 import RouterBeforeEach from "./router/permission";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 import { useGlobalStore } from "./stores/global";
 
 const antdLocales = {
   zh: zhCN,
-  en: enUS
+  en: enUS,
 };
 
 function App() {
-  const queryClient = new QueryClient();
   const { language } = useGlobalStore();
-  
+
   return (
     <StyleProvider layer>
       <ConfigProvider
         locale={antdLocales[language as keyof typeof antdLocales]}
         theme={{
-          token: {
-            
-          },
+          token: {},
         }}
       >
-        <QueryClientProvider client={queryClient}>
-          <Suspense fallback={<Spin size="large" className="globa_spin" />}>
+        <Suspense fallback={<Spin size="large" className="globa_spin" />}>
           <BrowserRouter>
             <AppRouter />
             <RouterBeforeEach />
           </BrowserRouter>
         </Suspense>
-        </QueryClientProvider>
-        
       </ConfigProvider>
     </StyleProvider>
   );

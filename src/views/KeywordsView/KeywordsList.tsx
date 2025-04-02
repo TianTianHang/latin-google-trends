@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Table, Input, Select, Row, Col, Space } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import useRequest from 'ahooks/lib/useRequest';
+import { useTranslation } from 'react-i18next';
 import { getCategories, getKeywords } from '@/api/keywords';
 
 import type { KeywordData, KeyWordQuery } from '@/types/keywords';
@@ -11,6 +12,7 @@ import { KeywordAction } from './KeyWordAction';
 type Keyword = KeywordData;
 
 const KeywordsList = () => {
+  const { t } = useTranslation('views');
   const [filters, setFilters] = useState({
     name: '',
     category_id: -1,
@@ -30,28 +32,28 @@ const KeywordsList = () => {
 
   const columns: ColumnsType<Keyword> = [
     {
-      title: '关键词',
+      title: t('keywords.table.keyword'),
       dataIndex: 'word',
       key: 'word',
     },
     {
-      title: '类别',
+      title: t('keywords.table.category'),
       dataIndex: 'category',
       key: 'category',
       render:(value)=>value.name
     },
     {
-      title: '发音',
+      title: t('keywords.table.pronunciation'),
       dataIndex: 'pronunciation',
       key: 'pronunciation',
     },
     {
-      title: '定义',
+      title: t('keywords.table.definition'),
       dataIndex: 'definition',
       key: 'definition',
     },
     {
-      title: '操作',
+      title: t('keywords.table.actions'),
       dataIndex: 'id',
       render:(value)=><KeywordAction keyword_id={value} refesh={refresh}/>
     }
@@ -79,12 +81,12 @@ const KeywordsList = () => {
         <Col span={8}>
         <Space direction='horizontal'>
         <Input.Search
-          placeholder="搜索关键词"
+          placeholder={t('keywords.form.keyword')}
           onSearch={handleSearch}
           style={{ width: 200, marginRight: 8 }}
         />
         <Select
-          placeholder="选择类别"
+          placeholder={t('keywords.form.category')}
           onChange={handleCategoryFilter}
           style={{ width: 200 }}
           allowClear

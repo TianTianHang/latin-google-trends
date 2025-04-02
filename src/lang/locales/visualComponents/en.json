@@ -1,0 +1,12 @@
+{
+    "component":{
+        "globalMoran":{
+            "title":"Global Moran Index"
+        },
+        "lineChart":{
+            "error":"Chart loading failed: {{error}}"
+        }
+    }
+    
+    
+}

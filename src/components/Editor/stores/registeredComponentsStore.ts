@@ -34,14 +34,14 @@ export interface RegisteredComponent<T extends PropsType> {
 }
 interface RegisteredComponentsState {
   registered: Map<string, RegisteredComponent<PropsType>>;
-  registerComponent: (component: RegisteredComponent<PropsType>) => void;
+  registerComponent: <T extends PropsType>(component: RegisteredComponent<T>) => void;
 }
 
 export const useRegisteredComponentsStore = create<RegisteredComponentsState>((set) => ({
   registered: new Map<string, RegisteredComponent<PropsType>>(),
   registerComponent: (component) => {
     set((state) => {
-      state.registered.set(component.meta.type, component);
+      state.registered.set(component.meta.type, component as  RegisteredComponent<PropsType>);
       return state;
     });
   },

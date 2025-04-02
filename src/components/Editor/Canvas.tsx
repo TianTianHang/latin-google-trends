@@ -26,7 +26,6 @@ import { LinkEditor } from "./LinkEditor";
 import { saveService } from "./services/saveService";
 import { useBoolean, useInterval, useRequest } from "ahooks";
 
-
 const ResponsiveGridLayout = WidthProvider(Responsive);
 const responsiveMap = ["lg", "md", "sm", "xs", "xxs"];
 
@@ -123,7 +122,7 @@ export const Canvas = () => {
   const { run: handleSaveConfirm } = useRequest(
     async () => {
       const values = await saveForm.validateFields();
-      return saveService.save(values.id, values.name);
+      return saveService.save(values.name, `${values.name}-${new Date().toLocaleString()}`);
     },
     {
       manual: true,
@@ -240,9 +239,19 @@ export const Canvas = () => {
           isDroppable
           useCSSTransforms
           autoSize
+          draggableHandle=".cursor-move"
         >
           {missIds.map((id) => (
             <div key={id} onContextMenu={(e) => handleContextMenu(e, id)}>
+              {/* 拖动手柄 */}
+              <div
+                className="absolute top-0 right-0 z-10 cursor-move opacity-0 transition-opacity duration-300 hover:opacity-100"
+                style={{ width: "40px", height: "20px" }}
+              >
+                <div className="bg-blue-500 rounded-full flex items-center justify-center text-white text-xs">
+                  :::
+                </div>
+              </div>
               <Card className="h-full w-full bg-blue-300 opacity-30 transition-opacity" />
             </div>
           ))}

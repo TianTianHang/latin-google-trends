@@ -2,10 +2,11 @@ import { getCollectionsBind, getCollectionsNotBind } from "@/api/interest";
 import { updateSubjectData } from "@/api/subject";
 import { useSubjectStore } from "@/stores/useSubjectStore";
 import { Button, message, Modal, Select, Spin, Transfer } from "antd";
+import { useTranslation } from "react-i18next";
 import { TransferDirection } from "antd/es/transfer";
 import { TransferKey } from "antd/es/transfer/interface";
 import { Key, useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useRequest } from "ahooks";
 import { CollectionResponse } from "@/types/interest";
 import { SubjectDataMeta } from "@/types/subject";
 interface EditSubjectModalProps {
@@ -18,6 +19,7 @@ const EditSubjectModal = ({
   subject_id,
   onClose,
 }: EditSubjectModalProps) => {
+  const { t } = useTranslation("views");
   const { subjectDatas, selectSubject } = useSubjectStore();
   const [selectedSubjectData, setSelectedSubjectData] = useState<number | null>(
     null
@@ -31,26 +33,26 @@ const EditSubjectModal = ({
 
   const {
     data: notBindCollections = [],
-    isLoading: isNotBindLoading,
-    isError: isNotBindError,
-  } = useQuery({
-    queryKey: ["notBindCollections", selectType],
-    queryFn: () =>
+    loading: isNotBindLoading,
+    error: isNotBindError,
+  } = useRequest(
+    () =>
       getCollectionsNotBind({
         interest_type: selectType!,
         skip: 0,
         limit: 1000,
       }),
-    enabled: !!selectType,
-  });
+    {
+      ready: !!selectType,
+    }
+  );
 
   const {
     data: bindCollections = [],
-    isLoading: isBindLoading,
-    isError: isBindError,
-  } = useQuery({
-    queryKey: ["bindCollections", selectedSubjectData],
-    queryFn: async () => {
+    loading: isBindLoading,
+    error: isBindError,
+  } = useRequest(
+    async () => {
       const t = subjectDatas.find((s) => s.id === selectedSubjectData);
       const bindCollections = await getCollectionsBind({
         subject_data_ids: [t!.id].join(","),
@@ -62,14 +64,16 @@ const EditSubjectModal = ({
       );
       return bindCollections;
     },
-    enabled: !!selectedSubjectData,
-  });
+    {
+      ready: !!selectedSubjectData,
+    }
+  );
 
   useEffect(() => {
     if (!subject_id || !visible) return;
     selectSubject(subject_id);
     setSelectedSubjectData(subjectDatas?.[0]?.id ?? null);
-  }, [subject_id, visible]);
+  }, [selectSubject, subjectDatas, subject_id, visible]);
 
   const handleSubjectDataChange = (value: number) => {
     const t = subjectDatas.find((s) => s.id === value);
@@ -108,7 +112,7 @@ const EditSubjectModal = ({
       });
       onClose();
     } else {
-      message.warning("error");
+      message.warning(t("subject.modal.edit.form.error"));
     }
   };
   const filterOption = (inputValue: string, option: { key: Key; title: string; description: string; meta: SubjectDataMeta }) => {
@@ -126,7 +130,7 @@ const EditSubjectModal = ({
       onCancel={() => {
         onClose();
       }}
-      title={"Edit"}
+      title={t("subject.modal.edit.title")}
       width={800}
       footer={[
         <Button
@@ -135,14 +139,14 @@ const EditSubjectModal = ({
             handleSave();
           }}
         >
-          Save
+          {t("subject.modal.edit.form.save")}
         </Button>,
       ]}
     >
       <div style={{ marginBottom: 16 }}>
         <Select
           style={{ width: "100%" }}
-          placeholder="Select subject"
+          placeholder={t("subject.modal.edit.form.selectSubject")}
           value={selectedSubjectData}
           onChange={handleSubjectDataChange}
           options={subjectDatas.map((subject) => ({
@@ -153,7 +157,7 @@ const EditSubjectModal = ({
       </div>
       <Spin spinning={isNotBindLoading || isBindLoading}>
         {isNotBindError || isBindError ? (
-          <div>Error loading collections</div>
+          <div>{t("subject.modal.edit.form.loadingError")}</div>
         ) : (
           <Transfer
             showSearch
@@ -169,7 +173,7 @@ const EditSubjectModal = ({
             targetKeys={selectedCollections}
             onChange={handleTransferChange}
             pagination
-            titles={["notBind","Bind"]}
+            titles={[t("subject.modal.edit.transfer.notBind"), t("subject.modal.edit.transfer.bind")]}
             listStyle={{
               width: 300,
               height: 300,

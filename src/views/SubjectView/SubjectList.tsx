@@ -14,10 +14,10 @@ const SubjectList = () => {
   const handleShowData = async (subjectId: number) => {
     try {
       await selectSubject(subjectId);
-      message.success(t("subject.message.dataFetched"));
+      message.success(t("subject.list.message.dataFetched"));
     } catch (error) {
       message.error(
-        t("subject.message.fetchDataFailed", { error: (error as Error).message })
+        t("subject.list.message.fetchFailed", { error: (error as Error).message })
       );
     }
   };
@@ -53,13 +53,13 @@ const SubjectList = () => {
               <div className="p-4">
                 {subject.description
                   ? subject.description
-                  : t("subject.card.noDescription")}
+                  : t("subject.list.card.noDescription")}
               </div>
               <div className="p-4">
-                <strong>{t("subject.card.status")}:</strong> {subject.status}
+                <strong>{t("subject.list.card.status")}:</strong> {subject.status}
               </div>
               <div className="p-4">
-                <strong>{t("subject.card.dataNum")}:</strong> {subject.data_num}
+                <strong>{t("subject.list.card.dataNum")}:</strong> {subject.data_num}
               </div>
               {subject.status === "completed" && (
                 <div className="p-4">
@@ -67,7 +67,7 @@ const SubjectList = () => {
                     onClick={() => handleShowData(subject.subject_id)}
                     className="bg-blue-500 text-white px-4 py-2 rounded"
                   >
-                    {t("subjec.card.showData")}
+                    {t("subject.list.card.showData")}
                   </button>
                 </div>
               )}

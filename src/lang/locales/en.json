@@ -11,6 +11,41 @@
     "errMsg503": "Service unavailable, please try again later",
     "errMsg504": "Gateway timeout, please try again later",
     "errMsgdefault": "Network request failed, please try again later"
+  },
+  "layout": {
+    "logout": "Logout",
+    "profile": "Profile Center"
+  },
+  "route": {
+    "home": "Home",
+    "keywords": "Keywords",
+    "tasks": "Task Management",
+    "dashboard": "Dashboard",
+    "dashboard.default": "Default Dashboard",
+    "data": "Data Management",
+    "data.subject": "Subject Management",
+    "data.data-source": "DataSource Management",
+    "editor": "Editor",
+    "permission": "Permission Management",
+    "permission.endpoint": "Endpoint Permission",
+    "permission.user-role": "User Role Management"
+  },
+  "editor": {
+    "menu": {
+      "component": {
+        "globalMoran": "Global Moran's I Component",
+         "LineChart":"LineChart Component",
+         "image":"Image Component",
+         "playerControlBar":"Player Control Bar",
+         "multiKeywordMap":"MultiKeywordMap Component",
+         "heatMap":"HeatMap Component"
+      },
+      "layoutSwitch": "Layout Switch",
+      "fixed": "Fixed",
+      "components": "Components",
+      "delete": "Delete",
+      "edit": "Edit",
+      "replace": "Replace"
+    }
   }
-  
 }

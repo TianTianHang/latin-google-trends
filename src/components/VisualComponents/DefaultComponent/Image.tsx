@@ -1,5 +1,5 @@
-/* eslint-disable react-refresh/only-export-components */
-import { RegisteredComponent } from "@/components/Editor/types";
+
+import { RegisteredComponent } from "@/components/Editor/stores/registeredComponentsStore";
 import { Card} from "antd";
 
 // 定义组件属性类型
@@ -8,6 +8,7 @@ interface ImageProps {
     alt: string;
   }
   // 定义组件
+  // eslint-disable-next-line react-refresh/only-export-components
   const ImageComponent: React.ComponentType<ImageProps> = ({
     src,
     alt
@@ -23,7 +24,7 @@ interface ImageProps {
   export const registeredImageComponent: RegisteredComponent<ImageProps> = {
     meta: {
       type: "image",
-      name: "图片组件",
+      name: "image",
       icon: <span>🖼️</span>,
       defaultProps: {
         src: "https://pic1.zhimg.com/v2-5ae520839cbca3eb8561a44abdac2a54_720w.jpg?source=172ae18b",

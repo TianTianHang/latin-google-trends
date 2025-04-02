@@ -18,7 +18,7 @@ export const constantRoutes: RouteType[] = [
         component: lazy(() => import("@/views/HomePage")),
         name: "home",
         meta: {
-          title: "主页",
+          title: "home",
           requiresAuth: false,
         },
       },
@@ -41,7 +41,7 @@ export const asyncRoutes: RouteType[] = [
       requiresAuth: true,
       breadcrumb: true,
       allowedRoles: ["admin"],
-      title: "关键字",
+      title: "keywords",
     },
   },
   {
@@ -51,7 +51,7 @@ export const asyncRoutes: RouteType[] = [
       requiresAuth: true,
       breadcrumb: true,
       allowedRoles: ["admin"],
-      title: "任务管理",
+      title: "tasks",
     },
   },
   {
@@ -61,7 +61,7 @@ export const asyncRoutes: RouteType[] = [
       requiresAuth: true,
       breadcrumb: true,
       allowedRoles: ["user", "admin"],
-      title: "面板",
+      title: "dashboard",
     },
     children:[
       {
@@ -71,7 +71,7 @@ export const asyncRoutes: RouteType[] = [
           requiresAuth: false,
           breadcrumb: true,
           allowedRoles: ["user", "admin"],
-          title: "default",
+          title: "dashboard.default",
         }
       }
     ]
@@ -83,7 +83,7 @@ export const asyncRoutes: RouteType[] = [
       requiresAuth: true,
       breadcrumb: true,
       allowedRoles: ["user", "admin"],
-      title: "数据管理",
+      title: "data",
     },
     children: [
       {
@@ -93,7 +93,7 @@ export const asyncRoutes: RouteType[] = [
           requiresAuth: true,
           breadcrumb: true,
           allowedRoles: ["user", "admin"],
-          title: "主题管理",
+          title: "data.subject",
         },
       },
       {
@@ -103,7 +103,7 @@ export const asyncRoutes: RouteType[] = [
           requiresAuth: true,
           breadcrumb: true,
           allowedRoles: ["user", "admin"],
-          title: "数据源管理",
+          title: "data.data-source",
         },
       },
     ],
@@ -115,7 +115,7 @@ export const asyncRoutes: RouteType[] = [
       requiresAuth: true,
       breadcrumb: true,
       allowedRoles: ["user", "admin"],
-      title: "编辑器",
+      title: "editor",
     },
   },
   {
@@ -125,7 +125,7 @@ export const asyncRoutes: RouteType[] = [
       requiresAuth: true,
       breadcrumb: true,
       allowedRoles: ["admin"],
-      title: "权限管理",
+      title: "permission",
     },
     children:[
       {
@@ -135,7 +135,7 @@ export const asyncRoutes: RouteType[] = [
           requiresAuth: true,
           breadcrumb: true,
           allowedRoles: ["admin"],
-          title: "接口权限管理",
+          title: "permission.endpoint",
         },
       },
       {
@@ -145,7 +145,7 @@ export const asyncRoutes: RouteType[] = [
           requiresAuth: true,
           breadcrumb: true,
           allowedRoles: [ "admin"],
-          title: "用户权限管理",
+          title: "permission.user-role",
         },
       }
     ]

@@ -8,17 +8,35 @@ import { useSubjectStore } from "@/stores/useSubjectStore";
 import { SeriesOption } from "echarts";
 import { Empty, Select } from "antd";
 import { useAutoResizeChart } from "../hooks/useAutoResizeChart";
-import { useSubjectData } from "@/hooks/useSubjectData";
 import { RegisteredComponent } from "@/components/Editor/stores/registeredComponentsStore";
+import { useDataBinding } from "@/components/Editor/hooks/useDataBinding";
+import { SubjectDataResponse } from "@/types/subject";
 
 interface HeatMapProps {
-  subjectDataId?: number;
-  index:number;
+  subjectId?: number;
+  componentId: string;
+  subjectDatas?: SubjectDataResponse[];
+  index: number;
+  step: number;
 }
 
-const HeatMap: React.FC<HeatMapProps> = ({ subjectDataId,index }) => {
+const HeatMap: React.FC<HeatMapProps> = ({
+  subjectId,
+  componentId,
+  subjectDatas,
+  index,
+  step,
+}) => {
+  useDataBinding(`subject-${subjectId}`, componentId, "subjectDatas");
+  const filterSubjectDatas = useMemo(() => {
+    return subjectDatas?.filter((sd) => sd.data_type == "region");
+  }, [subjectDatas]);
+  const data = useMemo(() => {
+    if (!filterSubjectDatas || filterSubjectDatas.length === 0) return null;
 
-  const data=useSubjectData(subjectDataId)
+    return filterSubjectDatas[index];
+  }, [index, filterSubjectDatas]);
+
   const [selectedKeyword, setSelectedKeyword] = useState<string>();
   const { cardRef, echartsRef } = useAutoResizeChart();
 
@@ -27,31 +45,36 @@ const HeatMap: React.FC<HeatMapProps> = ({ subjectDataId,index }) => {
       const series: SeriesOption[] = [];
 
       // 遍历每个 SubjectDataMeta 元素
-      const metaItem = data.meta[index];
+      const metaItem = data.meta[step];
       // 只处理选中的keyword
       const keyword = selectedKeyword || metaItem.keywords[0];
       // 检查 data 是否包含 RegionInterest 类型的数据
-      if (data.data instanceof Array && data.data[index] instanceof Array) {
+      if (data.data instanceof Array && data.data[step] instanceof Array) {
         // 提取 RegionInterest 数据
-        const regionInterestData = data.data[index] as RegionInterest[];
+        const regionInterestData = data.data[step] as RegionInterest[];
 
         // 创建系列数据
-        const seriesData = regionInterestData.map((item) => {
-          const location = locData.find((loc) => loc.ISO_A2 === item.geo_code);
-          if (location?.LABEL_X && location?.LABEL_Y) { // 检查 LABEL_X 和 LABEL_Y 是否都有值
-            return {
-              name: item.geo_name,
-              value: [
-                location.LABEL_X,
-                location.LABEL_Y,
-                item[keyword],
-                item.geo_code,
-                keyword,
-              ],
-            };
-          }
-          // 如果 LABEL_X 或 LABEL_Y 无值，则不返回任何内容，相当于跳过该元素
-        }).filter(item => item); // 清除 undefined 值
+        const seriesData = regionInterestData
+          .map((item) => {
+            const location = locData.find(
+              (loc) => loc.ISO_A2 === item.geo_code
+            );
+            if (location?.LABEL_X && location?.LABEL_Y) {
+              // 检查 LABEL_X 和 LABEL_Y 是否都有值
+              return {
+                name: item.geo_name,
+                value: [
+                  location.LABEL_X,
+                  location.LABEL_Y,
+                  item[keyword],
+                  item.geo_code,
+                  keyword,
+                ],
+              };
+            }
+            // 如果 LABEL_X 或 LABEL_Y 无值，则不返回任何内容，相当于跳过该元素
+          })
+          .filter((item) => item); // 清除 undefined 值
 
         // 添加到 series 数组
         series.push({
@@ -82,9 +105,9 @@ const HeatMap: React.FC<HeatMapProps> = ({ subjectDataId,index }) => {
       return {
         amap: {
           viewMode: "3D",
-          center: [105.602725, 37.076636],
+          center: [12.4964, 41.9028],
           resizeEnable: true,
-          zoom: 4,
+          zoom: 2,
           mapStyle: "amap://styles/dark",
           lang: "en",
           roam: true,
@@ -97,6 +120,15 @@ const HeatMap: React.FC<HeatMapProps> = ({ subjectDataId,index }) => {
           },
         },
         visualMap: {
+          type: 'piecewise', // 使用分段型映射
+          pieces: [
+            {gt: 0, lte: 2, color: '#9FE7B8'}, // 0-2 显示浅绿色
+            {gt: 2, lte: 5, color: '#2AC66F'}, // 2-5 显示中绿
+            {gt: 5, lte: 10, color: '#008A3E'}, // 5-10 显示深绿色
+            {gt: 10, lte: 30, color: '#FFFF00'}, // 10-30 显示黄色
+            {gt: 30, lte: 60, color: '#FF7F00'}, // 30-60 显示橙色
+            {gt: 60, lte: 100, color: '#FF0000'} // 60-100 显示红色
+        ],
           show: true,
           right: 20,
           min: 0,
@@ -104,7 +136,7 @@ const HeatMap: React.FC<HeatMapProps> = ({ subjectDataId,index }) => {
           seriesIndex: 1,
           calculable: true,
           inRange: {
-            color: ["blue", "blue", "green", "yellow", "red"],
+            color: ['#9FE7B8', '#2AC66F', '#008A3E', '#FFFF00', '#FF7F00', '#FF0000']
           },
         },
         series: series,
@@ -112,29 +144,33 @@ const HeatMap: React.FC<HeatMapProps> = ({ subjectDataId,index }) => {
     } else {
       return {};
     }
-  }, [data, index, selectedKeyword]);
+  }, [data, step, selectedKeyword]);
 
   return (
     <div ref={cardRef} className="h-full">
-{ Object.keys(dataOption).length >0?(<>
-  <div className="absolute top-2 right-2 z-10 opacity-0 hover:opacity-100 transition-opacity duration-3000">
-        <Select
-          style={{ width: 200, marginBottom: 16 }}
-          value={selectedKeyword}
-          options={data?.meta[index].keywords.map((kw) => ({
-            label: kw,
-            value: kw,
-          }))}
-          onChange={(value) => setSelectedKeyword(value)}
-        />
-      </div>
-      <ReactECharts
-        ref={echartsRef}
-        autoResize={true}
-        option={dataOption}
-        style={{ height: "100%", width: "100%" }}
-      />
-</>):<Empty/>}
+      {Object.keys(dataOption).length > 0 ? (
+        <>
+          <div className="absolute top-2 right-2 z-10 opacity-0 hover:opacity-100 transition-opacity duration-3000">
+            <Select
+              style={{ width: 200, marginBottom: 16 }}
+              value={selectedKeyword}
+              options={data?.meta[index].keywords.map((kw) => ({
+                label: kw,
+                value: kw,
+              }))}
+              onChange={(value) => setSelectedKeyword(value)}
+            />
+          </div>
+          <ReactECharts
+            ref={echartsRef}
+            autoResize={true}
+            option={dataOption}
+            style={{ height: "100%", width: "100%" }}
+          />
+        </>
+      ) : (
+        <Empty />
+      )}
     </div>
   );
 };
@@ -145,25 +181,30 @@ export default HeatMap;
 export const registeredHeatMapComponent: RegisteredComponent<HeatMapProps> = {
   meta: {
     type: "HeatMap",
-    name: "热力地图组件",
+    name: "heatMap",
     icon: <span>🗺️</span>,
-    defaultProps:{
-        index:0,
+    defaultProps: {
+      index: 0,
+      step: 0,
+      componentId: "",
     },
     propSchema: {
-      subjectDataId: {
-        type: "select", // 或者根据实际需求选择合适的类型
-        label: "Subject Data Id",
-        placeholder: "Enter Subject Data Id",
-        options: () => {
-          return useSubjectStore
-            .getState()
-            .subjectDatas.filter((s) => s.data_type == "region")
-            .map((s) => ({
-              label: `${s.data_type}-${s.timestamp}-${s.id}`,
-              value: s.id,
-            }));
+      subjectId: {
+        type: "select",
+        label: "Subject Id",
+        placeholder: "Enter Subject Id",
+        options: async () => {
+          const subjects = useSubjectStore.getState().allSubjects;
+          return subjects.map((s) => ({
+            label: `${s.subject_id}-${s.name}-${s.data_num}`,
+            value: s.subject_id,
+          }));
         },
+      },
+      step: {
+        type: "number",
+        label: "Step",
+        placeholder: "Enter Step",
       },
     },
   },

@@ -1,8 +1,18 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { Menu, Popover } from "antd";
-import { useComponentsStore, useRegisteredComponentsStore, useLayoutsStore } from "./stores";
-
+import {
+  useComponentsStore,
+  useRegisteredComponentsStore,
+  useLayoutsStore,
+} from "./stores";
+import { useTranslation } from "react-i18next";
 
 interface RightClickMenuProps {
   componentId: string;
@@ -22,18 +32,17 @@ const RightClickMenu: React.FC<RightClickMenuProps> = ({
   onClickOutside,
   onClose,
 }) => {
-  const { addComponent, components } =
-    useComponentsStore();
-    const {registered}=useRegisteredComponentsStore();
-    const {currentLayouts,switchLayout,predefinedLayouts}=useLayoutsStore();
+  const { addComponent, components } = useComponentsStore();
+  const { registered } = useRegisteredComponentsStore();
+  const { currentLayouts, switchLayout, predefinedLayouts } = useLayoutsStore();
   const [position, setPosition] = useState<number>(-1);
   const [type, setType] = useState<string | undefined>(undefined);
-
+  const {t}=useTranslation();
   const menuItems = useMemo(() => {
     const baseItems = [
       {
         key: "layout",
-        label: "布局切换",
+        label: t("editor.menu.layoutSwitch"),
         children: predefinedLayouts.map((layout, index) => ({
           key: `layout-${index}`,
           label: (
@@ -70,7 +79,7 @@ const RightClickMenu: React.FC<RightClickMenuProps> = ({
       },
       {
         key: "fixed",
-        label: "固定",
+        label: t("editor.menu.fixed"),
         onClick: onClose,
       },
     ];
@@ -80,7 +89,7 @@ const RightClickMenu: React.FC<RightClickMenuProps> = ({
       .map((r) => ({
         key: r.meta.type,
         icon: r.meta.icon,
-        label: r.meta.name,
+        label: t(`editor.menu.component.${r.meta.name}`),
         onClick: () => {
           addComponent({
             type: r.meta.type,
@@ -96,7 +105,7 @@ const RightClickMenu: React.FC<RightClickMenuProps> = ({
       return [
         {
           key: "components",
-          label: "组件",
+          label: t("editor.menu.components"),
           children: componentItems,
         },
         ...baseItems,
@@ -106,56 +115,49 @@ const RightClickMenu: React.FC<RightClickMenuProps> = ({
     setPosition(currentLayouts.findIndex((l) => l?.i && l.i === componentId));
     setType(components.find((comp) => comp.id === componentId)?.type);
     return [
-      { key: "delete", label: "删除", onClick: onDelete },
-      { key: "edit", label: "编辑", onClick: onEdit },
+      { key: "delete", label: t("editor.menu.delete"), onClick: onDelete },
+      { key: "edit", label: t("editor.menu.edit"), onClick: onEdit },
       {
         key: "replace",
-        label: "替换",
+        label: t("editor.menu.replace"),
         children: componentItems,
       },
       ...baseItems,
     ];
-  }, [
-    componentId,
-    registered,
-    type,
-    position,
-    predefinedLayouts,
-    currentLayouts,
-    components,
-    addComponent,
-    switchLayout,
-    onClose,
-    onDelete,
-    onEdit,
-  ]);
+  }, [t, predefinedLayouts, onClose, registered, componentId, currentLayouts, components, onDelete, onEdit, switchLayout, type, addComponent, position]);
 
   const menuRef = useRef<HTMLDivElement | null>(null);
-  const handleClick = (e: MouseEvent) => {
-    if (menuRef.current && !menuRef.current.contains(e.target as HTMLElement)) {
-      // 检查是否点击在Ant Design的子菜单弹出层上
-      const submenuPopups = document.getElementsByClassName(
-        "ant-menu-submenu-popup"
-      );
-      let isSubmenuClick = false;
-      for (const popup of submenuPopups) {
-        if (popup.contains(e.target as Node)) {
-          isSubmenuClick = true;
-          break;
+  const handleClick = useCallback(
+    (e: MouseEvent) => {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(e.target as HTMLElement)
+      ) {
+        // 检查是否点击在Ant Design的子菜单弹出层上
+        const submenuPopups = document.getElementsByClassName(
+          "ant-menu-submenu-popup"
+        );
+        let isSubmenuClick = false;
+        for (const popup of submenuPopups) {
+          if (popup.contains(e.target as Node)) {
+            isSubmenuClick = true;
+            break;
+          }
+        }
+        if (!isSubmenuClick) {
+          onClickOutside();
         }
       }
-      if (!isSubmenuClick) {
-        onClickOutside();
-      }
-    }
-  };
+    },
+    [onClickOutside]
+  );
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClick);
     return () => {
       document.removeEventListener("mousedown", handleClick);
     };
-  }, []);
+  }, [handleClick]);
 
   return (
     <div

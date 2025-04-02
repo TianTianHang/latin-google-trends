@@ -1,49 +1,67 @@
-import { RegisteredComponent } from "@/components/Editor/types";
-import { useSubjectData } from "@/hooks/useSubjectData";
+import { useDataBinding } from "@/components/Editor/hooks/useDataBinding";
+import { RegisteredComponent } from "@/components/Editor/stores/registeredComponentsStore";
 import { useSubjectStore } from "@/stores/useSubjectStore";
-import { RegionInterest } from "@/types/interest";
+import { SubjectDataResponse } from "@/types/subject";
 import {
   PauseOutlined,
   PlayCircleOutlined,
   ReloadOutlined,
 } from "@ant-design/icons";
 import { Button, Card, Col, Row, Select, Slider, Typography } from "antd";
-import { useEffect, useState } from "react";
+import { useBoolean, useInterval, useMemoizedFn } from "ahooks";
+import { useMemo, useState } from "react";
+import { useComponentsStore } from "@/components/Editor/stores";
 const { Text } = Typography;
 interface PlayerControlBarProp {
-  subjectDataId?: number;
+  subjectId?: number;
+  componentId: string;
+  subjectDatas?: SubjectDataResponse[];
   index: number;
-  onChange?: () => void;
+  step: number;
 }
 
 export const PlayerControlBar: React.FC<PlayerControlBarProp> = ({
-  subjectDataId,
-  index,
-  onChange,
+  subjectId,
+  componentId,
+  index=0,
+  step=0,
+  subjectDatas,
 }) => {
-  const data = useSubjectData(subjectDataId);
-  const regionInterests = data?.data as Array<RegionInterest>[];
-  const [isProgressVisible, setIsProgressVisible] = useState(false);
+  useDataBinding(`subject-${subjectId}`, componentId, "subjectDatas");
+  const {updateProps}=useComponentsStore()
+  const filterSubjectDatas = useMemo(() => {
+    return subjectDatas?.filter((sd) => sd.data_type == "region");
+  }, [subjectDatas]);
+
+  const data = useMemo(() => {
+    if (!filterSubjectDatas || filterSubjectDatas.length === 0) return null;
+
+    return filterSubjectDatas[index];
+  }, [index, filterSubjectDatas]);
   const [intervalTime, setIntervalTime] = useState(1000);
-  const [step, setStep] = useState(index);
-  useEffect(() => {
-    let intervalId: number;
-    if (isProgressVisible) {
-      intervalId = setInterval(() => {
-        setStep((prevStep) => (prevStep + 1) % regionInterests.length);
-      }, intervalTime);
+  const [isPlaying, { toggle: togglePlay }] = useBoolean(false);
+
+  useInterval(
+    () => {
+      if(data?.data.length){
+          updateProps(componentId,{step:(step + 1) % data?.data?.length});
+      }else{
+        togglePlay();
+      }
+    },
+    isPlaying ? intervalTime : undefined
+  );
+
+  const handlePlayPause = useMemoizedFn(() => {
+    togglePlay();
+  });
+
+  const handleSliderChange = useMemoizedFn((value: number) => {
+    updateProps(componentId,{step:value});
+    if (isPlaying) {
+      togglePlay(); // 拖动Slider时停止播放
     }
-    return () => clearInterval(intervalId);
-  }, [intervalTime, isProgressVisible, regionInterests?.length]);
-
-  const handlePlayPause = () => {
-    setIsProgressVisible(!isProgressVisible);
-  };
-
-  const handleSliderChange = (value: number) => {
-    setStep(value);
-    setIsProgressVisible(false); // 拖动Slider时停止播放
-  };
+  });
 
   return (
     <div className="mt-4">
@@ -51,29 +69,27 @@ export const PlayerControlBar: React.FC<PlayerControlBarProp> = ({
         <Row>
           <Col span={2}>
             <Button
-              onClick={() => setStep(0)}
+              onClick={() => updateProps(componentId,{step:0})}
               icon={<ReloadOutlined />}
               style={{ marginBottom: "8px" }}
             />
             <Button
               onClick={handlePlayPause}
-              icon={
-                isProgressVisible ? <PauseOutlined /> : <PlayCircleOutlined />
-              }
+              icon={isPlaying ? <PauseOutlined /> : <PlayCircleOutlined />}
             />
           </Col>
 
           <Col span={16}>
             <Slider
               min={0}
-              max={regionInterests?.length - 1}
+              max={data?.data?.length?data?.data?.length-1:0}
               value={step}
               onChange={handleSliderChange}
             />
           </Col>
 
           <Col span={4}>
-            <Text className="!text-white text-0.5xl">
+            <Text className="!text-black text-0.5xl">
               {data?.meta[step].timeframe_start &&
               data?.meta[step].timeframe_end
                 ? `${data?.meta[step].timeframe_start}-${data?.meta[step].timeframe_end}`
@@ -101,30 +117,36 @@ export const PlayerControlBar: React.FC<PlayerControlBarProp> = ({
 };
 
 // 注册组件
+// eslint-disable-next-line react-refresh/only-export-components
 export const registeredSliderBarComponent: RegisteredComponent<PlayerControlBarProp> =
   {
     meta: {
       type: "PlayerControlBar",
-      name: "控制播放条组件",
+      name: "playerControlBar",
       icon: <span>🖼️</span>,
       defaultProps: {
         index: 0,
+        step: 0,
+        componentId: ""
       },
       propSchema: {
-        subjectDataId: {
-          type: "select", // 或者根据实际需求选择合适的类型
-          label: "Subject Data Id",
-          placeholder: "Enter Subject Data Id",
-          options: () => {
-            return useSubjectStore
-              .getState()
-              .subjectDatas.filter((s) => s.data_type == "region")
-              .map((s) => ({
-                label: `${s.data_type}-${s.timestamp}-${s.id}`,
-                value: s.id,
-              }));
+        subjectId: {
+          type: "select",
+          label: "Subject Id",
+          placeholder: "Enter Subject Id",
+          options: async () => {
+            const subjects = useSubjectStore.getState().allSubjects;
+            return subjects.map((s) => ({
+              label: `${s.subject_id}-${s.name}-${s.data_num}`,
+              value: s.subject_id,
+            }));
           },
         },
+        step: {
+          type: "number",
+          label: "Step",
+          placeholder: "Enter Step",
+        }
       },
     },
     component: PlayerControlBar,

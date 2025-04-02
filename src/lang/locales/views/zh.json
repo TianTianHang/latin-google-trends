@@ -1,4 +1,77 @@
 {
+  "keywords": {
+    "title": "关键词管理",
+    "tabs": {
+      "list": "关键词列表"
+    },
+    "button": {
+      "delete": "删除",
+      "edit": "编辑",
+      "add": "添加",
+      "addKeyword": "添加关键词",
+      "addCategory": "添加分类",
+      "addDefinition": "添加定义",
+      "confirm": "确认",
+      "cancel": "取消",
+      "save": "保存"
+    },
+    "modal": {
+      "confirmDelete": "确认删除",
+      "deleteContent": "确定要删除此关键词吗？",
+      "edit": "编辑",
+      "definition": "定义",
+      "addKeyword": "添加关键词",
+      "addCategory": "添加分类",
+      "editKeyword": "编辑关键词",
+      "editCategory": "编辑分类"
+    },
+    "form": {
+      "keyword": "关键词",
+      "category": "分类",
+      "pronunciation": "发音",
+      "definition": "定义",
+      "isPrimary": "是否主定义",
+      "categoryName": "分类名称",
+      "description": "描述",
+      "parentCategory": "父分类",
+      "validation": {
+        "keywordRequired": "请输入关键词",
+        "pronunciationRequired": "请输入发音",
+        "definitionRequired": "请输入定义",
+        "categoryNameRequired": "请输入分类名称",
+        "descriptionRequired": "请输入描述"
+      }
+    },
+    "table": {
+      "keyword": "关键词",
+      "category": "分类",
+      "pronunciation": "发音",
+      "definition": "定义",
+      "actions": "操作"
+    },
+    "message": {
+      "deleteSuccess": "删除成功",
+      "updateSuccess": "更新成功",
+      "addSuccess": "添加成功",
+      "createSuccess": "创建成功",
+      "keywordCreated": "关键词创建成功",
+      "categoryCreated": "分类创建成功",
+      "definitionCreated": "定义创建成功"
+    },
+    "select": {
+      "yes": "是",
+      "no": "否",
+      "none": "无"
+    },
+    "radio":{
+      "yes": "是",
+      "no": "否"
+    },
+    "search": {
+      "placeholder": "搜索关键词",
+      "categoryPlaceholder": "选择分类"
+    }
+  },
   "dataSource": {
     "title": "数据源管理",
     "button": {
@@ -235,6 +308,41 @@
     }
   },
   "subject": {
+    "tabs": {
+      "list": "主题列表",
+      "management": "主题管理"
+    },
+    "list": {
+      "card": {
+        "name": "名称",
+        "description": "描述",
+        "status": "状态",
+        "dataCount": "数据量",
+        "actions": "操作",
+        "noDescription": "无描述",
+        "dataNum": "数据数量",
+        "showData":"显示数据"
+      },
+      "message": {
+        "dataFetched": "数据获取成功",
+        "fetchFailed": "数据获取失败: {{error}}"
+      }
+    },
+    "management": {
+      "title": "主题管理",
+      "name": "名称",
+      "description": "描述",
+      "status": "状态",
+      "dataNum": "数据数量",
+      "actions": "操作",
+      "noDescription": "无描述",
+      "button": {
+        "create": "创建",
+        "details": "详情",
+        "edit": "编辑",
+        "delete": "删除"
+      }
+    },
     "modal": {
       "create": {
         "title": "创建主题",
@@ -292,54 +400,18 @@
         }
       },
       "edit": {
-        "title": "编辑主题"
+        "title": "编辑主题",
+        "form": {
+          "selectSubject": "选择主题",
+          "save": "保存",
+          "error": "错误",
+          "loadingError": "加载集合失败"
+        },
+        "transfer": {
+          "notBind": "可用",
+          "bind": "已选"
+        }
       }
-    },
-    "form": {
-      "name": "名称",
-      "namePlaceholder": "输入主题名称",
-      "description": "描述",
-      "descriptionPlaceholder": "输入描述",
-      "taskType": "任务类型",
-      "dataType": "数据类型",
-      "keywords": "关键词",
-      "geoCode": "地理编码",
-      "startDate": "开始日期",
-      "endDate": "结束日期",
-      "duration": "持续时间",
-      "interval": "间隔",
-      "validation": {
-        "required": "{{field}} 必填",
-        "invalid": "无效的{ {field}}"
-      }
-    },
-    "button": {
-      "create": "创建",
-      "submit": "提交",
-      "cancel": "取消",
-      "details": "详情",
-      "edit": "编辑",
-      "delete": "删除",
-      "addParam": "添加参数"
-    },
-    "card": {
-      "name": "名称",
-      "description": "描述",
-      "status": "状态",
-      "dataCount": "数据数量",
-      "actions": "操作",
-      "noDescription": "无描述",
-      "dataNum": "数据数量",
-      "showData":"展示数据"
-    },
-    "status": {
-      "completed": "已完成",
-      "failed": "失败",
-      "processing": "处理中"
-    },
-    "message": {
-      "dataFetched": "数据获取成功",
-      "fetchFailed": "获取数据失败: {{error}}"
     }
   }
 }

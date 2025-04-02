@@ -11,5 +11,41 @@
     "errMsg503": "服务不可用，请稍后重试",
     "errMsg504": "网关超时，请稍后重试",
     "errMsgdefault": "网络请求异常，请稍后重试"
+  },
+  "layout": {
+    "logout": "退出登录",
+    "profile": "个人中心"
+  },
+  "route": {
+    "home": "主页",
+    "keywords": "关键字",
+    "tasks": "任务管理",
+    "dashboard": "面板",
+    "dashboard.default": "默认面板",
+    "data": "数据管理",
+    "data.subject": "主题管理",
+    "data.data-source": "数据源管理",
+    "editor": "编辑器",
+    "permission": "权限管理",
+    "permission.endpoint": "接口权限管理",
+    "permission.user-role": "用户权限管理"
+  },
+  "editor":{
+    "menu":{
+      "component":{
+           "globalMoran":"全局 Moran's I 组件",
+           "LineChart":"折线图组件",
+           "image":"图片组件",
+           "playerControlBar":"播放器控制栏",
+           "multiKeywordMap":"多关键字地图组件",
+           "heatMap":"热力图组件"
+      },
+      "layoutSwitch": "布局切换",
+      "fixed": "固定",
+      "components": "组件",
+      "delete": "删除",
+      "edit": "编辑",
+      "replace": "替换"
+  }
   }
 }

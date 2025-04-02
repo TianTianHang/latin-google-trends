@@ -9,7 +9,7 @@ import { ListSubjectResponse } from "@/types/subject";
 import EditSubjectModal from "./EditSubjectModal";
 
 const SubjectManagement = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation("views");
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [detailModalVisible, setDetailModalVisible] = useState(false);
@@ -29,9 +29,9 @@ const SubjectManagement = () => {
     }, [fetchAllSubjects]);
     
   return (
-    <Card title={t("subject.managementTitle")}>
+    <Card title={t("subject.management.title")}>
       <Button type="primary" onClick={showModal}>
-        {t("subject.create")}
+        {t("subject.management.button.create")}
       </Button>
       <CreateSubjectModal visible={isModalVisible} onClose={handleCancel} />
       <DetailSubjectModal 
@@ -49,18 +49,18 @@ const SubjectManagement = () => {
         rowKey="subject_id"
         columns={[
           {
-            title: t("subject.name"),
+            title: t("subject.management.name"),
             dataIndex: "name",
             key: "name",
           },
           {
-            title: t("subject.description"),
+            title: t("subject.management.description"),
             dataIndex: "description",
             key: "description",
             render: (text) => text || t("subject.noDescription"),
           },
           {
-            title: t("subject.status"),
+            title: t("subject.management.status"),
             dataIndex: "status",
             key: "status",
             render: (status) => (
@@ -79,12 +79,12 @@ const SubjectManagement = () => {
             ),
           },
           {
-            title: t("subject.dataNum"),
+            title: t("subject.management.dataNum"),
             dataIndex: "data_num",
             key: "data_num",
           },
           {
-            title: t("subject.actions"),
+            title: t("subject.management.actions"),
             key: "actions",
             render: (value:ListSubjectResponse) => (
               <Space size="middle">
@@ -95,16 +95,16 @@ const SubjectManagement = () => {
                     setDetailModalVisible(true);
                   }}
                 >
-                  {t("subject.details")}
+                  {t("subject.management.button.details")}
                 </Button>
                 <Button type="primary"
                 onClick={() => {
                   setSelectedSubjectId(value.subject_id);
                   setEditModalVisible(true);
                 }}
-                >{t("subject.edit")}</Button>
+                >{t("subject.management.button.edit")}</Button>
                 <Button type="link" danger>
-                  {t("subject.delete")}
+                  {t("subject.management.button.delete")}
                 </Button>
               </Space>
             ),
