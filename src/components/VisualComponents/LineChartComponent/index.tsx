@@ -9,7 +9,7 @@ import ReactECharts from "echarts-for-react";
 import type { EChartsOption, SeriesOption } from "echarts";
 import { TimeInterest } from "@/types/interest";
 import { LineChartOutlined } from "@ant-design/icons";
-import { Card, Switch, Progress, Button, Space, Select } from "antd";
+import { Card, Switch, Progress, Button, Space, Select, Tag } from "antd";
 import dayjs from "dayjs";
 import { fillMissingValuesAndTrim } from "@/utils/interest";
 import { fitModel, getFitProgress } from "@/api/cfc";
@@ -144,12 +144,37 @@ const useFitData = (data: SubjectDataResponse | null, index: number) => {
     };
 
     fetchFitData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [index, generateFitData, fitRef.current]);
 
   return { fit, setFit, isFitting, progress, fitData };
 };
+const getRandomColor = () => {
+  // 生成随机颜色的方法，返回如 '#RRGGBB' 格式的字符串
+  const r = Math.floor(Math.random() * 256).toString(16);
+  const g = Math.floor(Math.random() * 256).toString(16);
+  const b = Math.floor(Math.random() * 256).toString(16);
+  return "#" + ("0" + r).slice(-2) + ("0" + g).slice(-2) + ("0" + b).slice(-2);
+};
+const allocateColor = (
+  lineColors: string[] | undefined,
+  allocatedColors: string[]
+) => {
+  // 如果还有未分配的颜色，则分配之
+  if (lineColors) {
+    for (const color of lineColors) {
+      if (!allocatedColors.includes(color)) {
+        allocatedColors.push(color);
+        return color;
+      }
+    }
+  }
 
+  // 若所有颜色均已分配，则生成并返回随机颜色
+  const newColor = getRandomColor();
+  allocatedColors.push(newColor);
+  return newColor;
+};
 // 将图表配置生成逻辑提取到单独的函数中
 const generateChartOptions = (
   data: SubjectDataResponse | null,
@@ -160,7 +185,7 @@ const generateChartOptions = (
 ): EChartsOption => {
   if (data) {
     const series: SeriesOption[] = [];
-
+    const allocatedColors: string[] = []; // 已分配颜色的数组
     const metaItem = data.meta[index];
     metaItem.keywords.forEach((keyword) => {
       if (Array.isArray(data.data) && Array.isArray(data.data[index])) {
@@ -182,6 +207,9 @@ const generateChartOptions = (
           name: keyword,
           type: "line",
           data: seriesData,
+          itemStyle: {
+            color: allocateColor(lineColors, allocatedColors),
+          },
         });
 
         series.push({
@@ -189,6 +217,9 @@ const generateChartOptions = (
           type: "line",
           smooth: true,
           data: fitSeriesData,
+          itemStyle: {
+            color: allocateColor(lineColors, allocatedColors),
+          },
         });
       }
     });
@@ -203,7 +234,6 @@ const generateChartOptions = (
         axisPointer: {
           type: "line",
         },
-        
       },
       xAxis: {
         type: "time",
@@ -224,7 +254,7 @@ const generateChartOptions = (
         axisLabel: {
           customValues: [
             0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-            10, 20, 30, 40, 50, 60, 70, 80, 90, 100
+            10, 20, 30, 40, 50, 60, 70, 80, 90, 100,
           ],
         },
         name: "Value",
@@ -281,7 +311,7 @@ const LineChart: React.FC<LineChartProps> = ({
   lineColors,
   title,
 }) => {
-  const {t}=useTranslation("visualComponents");
+  const { t } = useTranslation("visualComponents");
   useDataBinding(`subject-${subjectId}`, componentId, "subjectDatas");
   const { cardRef, echartsRef } = useAutoResizeChart();
   const [error, setError] = useState<Error | null>(null);
@@ -336,7 +366,9 @@ const LineChart: React.FC<LineChartProps> = ({
       )}
       {error ? (
         <div className="flex flex-col items-center justify-center h-full">
-          <div className="text-red-500 mb-4">{t(`component.lineChart.error`,{error:error.message})}</div>
+          <div className="text-red-500 mb-4">
+            {t(`component.lineChart.error`, { error: error.message })}
+          </div>
           <Button type="primary" onClick={handleRetry}>
             重试
           </Button>
@@ -396,6 +428,24 @@ export const RegisteredLineChart: RegisteredComponent<LineChartProps> = {
             value: c,
           })
         ),
+        tagRender:(props) => {
+          const { label, value, closable, onClose } = props;
+          const onPreventMouseDown = (event: React.MouseEvent<HTMLSpanElement>) => {
+            event.preventDefault();
+            event.stopPropagation();
+          };
+          return (
+            <Tag
+              color={value}
+              onMouseDown={onPreventMouseDown}
+              closable={closable}
+              onClose={onClose}
+              style={{ marginInlineEnd: 4 }}
+            >
+              {label}
+            </Tag>
+          );
+        }
       },
       title: {
         type: "text",

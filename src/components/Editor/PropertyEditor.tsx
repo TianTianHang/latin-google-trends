@@ -122,6 +122,7 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({
               options={config.options}
               allowClear
               mode={config.mode}
+              tagRender={config.tagRender}
             />
           );
         }

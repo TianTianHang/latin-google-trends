@@ -1,8 +1,6 @@
 import { create } from "zustand";
 import { useDataNotificationCenter } from "./dataNotificationCenter";
 import { useInterlinkedStore } from "./interlinkedStore";
-import { getSubjectData } from "@/api/subject";
-import { useSubjectStore } from "@/stores/useSubjectStore";
 
 export interface DataSource {
   id: string;
@@ -68,18 +66,5 @@ export const useDataProviderStore = create<DataProviderState>((set, get) => ({
   },
 }));
 
-useSubjectStore.getState().fetchAllSubjects().then(()=>{
-    useSubjectStore.getState().allSubjects.map((s) => {
-        useDataProviderStore.getState().registerDataSource({
-          id: `subject-${s.subject_id}`,
-          type: "api",
-          config: {
-            renderData:"data=>data.map(item=>item.data)"
-          },
-          fetch: async () => {
-            return await getSubjectData(s.subject_id);
-          },
-        });
-      });
-});
+
 

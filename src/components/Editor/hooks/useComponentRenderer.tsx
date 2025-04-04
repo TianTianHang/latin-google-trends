@@ -7,14 +7,14 @@ export const useComponentRenderer = () => {
   const { registered } = useRegisteredComponentsStore();
 
   const renderComponent = useCallback(
-    (comp: ComponentData<PropsType>) => {
+    (comp: ComponentData<PropsType>,isStatic=false) => {
       const Component = registered.get(comp.type)?.component;
       if (!Component) return null;
 
       return (
         <>
           {/* 拖动手柄 */}
-          <div
+          {isStatic?null:( <div
             className="absolute top-0 right-0 z-10 cursor-move opacity-0 transition-opacity duration-300 hover:opacity-100"
             style={{ width: "40px", height: "20px" }}
           >
@@ -22,7 +22,8 @@ export const useComponentRenderer = () => {
               :::
             </div>
           </div>
-
+)}
+         
           <Component key={comp.id} {...comp.props} componentId={comp.id} />
         </>
       );

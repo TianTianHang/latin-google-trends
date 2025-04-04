@@ -31,7 +31,7 @@ export const constantRoutes: RouteType[] = [
   {
     path: "/login",
     component: lazy(() => import("@/views/LoginPage")),
-  }
+  },
 ];
 export const asyncRoutes: RouteType[] = [
   {
@@ -55,30 +55,18 @@ export const asyncRoutes: RouteType[] = [
     },
   },
   {
-    path: "/dashboard",
-    element: <Outlet/>,
+    path: "/dashboard/:id",
+    component: lazy(() => import("@/views/PreviewPage")),
     meta: {
       requiresAuth: true,
       breadcrumb: true,
       allowedRoles: ["user", "admin"],
       title: "dashboard",
-    },
-    children:[
-      {
-        path:"/dashboard/default",
-        component:lazy(() => import("@/views/PreviewPage")),
-        meta:{
-          requiresAuth: false,
-          breadcrumb: true,
-          allowedRoles: ["user", "admin"],
-          title: "dashboard.default",
-        }
-      }
-    ]
+    }
   },
   {
     path: "/data",
-    element: <Outlet/>,
+    element: <Outlet />,
     meta: {
       requiresAuth: true,
       breadcrumb: true,
@@ -119,19 +107,19 @@ export const asyncRoutes: RouteType[] = [
     },
   },
   {
-    path:"/permission",
-    element: <Outlet/>,
-    meta:{
+    path: "/permission",
+    element: <Outlet />,
+    meta: {
       requiresAuth: true,
       breadcrumb: true,
       allowedRoles: ["admin"],
       title: "permission",
     },
-    children:[
+    children: [
       {
-        path:"/permission/endpoint",
-        component: lazy(()=>import("@/views/PermissionManagementPage")),
-        meta:{
+        path: "/permission/endpoint",
+        component: lazy(() => import("@/views/PermissionManagementPage")),
+        meta: {
           requiresAuth: true,
           breadcrumb: true,
           allowedRoles: ["admin"],
@@ -139,17 +127,17 @@ export const asyncRoutes: RouteType[] = [
         },
       },
       {
-        path:"/permission/user-role",
-        component: lazy(()=>import('@/views/UserRoleManagementPage')),
-        meta:{
+        path: "/permission/user-role",
+        component: lazy(() => import("@/views/UserRoleManagementPage")),
+        meta: {
           requiresAuth: true,
           breadcrumb: true,
-          allowedRoles: [ "admin"],
+          allowedRoles: ["admin"],
           title: "permission.user-role",
         },
-      }
-    ]
-  }
+      },
+    ],
+  },
 ];
 // 路由处理方式
 const generateRouter = (routers: RouteType[]) => {
@@ -169,6 +157,8 @@ const generateRouter = (routers: RouteType[]) => {
 export const AppRouter = () => {
   // 合并静态路由和动态路由
   const { dynamicRoutes } = usePermissionStore();
+  
+  
 
   // 修改合并函数
   const allRoutes = useMemo(() => {
@@ -189,7 +179,7 @@ export const AppRouter = () => {
 
     return constantRoutes;
   }, [dynamicRoutes]);
-
+ 
   return useRoutes(generateRouter(allRoutes));
 };
 

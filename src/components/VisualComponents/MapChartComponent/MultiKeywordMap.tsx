@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useState } from "react";
 
 import ReactECharts, { EChartsOption } from "echarts-for-react";
 import "echarts-extension-amap";
@@ -10,6 +10,7 @@ import { Empty } from "antd";
 import { RegisteredComponent } from "@/components/Editor/stores/registeredComponentsStore";
 import { useDataBinding } from "@/components/Editor/hooks/useDataBinding";
 import { SubjectDataResponse } from "@/types/subject";
+import { useAutoResizeChart } from "../hooks/useAutoResizeChart";
 const icons = Object.values(
   import.meta.glob("./icons/*.png", { eager: true, import: "default" })
 ).map((module) => module as string);
@@ -36,12 +37,9 @@ const MultiKeywordMap: React.FC<MultiKeywordMapProps> = ({
 
     return filterSubjectDatas[index];
   }, [index, filterSubjectDatas]);
-  const echartsRef = useRef<InstanceType<typeof ReactECharts>>(null);
-  const [zoom]=useState(2);
+  const { cardRef, echartsRef } = useAutoResizeChart();
+  const [zoom] = useState(2);
 
-  useEffect(() => {
-    if (!echartsRef.current) return;
-  }, [echartsRef]);
   const dataOption: EChartsOption = useMemo(() => {
     if (data) {
       const series: SeriesOption[] = [];
@@ -49,7 +47,7 @@ const MultiKeywordMap: React.FC<MultiKeywordMapProps> = ({
       // 遍历每个 SubjectDataMeta 元素
       const metaItem = data.meta[step];
       // 遍历每个 keyword，创建一个系列
-      metaItem.keywords.forEach((keyword:string) => {
+      metaItem.keywords.forEach((keyword: string) => {
         // 检查 data 是否包含 RegionInterest 类型的数据
         if (data.data instanceof Array && data.data[step] instanceof Array) {
           // 提取 RegionInterest 数据
@@ -128,15 +126,19 @@ const MultiKeywordMap: React.FC<MultiKeywordMapProps> = ({
     }
   }, [data, step, zoom]);
 
-  return Object.keys(dataOption).length > 0 ? (
-    <ReactECharts
-      ref={echartsRef}
-      autoResize={true}
-      option={dataOption}
-      style={{ height: "100%", width: "100%" }}
-    />
-  ) : (
-    <Empty />
+  return (
+    <div ref={cardRef} className="h-full">
+      {Object.keys(dataOption).length > 0 ? (
+        <ReactECharts
+          ref={echartsRef}
+          autoResize={true}
+          option={dataOption}
+          style={{ height: "100%", width: "100%" }}
+        />
+      ) : (
+        <Empty />
+      )}
+    </div>
   );
 };
 
@@ -152,7 +154,7 @@ export const registeredMultiKeywordMapComponent: RegisteredComponent<MultiKeywor
       defaultProps: {
         index: 0,
         componentId: "",
-        step: 0
+        step: 0,
       },
       propSchema: {
         subjectId: {

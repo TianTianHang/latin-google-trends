@@ -11,6 +11,7 @@ interface LayoutsState {
   currentLayouts: Layout[];
   switchLayout: (layoutIndex: number) => void;
   updateLayout: (layout: Layout[]) => void;
+  reset: ()=>void;
 }
 
 export const useLayoutsStore = create<LayoutsState>((set, get) => ({
@@ -65,4 +66,9 @@ export const useLayoutsStore = create<LayoutsState>((set, get) => ({
       currentLayouts: layout,
     }));
   },
+  reset: () => {
+    set(() => ({
+      currentLayouts: get().predefinedLayouts[0].layouts,
+    }))
+  }
 }));

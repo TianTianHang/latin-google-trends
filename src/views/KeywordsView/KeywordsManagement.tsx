@@ -163,7 +163,7 @@ const KeywordsManagement: React.FC = () => {
           >
             <Select loading={categoriesLoading}>
             <Select.Option key={0} value={null}>
-                  {t('keywords.text.none')}
+                  {t('keywords.select.none')}
                 </Select.Option>
               {categories?.map((category) => (
                 <Select.Option key={category.id} value={category.id}>

@@ -1,14 +1,24 @@
 import { create } from "zustand";
 import { PropsType } from "./componentsStore";
-import { ComponentType } from "react";
+import { ComponentType, JSXElementConstructor, ReactElement } from "react";
 
-
+export type CustomTagProps = {
+    label: React.ReactNode;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    value: any;
+    disabled: boolean;
+    onClose: (event?: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+    closable: boolean;
+    isMaxTag: boolean;
+};
 export interface Schema {
   type: "text" | "number" | "color" | "select" | "boolean" | "date" | "range" | "json" | "code";
   label?: string;
   placeholder?: string;
   mode?:"multiple" | "tags" | undefined;
   options?: Array<{ label: string; value: string | number | null }>|(()=> Array<{ label: string; value: string | number | null }>)|(()=>Promise<Array<{ label: string; value: string | number | null }>>)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  tagRender?: ((props: CustomTagProps) => ReactElement<any, string | JSXElementConstructor<any>>);
   min?: number; // for range/number
   max?: number; // for range/number
   step?: number; // for range/number

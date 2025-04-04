@@ -16,7 +16,7 @@ const antdLocales = {
 
 function App() {
   const { language } = useGlobalStore();
-
+  
   return (
     <StyleProvider layer>
       <ConfigProvider

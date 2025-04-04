@@ -141,7 +141,7 @@ class SaveService {
   private currentStrategy: ISaveStrategy;
   
   private constructor() {
-    // 默认使用本地存储策略
+    // 默认使用远程存储策略
     this.currentStrategy = new RemoteAPIStrategy(this);
   }
 

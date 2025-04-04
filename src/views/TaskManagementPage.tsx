@@ -12,7 +12,7 @@ const { Option } = Select;
 
 
 const TaskManagement: React.FC = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation("views");
   const { historicalTasks, scheduledTasks, fetchHistoricalTasks, fetchScheduledTasks } = useTaskStore();
   const [serviceInstances, setServiceInstances] = useState<ServiceInstance[]>([]);
   const [selectedServiceId, setSelectedServiceId] = useState<string>('');

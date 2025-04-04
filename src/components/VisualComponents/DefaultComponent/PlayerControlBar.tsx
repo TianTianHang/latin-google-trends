@@ -18,6 +18,7 @@ interface PlayerControlBarProp {
   subjectDatas?: SubjectDataResponse[];
   index: number;
   step: number;
+  compact?: boolean;
 }
 
 export const PlayerControlBar: React.FC<PlayerControlBarProp> = ({
@@ -26,6 +27,7 @@ export const PlayerControlBar: React.FC<PlayerControlBarProp> = ({
   index=0,
   step=0,
   subjectDatas,
+  compact = false,
 }) => {
   useDataBinding(`subject-${subjectId}`, componentId, "subjectDatas");
   const {updateProps}=useComponentsStore()
@@ -65,54 +67,55 @@ export const PlayerControlBar: React.FC<PlayerControlBarProp> = ({
 
   return (
     <div className="mt-4">
-      <Card>
-        <Row>
-          <Col span={2}>
-            <Button
-              onClick={() => updateProps(componentId,{step:0})}
-              icon={<ReloadOutlined />}
-              style={{ marginBottom: "8px" }}
-            />
-            <Button
-              onClick={handlePlayPause}
-              icon={isPlaying ? <PauseOutlined /> : <PlayCircleOutlined />}
-            />
-          </Col>
+    <Card>
+      <Row gutter={16} align="middle">
+        <Col flex="none">
+          <Button
+            onClick={() => updateProps(componentId, { step: 0 })}
+            icon={<ReloadOutlined />}
+            style={{ marginBottom: "8px" }}
+          />
+          <Button
+            onClick={handlePlayPause}
+            icon={isPlaying ? <PauseOutlined /> : <PlayCircleOutlined />}
+          />
+        </Col>
 
-          <Col span={16}>
+        {!compact && (
+          <Col flex="auto">
             <Slider
               min={0}
-              max={data?.data?.length?data?.data?.length-1:0}
+              max={data?.data?.length ? data?.data?.length - 1 : 0}
               value={step}
               onChange={handleSliderChange}
             />
           </Col>
+        )}
 
-          <Col span={4}>
-            <Text className="!text-black text-0.5xl">
-              {data?.meta[step].timeframe_start &&
-              data?.meta[step].timeframe_end
-                ? `${data?.meta[step].timeframe_start}-${data?.meta[step].timeframe_end}`
-                : ""}
-            </Text>
-          </Col>
+        <Col flex="none">
+          <Text className="!text-black text-0.5xl">
+            {data?.meta[step]?.timeframe_start && data?.meta[step]?.timeframe_end
+              ? `${data?.meta[step].timeframe_start}-${data?.meta[step].timeframe_end}`
+              : ""}
+          </Text>
+        </Col>
 
-          <Col span={2}>
-            <Select
-              value={intervalTime}
-              onChange={(value) => setIntervalTime(value)}
-              className="w-full"
-              size="small"
-            >
-              <Select.Option value={1000}>1 sec</Select.Option>
-              <Select.Option value={2000}>2 sec</Select.Option>
-              <Select.Option value={3000}>3 sec</Select.Option>
-              <Select.Option value={4000}>4 sec</Select.Option>
-            </Select>
-          </Col>
-        </Row>
-      </Card>
-    </div>
+        <Col flex="none">
+          <Select
+            value={intervalTime}
+            onChange={(value) => setIntervalTime(value)}
+            className="w-full"
+            size="small"
+          >
+            <Select.Option value={1000}>1 sec</Select.Option>
+            <Select.Option value={2000}>2 sec</Select.Option>
+            <Select.Option value={3000}>3 sec</Select.Option>
+            <Select.Option value={4000}>4 sec</Select.Option>
+          </Select>
+        </Col>
+      </Row>
+    </Card>
+  </div>
   );
 };
 
@@ -127,7 +130,8 @@ export const registeredSliderBarComponent: RegisteredComponent<PlayerControlBarP
       defaultProps: {
         index: 0,
         step: 0,
-        componentId: ""
+        componentId: "",
+        compact: false
       },
       propSchema: {
         subjectId: {
@@ -146,6 +150,11 @@ export const registeredSliderBarComponent: RegisteredComponent<PlayerControlBarP
           type: "number",
           label: "Step",
           placeholder: "Enter Step",
+        },
+        compact: {
+          type: "boolean",
+          label: "Compact Mode",
+          placeholder: "Enable compact mode"
         }
       },
     },

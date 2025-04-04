@@ -8,33 +8,52 @@ import { useComponentRenderer } from "@/components/Editor/hooks/useComponentRend
 import { Layout, Responsive, WidthProvider } from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
-import { ComponentData, PropsType } from "@/components/Editor/stores/componentsStore";
+import { useComponentsStore } from "@/components/Editor/stores/componentsStore";
+import {
+  useInterlinkedStore,
+  useLayoutsStore,
+} from "@/components/Editor/stores";
+import { useUnmount } from "ahooks";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 const responsiveMap = ["lg", "md", "sm", "xs", "xxs"];
 
-const PreviewPage:React.FC = () => {
+const PreviewPage: React.FC = () => {
   const { t } = useTranslation("views");
   const { id } = useParams();
   const { renderComponent } = useComponentRenderer();
   const [loading, setLoading] = useState(true);
-  const [components, setComponents] = useState<ComponentData<PropsType>[]>([]);
+  // const [components, setComponents] = useState<ComponentData<PropsType>[]>([]);
+  const { components } = useComponentsStore();
   const [layouts, setLayouts] = useState<Record<string, Layout[]>>({});
+  const reset = () => {
+    useComponentsStore.getState().reset();
+    useInterlinkedStore.getState().reset();
+    useLayoutsStore.getState().reset();
+  };
 
+  useUnmount(() => {
+    reset();
+  });
   useEffect(() => {
+    reset();
+    if (!id) {
+      return;
+    }
     const loadData = async () => {
       try {
         const data = await saveService.load(id);
         if (data) {
-          const { components, layouts } = data;
-          setComponents(components);
-          
+          const { components, layouts, interlinks } = data;
+          //setComponents(components)
+          useComponentsStore.setState({ components });
+          useInterlinkedStore.setState({ interlinked: interlinks });
           const processedLayouts = layouts.filter((c: Layout) => c.i !== "");
           const responsiveLayouts = responsiveMap.reduce((acc, r) => {
             acc[r] = processedLayouts;
             return acc;
           }, {} as Record<string, Layout[]>);
-          
+
           setLayouts(responsiveLayouts);
         } else {
           message.error(t("preview.message.layoutNotFound"));
@@ -49,7 +68,6 @@ const PreviewPage:React.FC = () => {
 
     loadData();
   }, [id, t]);
-
 
   if (loading) {
     return <div>{t("preview.status.loading")}</div>;
@@ -69,9 +87,7 @@ const PreviewPage:React.FC = () => {
         autoSize
       >
         {components.map((comp) => (
-          <div key={comp.id}>
-            {renderComponent(comp)}
-          </div>
+          <div key={comp.id}>{renderComponent(comp,true)}</div>
         ))}
       </ResponsiveGridLayout>
     </div>

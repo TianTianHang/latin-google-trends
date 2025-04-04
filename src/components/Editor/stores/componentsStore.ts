@@ -15,6 +15,7 @@ interface ComponentsState {
   addComponent: (component: Omit<ComponentData<PropsType>, "id">) => void;
   deleteComponent: (id: string) => void;
   updateProps: (id: string, props: Partial<PropsType>) => void;
+  reset: () => void;
 }
 
 export const useComponentsStore = create<ComponentsState>((set) => {
@@ -61,10 +62,10 @@ export const useComponentsStore = create<ComponentsState>((set) => {
       }));
       const currentLayouts = useLayoutsStore.getState().currentLayouts;
       const newCurrentLayouts = [...currentLayouts];
-      const index=newCurrentLayouts.findIndex(layout=>layout.i==id);
+      const index = newCurrentLayouts.findIndex((layout) => layout.i == id);
       newCurrentLayouts[index] = {
         ...newCurrentLayouts[index],
-        i:""
+        i: "",
       };
       useLayoutsStore.setState({
         currentLayouts: newCurrentLayouts,
@@ -81,6 +82,11 @@ export const useComponentsStore = create<ComponentsState>((set) => {
             : comp
         ),
       }));
+    },
+    reset: () => {
+      set({
+        components: [],
+      });
     },
   };
 });

@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
+import { useRequest } from "ahooks";
 import { Card, Select, Space, Statistic, StatisticProps } from "antd";
 import { calculateGlobalMoran } from "@/api/moran";
 import CountUp from "react-countup";
@@ -31,9 +32,7 @@ const GlobalMoranIndex: React.FC<GlobalMoranIndexProps> = ({
 }) => {
   const { t } = useTranslation("visualComponents");
   useDataBinding(`subject-${subjectId}`, componentId, "subjectDatas");
-  const [globalMoranIndex, setGlobalMoranIndex] = useState<number | null>(null);
   const [selectedKeyword, setSelectedKeyword] = useState<string>();
-  
   const filterSubjectDatas = useMemo(() => {
     return subjectDatas?.filter((sd) => sd.data_type == "region");
   }, [subjectDatas]);
@@ -66,25 +65,26 @@ const GlobalMoranIndex: React.FC<GlobalMoranIndexProps> = ({
       return [];
     }
   }, [moranData, selectedKeyword, step]);
-
-  useEffect(() => {
-    if (data.length === 0) return;
-    const fetchGlobalMoranIndex = async () => {
-      try {
-        const result = await calculateGlobalMoran({
-          data: data.map((item) => item.value),
-          iso_codes: data.map((item) => item.geo_code),
-          missing_data_method: "interpolate",
-        });
-
-        setGlobalMoranIndex(result.I);
-      } catch (error) {
+  const { data: globalMoranIndex, loading, error } = useRequest(
+    async () => {
+      if (data.length === 0) return null;
+      return await calculateGlobalMoran({
+        data: data.map((item) => item.value),
+        iso_codes: data.map((item) => item.geo_code),
+        missing_data_method: "interpolate",
+      });
+    },
+    {
+      refreshDeps: [data],
+      onError: (error) => {
         console.error("Failed to fetch global moran index:", error);
-      }
-    };
+      },
+      cacheKey: "globalMoranIndex",
+    }
+  );
+  
+  
 
-    fetchGlobalMoranIndex();
-  }, [data]);
 
   const formatter: StatisticProps["formatter"] = (value) => (
     <CountUp end={value as number} decimals={4} duration={1} />
@@ -105,7 +105,7 @@ const GlobalMoranIndex: React.FC<GlobalMoranIndexProps> = ({
         />
         <Statistic
           title={<span>{t("component.globalMoran.title")}</span>}
-          value={globalMoranIndex || "null"}
+          value={loading ? "Loading..." : error ? "Error" : globalMoranIndex?.I || "null"}
           formatter={formatter}
         />
       </Space>

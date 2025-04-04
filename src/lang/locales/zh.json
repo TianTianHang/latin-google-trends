@@ -1,7 +1,7 @@
 {
   "api": {
     "errMsg400": "请求错误，请检查请求参数",
-    "errMsg401": "未授权，请重新登录", 
+    "errMsg401": "未授权，请重新登录",
     "errMsg403": "禁止访问，您没有权限执行此操作",
     "errMsg404": "资源未找到，请检查请求地址",
     "errMsg405": "请求方法不被允许",
@@ -21,7 +21,6 @@
     "keywords": "关键字",
     "tasks": "任务管理",
     "dashboard": "面板",
-    "dashboard.default": "默认面板",
     "data": "数据管理",
     "data.subject": "主题管理",
     "data.data-source": "数据源管理",
@@ -30,15 +29,17 @@
     "permission.endpoint": "接口权限管理",
     "permission.user-role": "用户权限管理"
   },
-  "editor":{
-    "menu":{
-      "component":{
-           "globalMoran":"全局 Moran's I 组件",
-           "LineChart":"折线图组件",
-           "image":"图片组件",
-           "playerControlBar":"播放器控制栏",
-           "multiKeywordMap":"多关键字地图组件",
-           "heatMap":"热力图组件"
+  "editor": {
+    "menu": {
+      "component": {
+        "globalMoran": "全局 Moran's I 组件",
+        "LineChart": "折线图组件",
+        "image": "图片组件",
+        "playerControlBar": "播放器控制栏",
+        "multiKeywordMap": "多关键字地图组件",
+        "heatMap": "热力图组件",
+        "zipfLaw": "ZipfLaw",
+        "dataMeta": "元数据"
       },
       "layoutSwitch": "布局切换",
       "fixed": "固定",
@@ -46,6 +47,6 @@
       "delete": "删除",
       "edit": "编辑",
       "replace": "替换"
-  }
+    }
   }
 }

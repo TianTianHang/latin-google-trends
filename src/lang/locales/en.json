@@ -34,11 +34,13 @@
     "menu": {
       "component": {
         "globalMoran": "Global Moran's I Component",
-         "LineChart":"LineChart Component",
-         "image":"Image Component",
-         "playerControlBar":"Player Control Bar",
-         "multiKeywordMap":"MultiKeywordMap Component",
-         "heatMap":"HeatMap Component"
+        "LineChart": "LineChart Component",
+        "image": "Image Component",
+        "playerControlBar": "Player Control Bar",
+        "multiKeywordMap": "MultiKeywordMap Component",
+        "heatMap": "HeatMap Component",
+        "zipfLaw": "ZipfLaw",
+        "dataMeta": "Data Meta"
       },
       "layoutSwitch": "Layout Switch",
       "fixed": "Fixed",

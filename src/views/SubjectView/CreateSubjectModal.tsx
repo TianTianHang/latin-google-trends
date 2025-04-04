@@ -187,7 +187,7 @@ const CreateSubjectModal: React.FC<CreateSubjectModalProps> = ({ visible, onClos
                     name={[name, "geo_code"]}
                     label={t("subject.modal.create.form.geoCode")}
                     rules={[
-                      { required: true, message: t("subject.modal.create.form.geoCodeRequired") },
+                      { required: false, message: t("subject.modal.create.form.geoCodeRequired") },
                     ]}
                   >
                     <Select showSearch placeholder={t("subject.modal.create.form.enterGeoCode")}>

@@ -1,12 +1,36 @@
 {
-    "component":{
-        "globalMoran":{
-            "title":"Global Moran Index"
-        },
-        "lineChart":{
-            "error":"Chart loading failed: {{error}}"
-        }
+  "component": {
+    "globalMoran": {
+      "title": "Global Moran Index"
+    },
+    "lineChart": {
+      "error": "Chart loading failed: {{error}}"
+    },
+    "zipfLaw": {
+      "title": "Zipf's Law Distribution {{timeframe}}",
+      "xAxis": "Rank",
+      "yAxis": "Relative Frequency",
+      "tooltip": {
+        "word": "Word",
+        "rank": "Rank",
+        "frequency": "Relative Frequency"
+      },
+      "legend": {
+        "actual": "Actual data",
+        "theory": "ZIPF theoretical curves"
+      }
+    },
+    "dataMeta": {
+      "card": {
+        "name": "Name",
+        "description": "Description",
+        "status": "Status",
+        "dataCount": "Data Count",
+        "actions": "Actions",
+        "noDescription": "No description",
+        "dataNum": "Data Number",
+        "showData": "Show data"
+      }
     }
-    
-    
+  }
 }

@@ -24,7 +24,7 @@ import {
 } from "antd";
 import { LinkEditor } from "./LinkEditor";
 import { saveService } from "./services/saveService";
-import { useBoolean, useInterval, useRequest } from "ahooks";
+import { useBoolean, useInterval, useMount, useRequest, useUnmount } from "ahooks";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 const responsiveMap = ["lg", "md", "sm", "xs", "xxs"];
@@ -32,8 +32,20 @@ const responsiveMap = ["lg", "md", "sm", "xs", "xxs"];
 export const Canvas = () => {
   const { components, deleteComponent } = useComponentsStore();
   const { currentLayouts, updateLayout } = useLayoutsStore();
-  const { renderComponent } = useComponentRenderer();
 
+  const { renderComponent } = useComponentRenderer();
+  const reset = () => {
+    useComponentsStore.getState().reset();
+    useInterlinkedStore.getState().reset();
+    useLayoutsStore.getState().reset();
+  };
+  useMount(() => {
+    reset();
+  });
+  useUnmount(() => {
+    reset();
+  });
+  
   const [menuVisible, { setTrue: showMenu, setFalse: hideMenu }] =
     useBoolean(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -122,7 +134,10 @@ export const Canvas = () => {
   const { run: handleSaveConfirm } = useRequest(
     async () => {
       const values = await saveForm.validateFields();
-      return saveService.save(values.name, `${values.name}-${new Date().toLocaleString()}`);
+      return saveService.save(
+        values.name,
+        `${values.name}-${new Date().toLocaleString()}`
+      );
     },
     {
       manual: true,
@@ -173,19 +188,28 @@ export const Canvas = () => {
   };
 
   const { layouts, missIds } = useMemo(() => {
-    const emptyLayouts = currentLayouts.filter((c: Layout) => c.i === "");
-    const filledLayouts = currentLayouts.filter((c: Layout) => c.i !== "");
+    // 分类并保持原始索引顺序
+    const layoutsWithIndex = currentLayouts.map((layout, index) => ({
+      ...layout,
+      originalIndex: index,
+    }));
 
-    const missIds = emptyLayouts.map((_, i) => `place-${i}`);
+    // 根据条件分类布局，并保持原始索引顺序
+    const emptyLayouts = layoutsWithIndex.filter((c) => c.i === "");
+    const filledLayouts = layoutsWithIndex.filter((c) => c.i !== "");
 
+    // 为缺少id的布局生成新的id
+    const missIds = emptyLayouts.map((l) => `place-${l.originalIndex}`);
+
+    // 合并filled和empty布局，更新empty布局的id
     const processedLayouts = [
-      ...filledLayouts,
-      ...emptyLayouts.map((c, i) => ({
-        ...c,
-        i: missIds[i],
-      })),
-    ];
+      ...filledLayouts.map((c) => ({ ...c })),
+      ...emptyLayouts.map((c, i) => ({ ...c, i: missIds[i] })),
+    ].map((c) => {
+      return c;
+    });
 
+    // 根据responsiveMap生成layouts对象
     const layouts = responsiveMap.reduce((acc, r) => {
       acc[r] = processedLayouts;
       return acc;

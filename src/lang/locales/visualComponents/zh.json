@@ -1,11 +1,36 @@
 {
-    "component":{
-        "globalMoran":{
-            "title":"全局莫兰指数"
-        },
-        "lineChart":{
-            "error":"图表加载失败: {{error}}"
-        }
+  "component": {
+    "globalMoran": {
+      "title": "全局莫兰指数"
+    },
+    "lineChart": {
+      "error": "图表加载失败: {{error}}"
+    },
+    "zipfLaw": {
+      "title": "Zipf定律分布  {{timeframe}}",
+      "xAxis": "排名",
+      "yAxis": "相对频率",
+      "tooltip": {
+        "word": "单词",
+        "rank": "排名",
+        "frequency": "相对频率"
+      },
+      "legend": {
+        "actual": "实际数据",
+        "theory": "Zipf理论曲线"
+      }
+    },
+    "dataMeta": {
+      "card": {
+        "name": "名称",
+        "description": "描述",
+        "status": "状态",
+        "dataCount": "数据量",
+        "actions": "操作",
+        "noDescription": "无描述",
+        "dataNum": "数据数量",
+        "showData": "显示数据"
+      }
     }
-    
+  }
 }
