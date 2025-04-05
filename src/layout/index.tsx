@@ -149,6 +149,7 @@ const BasicLayout: React.FC = () => {
             overflow: "auto",
             height: `calc(100vh - 128px)`,
           }}
+          id="main-content"
         >
           {isAdmin ? (
             <Suspense fallback={<Spin size="large" className="content_spin" />}>

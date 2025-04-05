@@ -21,4 +21,5 @@ export interface LocalMoranResult {
     I: number[];
     p_values: number[];
     z_scores: number[];
+    type:number[]
 }

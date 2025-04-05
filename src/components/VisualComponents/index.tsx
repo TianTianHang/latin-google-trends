@@ -8,6 +8,7 @@ import { registeredGlobalMoranIndexComponent } from "./DefaultComponent/GlobalMo
 import { registeredSliderBarComponent } from "./DefaultComponent/PlayerControlBar";
 import { registeredZipfLawComponent } from "./ZipfLaw";
 import { registeredDataMetaComponent } from "./DefaultComponent/DataMeta";
+import { registeredLocalMoranIndexComponent } from "./MapChartComponent/LocalMoranIndex";
 
 export const useRegisterComponent = () => {
   const { registerComponent } = useRegisteredComponentsStore();
@@ -19,4 +20,5 @@ export const useRegisterComponent = () => {
   registerComponent(registeredZipfLawComponent);
   registerComponent(registeredSliderBarComponent);
   registerComponent(registeredDataMetaComponent);
+  registerComponent(registeredLocalMoranIndexComponent);
 };

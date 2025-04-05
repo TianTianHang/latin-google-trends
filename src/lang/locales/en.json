@@ -40,7 +40,8 @@
         "multiKeywordMap": "MultiKeywordMap Component",
         "heatMap": "HeatMap Component",
         "zipfLaw": "ZipfLaw",
-        "dataMeta": "Data Meta"
+        "dataMeta": "Data Meta",
+        "localMoran":"Local Moran Component"
       },
       "layoutSwitch": "Layout Switch",
       "fixed": "Fixed",

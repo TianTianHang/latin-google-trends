@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from "react";
 
-import { Card, Descriptions, Select, Space, Statistic, Tag, Typography } from "antd";
-import { useTranslation } from "react-i18next";
+import { Card, Select, Space, Tag, Typography } from "antd";
 import { useDataBinding } from "@/components/Editor/hooks/useDataBinding";
 import { RegisteredComponent } from "@/components/Editor/stores/registeredComponentsStore";
 import { useSubjectStore } from "@/stores/useSubjectStore";
@@ -24,7 +23,7 @@ const DataMeta: React.FC<DataMetaProps> = ({
   index = 0,
   step = 0,
 }) => {
-  const { t } = useTranslation("visualComponents");
+
   useDataBinding(`subject-${subjectId}`, componentId, "subjectDatas");
   const [dataType, setDataType] = useState("region");
   const filterSubjectDatas = useMemo(() => {
@@ -36,7 +35,8 @@ const DataMeta: React.FC<DataMetaProps> = ({
 
     return filterSubjectDatas[index];
   }, [index, filterSubjectDatas]);
-  const [currentData, currentMeta] = useMemo(() => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, currentMeta] = useMemo(() => {
     if (!data) return [undefined, undefined];
     const currentData = data.data[step];
     const currentMeta = data.meta[step];

@@ -19,5 +19,5 @@ export const calculateGlobalMoran = (params: GlobalMoranParams) => {
  * @returns 局部莫兰指数计算结果数组
  */
 export const calculateLocalMoran = (params: LocalMoranParams) => {
-  return http.post<LocalMoranResult[]>(api.local, params);
+  return http.post<LocalMoranResult>(api.local, params);
 };

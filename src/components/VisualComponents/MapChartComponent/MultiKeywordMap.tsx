@@ -11,6 +11,7 @@ import { RegisteredComponent } from "@/components/Editor/stores/registeredCompon
 import { useDataBinding } from "@/components/Editor/hooks/useDataBinding";
 import { SubjectDataResponse } from "@/types/subject";
 import { useAutoResizeChart } from "../hooks/useAutoResizeChart";
+import { downLoadTool } from "./mapDownload";
 const icons = Object.values(
   import.meta.glob("./icons/*.png", { eager: true, import: "default" })
 ).map((module) => module as string);
@@ -103,6 +104,11 @@ const MultiKeywordMap: React.FC<MultiKeywordMapProps> = ({
         }
       });
       return {
+        toolbox: {
+          feature: {
+            myTool: downLoadTool(echartsRef,"multi-keyword-map"),
+          },
+        },
         amap: {
           viewMode: "3D",
           center: [12.4964, 41.9028],
@@ -119,12 +125,13 @@ const MultiKeywordMap: React.FC<MultiKeywordMapProps> = ({
             return `geo_name: ${params.name}<br/>geo_code: ${params.value[3]}<br/>keyword: ${params.value[4]}<br/>loc:${params.value[0]}<br/>lan:${params.value[1]}`;
           },
         },
+        animation: true,
         series: series,
       };
     } else {
       return {};
     }
-  }, [data, step, zoom]);
+  }, [data, echartsRef, step, zoom]);
 
   return (
     <div ref={cardRef} className="h-full">

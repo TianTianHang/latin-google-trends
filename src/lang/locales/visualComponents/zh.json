@@ -31,6 +31,20 @@
         "dataNum": "数据数量",
         "showData": "显示数据"
       }
+    },
+    "localMoran": {
+      "loading": "计算局部莫兰指数中...",
+      "title": "局部莫兰指数",
+      "tooltip": {
+        "index": "莫兰指数",
+        "pValue": "p值",
+        "zScore": "z分数"
+      },
+      "visualMap": {
+        "high": "高",
+        "low": "低"
+      },
+      "seriesName": "局部莫兰指数"
     }
   }
 }

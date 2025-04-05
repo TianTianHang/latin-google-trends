@@ -1,27 +1,32 @@
 import React, { useState } from "react";
 import { Avatar, Dropdown, MenuProps, Space, Col, Row, Modal } from "antd";
-import { BellOutlined } from "@ant-design/icons";
+import { BellOutlined, DownloadOutlined } from "@ant-design/icons";
 import { useUserStore } from "@/stores/user";
 import LanguageSwitcher from "./LanguageSwitcher";
 import ProfilePage from "@/views/ProfilePage";
 import { useTranslation } from "react-i18next";
+import useScreenshot from "@/hooks/useScreenshot";
 
 const RightContent: React.FC = () => {
   const { resetToken } = useUserStore();
   const [profileVisible, setProfileVisible] = useState(false);
-  const {t}=useTranslation()
+  const { t } = useTranslation();
   const logoutHandle = () => {
     resetToken();
   };
-
+  const { downloadScreenshot } = useScreenshot();
   const items: MenuProps["items"] = [
     {
       key: "1",
-      label: <span onClick={logoutHandle}>{t('layout.logout')}</span>,
+      label: <span onClick={logoutHandle}>{t("layout.logout")}</span>,
     },
     {
       key: "2",
-      label: <span onClick={() => setProfileVisible(true)}>{t('layout.profile')}</span>,
+      label: (
+        <span onClick={() => setProfileVisible(true)}>
+          {t("layout.profile")}
+        </span>
+      ),
     },
   ];
 
@@ -35,6 +40,17 @@ const RightContent: React.FC = () => {
           <BellOutlined style={{ fontSize: 24 }} />
         </Col>
         <Col>
+          <DownloadOutlined
+            onClick={() => {
+              const content = document.getElementById("main-content");
+        
+              if (content) {
+                downloadScreenshot(content, "screen-shot");
+              }
+            }}
+          />
+        </Col>
+        <Col>
           <Dropdown menu={{ items }} placement="bottomRight">
             <Avatar
               src="https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png"
@@ -45,13 +61,13 @@ const RightContent: React.FC = () => {
       </Row>
 
       <Modal
-       title={t('layout.profile')}
-       open={profileVisible}
-       onCancel={() => setProfileVisible(false)}
-       footer={null}
-       width={800}
-       destroyOnClose
-     >
+        title={t("layout.profile")}
+        open={profileVisible}
+        onCancel={() => setProfileVisible(false)}
+        footer={null}
+        width={800}
+        destroyOnClose
+      >
         <ProfilePage />
       </Modal>
     </Space>

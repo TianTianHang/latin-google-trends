@@ -39,7 +39,8 @@
         "multiKeywordMap": "多关键字地图组件",
         "heatMap": "热力图组件",
         "zipfLaw": "ZipfLaw",
-        "dataMeta": "元数据"
+        "dataMeta": "元数据",
+        "localMoran": "局部莫兰指数组件"
       },
       "layoutSwitch": "布局切换",
       "fixed": "固定",

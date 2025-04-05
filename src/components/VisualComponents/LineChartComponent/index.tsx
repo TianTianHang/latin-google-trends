@@ -6,7 +6,7 @@ import React, {
   useRef,
 } from "react";
 import ReactECharts from "echarts-for-react";
-import type { EChartsOption, SeriesOption } from "echarts";
+import type { EChartsOption, LegendComponentOption, SeriesOption } from "echarts";
 import { TimeInterest } from "@/types/interest";
 import { LineChartOutlined } from "@ant-design/icons";
 import { Card, Switch, Progress, Button, Space, Select, Tag } from "antd";
@@ -187,6 +187,12 @@ const generateChartOptions = (
     const series: SeriesOption[] = [];
     const allocatedColors: string[] = []; // 已分配颜色的数组
     const metaItem = data.meta[index];
+    const legend:LegendComponentOption={
+      orient:"vertical",
+      right: "10%",
+     
+      data: [],
+    };
     metaItem.keywords.forEach((keyword) => {
       if (Array.isArray(data.data) && Array.isArray(data.data[index])) {
         const timeInterestData = data.data[index] as TimeInterest[];
@@ -211,20 +217,36 @@ const generateChartOptions = (
             color: allocateColor(lineColors, allocatedColors),
           },
         });
-
-        series.push({
-          name: `${keyword}-fit`,
-          type: "line",
-          smooth: true,
-          data: fitSeriesData,
-          itemStyle: {
-            color: allocateColor(lineColors, allocatedColors),
-          },
-        });
+        legend.data?.push({name:keyword})
+        
+        if(fitSeriesData.length>0){
+          series.push({
+            name: `${keyword}-fit`,
+            type: "line",
+            smooth: true,
+            data: fitSeriesData,
+            itemStyle: {
+              color: allocateColor(lineColors, allocatedColors),
+            },
+          });
+          legend.data?.push({name:`${keyword}-fit`})
+        }
+        
       }
     });
 
     return {
+      toolbox: {
+        feature: {
+          saveAsImage: {
+            // 这里可以设置一些保存为图片的参数，例如：
+            type: "png", // 可选 'png' 或 'jpeg'
+            name: "line-chart", // 下载的文件名称，默认为 'chart'
+            backgroundColor: "#fff", // 背景色，默认透明
+            // ... 其他可选参数
+          },
+        },
+      },
       title: {
         text: title,
         left: "center",
@@ -265,6 +287,7 @@ const generateChartOptions = (
         },
       },
       series,
+      legend
     };
   }
 
@@ -273,6 +296,17 @@ const generateChartOptions = (
   const y = x.map(Math.sin);
 
   return {
+    toolbox: {
+      feature: {
+        saveAsImage: {
+          // 这里可以设置一些保存为图片的参数，例如：
+          type: "png", // 可选 'png' 或 'jpeg'
+          name: "line-chart", // 下载的文件名称，默认为 'chart'
+          backgroundColor: "#fff", // 背景色，默认透明
+          // ... 其他可选参数
+        },
+      },
+    },
     title: {
       text: title,
       left: "center",
@@ -341,7 +375,7 @@ const LineChart: React.FC<LineChartProps> = ({
 
   return (
     <Card className="w-full h-full" ref={cardRef}>
-      <div className="absolute top-2 right-2 z-10 opacity-0 hover:opacity-100 transition-opacity duration-200">
+      <div className="absolute top-2 left-2 z-10 opacity-0 hover:opacity-100 transition-opacity duration-200">
         <Space>
           <Select
             style={{ width: 150 }}

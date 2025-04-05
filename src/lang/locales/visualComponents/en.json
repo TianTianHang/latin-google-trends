@@ -31,6 +31,20 @@
         "dataNum": "Data Number",
         "showData": "Show data"
       }
+    },
+    "localMoran": {
+      "loading": "Calculating Local Moran's Index...",
+      "title": "Local Moran's Index",
+      "tooltip": {
+        "index": "Moran's I",
+        "pValue": "p-value",
+        "zScore": "z-score"
+      },
+      "visualMap": {
+        "high": "High",
+        "low": "Low"
+      },
+      "seriesName": "Local Moran's Index"
     }
   }
 }

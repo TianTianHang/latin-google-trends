@@ -11,6 +11,7 @@ import { useAutoResizeChart } from "../hooks/useAutoResizeChart";
 import { RegisteredComponent } from "@/components/Editor/stores/registeredComponentsStore";
 import { useDataBinding } from "@/components/Editor/hooks/useDataBinding";
 import { SubjectDataResponse } from "@/types/subject";
+import { downLoadTool } from "./mapDownload";
 
 interface HeatMapProps {
   subjectId?: number;
@@ -103,6 +104,11 @@ const HeatMap: React.FC<HeatMapProps> = ({
       }
 
       return {
+        toolbox: {
+          feature: {
+            myTool: downLoadTool(echartsRef,"heatmap"),
+          },
+        },
         amap: {
           viewMode: "3D",
           center: [12.4964, 41.9028],
@@ -120,15 +126,15 @@ const HeatMap: React.FC<HeatMapProps> = ({
           },
         },
         visualMap: {
-          type: 'piecewise', // 使用分段型映射
+          type: "piecewise", // 使用分段型映射
           pieces: [
-            {gt: 0, lte: 2, color: '#9FE7B8'}, // 0-2 显示浅绿色
-            {gt: 2, lte: 5, color: '#2AC66F'}, // 2-5 显示中绿
-            {gt: 5, lte: 10, color: '#008A3E'}, // 5-10 显示深绿色
-            {gt: 10, lte: 30, color: '#FFFF00'}, // 10-30 显示黄色
-            {gt: 30, lte: 60, color: '#FF7F00'}, // 30-60 显示橙色
-            {gt: 60, lte: 100, color: '#FF0000'} // 60-100 显示红色
-        ],
+            { gt: 0, lte: 2, color: "#9FE7B8" }, // 0-2 显示浅绿色
+            { gt: 2, lte: 5, color: "#2AC66F" }, // 2-5 显示中绿
+            { gt: 5, lte: 10, color: "#008A3E" }, // 5-10 显示深绿色
+            { gt: 10, lte: 30, color: "#FFFF00" }, // 10-30 显示黄色
+            { gt: 30, lte: 60, color: "#FF7F00" }, // 30-60 显示橙色
+            { gt: 60, lte: 100, color: "#FF0000" }, // 60-100 显示红色
+          ],
           show: true,
           right: 20,
           min: 0,
@@ -136,21 +142,29 @@ const HeatMap: React.FC<HeatMapProps> = ({
           seriesIndex: 1,
           calculable: true,
           inRange: {
-            color: ['#9FE7B8', '#2AC66F', '#008A3E', '#FFFF00', '#FF7F00', '#FF0000']
+            color: [
+              "#9FE7B8",
+              "#2AC66F",
+              "#008A3E",
+              "#FFFF00",
+              "#FF7F00",
+              "#FF0000",
+            ],
           },
         },
+        animation: true,
         series: series,
       };
     } else {
       return {};
     }
-  }, [data, step, selectedKeyword]);
+  }, [data, step, selectedKeyword, echartsRef]);
 
   return (
     <div ref={cardRef} className="h-full">
       {Object.keys(dataOption).length > 0 ? (
         <>
-          <div className="absolute top-2 right-2 z-10 opacity-0 hover:opacity-100 transition-opacity duration-3000">
+          <div className="absolute top-2 left-2 z-10 opacity-0 hover:opacity-100 transition-opacity duration-3000">
             <Select
               style={{ width: 200, marginBottom: 16 }}
               value={selectedKeyword}
