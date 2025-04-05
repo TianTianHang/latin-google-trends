@@ -15,7 +15,7 @@ export const useComponentRenderer = () => {
         <>
           {/* 拖动手柄 */}
           {isStatic?null:( <div
-            className="absolute top-0 right-0 z-10 cursor-move opacity-0 transition-opacity duration-300 hover:opacity-100"
+            className="absolute top-0 left-0 z-10 cursor-move opacity-0 transition-opacity duration-300 hover:opacity-100"
             style={{ width: "40px", height: "20px" }}
           >
             <div className="bg-blue-500 rounded-full flex items-center justify-center text-white text-xs">

@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { useRequest } from "ahooks";
+import { useFullscreen, useRequest } from "ahooks";
 import { Select, Spin } from "antd";
 import { calculateLocalMoran } from "@/api/moran";
 import { RegionInterest } from "@/types/interest";
@@ -48,7 +48,7 @@ const LocalMoranIndex: React.FC<LocalMoranIndexProps> = ({
     if (!filterSubjectDatas || filterSubjectDatas.length === 0) return null;
     return filterSubjectDatas[index];
   }, [index, filterSubjectDatas]);
-
+  const [, { toggleFullscreen }] = useFullscreen(cardRef);
   const data: DataItem[] = useMemo(() => {
     if (moranData) {
       const metaItem = moranData.meta[step];
@@ -120,7 +120,13 @@ const LocalMoranIndex: React.FC<LocalMoranIndexProps> = ({
     return {
       toolbox: {
         feature: {
-          myTool: downLoadTool(echartsRef,"local-moran-index")
+          myTool: downLoadTool(echartsRef,"local-moran-index"),
+          myFullscreen: {
+            show: true,
+            title: '全屏',
+            icon: 'image://src/assets/fullscreen.svg',
+            onclick: toggleFullscreen
+          }
         },
       },
       amap: {
@@ -173,7 +179,7 @@ const LocalMoranIndex: React.FC<LocalMoranIndexProps> = ({
         },
       ],
     };
-  }, [data, echartsRef, localMoranResults, t]);
+  }, [data, echartsRef, localMoranResults, t, toggleFullscreen]);
 
   return (
     <div className="h-full" ref={cardRef}>

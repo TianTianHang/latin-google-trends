@@ -150,6 +150,7 @@ const BasicLayout: React.FC = () => {
             height: `calc(100vh - 128px)`,
           }}
           id="main-content"
+          className="bg-white"
         >
           {isAdmin ? (
             <Suspense fallback={<Spin size="large" className="content_spin" />}>

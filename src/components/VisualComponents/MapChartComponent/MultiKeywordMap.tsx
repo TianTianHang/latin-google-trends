@@ -12,6 +12,7 @@ import { useDataBinding } from "@/components/Editor/hooks/useDataBinding";
 import { SubjectDataResponse } from "@/types/subject";
 import { useAutoResizeChart } from "../hooks/useAutoResizeChart";
 import { downLoadTool } from "./mapDownload";
+import { useFullscreen } from "ahooks";
 const icons = Object.values(
   import.meta.glob("./icons/*.png", { eager: true, import: "default" })
 ).map((module) => module as string);
@@ -40,7 +41,7 @@ const MultiKeywordMap: React.FC<MultiKeywordMapProps> = ({
   }, [index, filterSubjectDatas]);
   const { cardRef, echartsRef } = useAutoResizeChart();
   const [zoom] = useState(2);
-
+  const [, { toggleFullscreen }] = useFullscreen(cardRef);
   const dataOption: EChartsOption = useMemo(() => {
     if (data) {
       const series: SeriesOption[] = [];
@@ -107,6 +108,12 @@ const MultiKeywordMap: React.FC<MultiKeywordMapProps> = ({
         toolbox: {
           feature: {
             myTool: downLoadTool(echartsRef,"multi-keyword-map"),
+            myFullscreen: {
+              show: true,
+              title: '全屏',
+              icon: 'image://src/assets/fullscreen.svg',
+              onclick: toggleFullscreen
+            }
           },
         },
         amap: {
@@ -131,7 +138,7 @@ const MultiKeywordMap: React.FC<MultiKeywordMapProps> = ({
     } else {
       return {};
     }
-  }, [data, echartsRef, step, zoom]);
+  }, [data, echartsRef, step, toggleFullscreen, zoom]);
 
   return (
     <div ref={cardRef} className="h-full">

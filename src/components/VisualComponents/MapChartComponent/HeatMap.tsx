@@ -12,6 +12,7 @@ import { RegisteredComponent } from "@/components/Editor/stores/registeredCompon
 import { useDataBinding } from "@/components/Editor/hooks/useDataBinding";
 import { SubjectDataResponse } from "@/types/subject";
 import { downLoadTool } from "./mapDownload";
+import { useFullscreen } from "ahooks";
 
 interface HeatMapProps {
   subjectId?: number;
@@ -40,7 +41,7 @@ const HeatMap: React.FC<HeatMapProps> = ({
 
   const [selectedKeyword, setSelectedKeyword] = useState<string>();
   const { cardRef, echartsRef } = useAutoResizeChart();
-
+  const [, { toggleFullscreen }] = useFullscreen(cardRef);
   const dataOption: EChartsOption = useMemo(() => {
     if (data) {
       const series: SeriesOption[] = [];
@@ -107,6 +108,12 @@ const HeatMap: React.FC<HeatMapProps> = ({
         toolbox: {
           feature: {
             myTool: downLoadTool(echartsRef,"heatmap"),
+            myFullscreen: {
+              show: true,
+              title: '全屏',
+              icon: 'image://src/assets/fullscreen.svg',
+              onclick: toggleFullscreen
+            }
           },
         },
         amap: {
@@ -158,7 +165,7 @@ const HeatMap: React.FC<HeatMapProps> = ({
     } else {
       return {};
     }
-  }, [data, step, selectedKeyword, echartsRef]);
+  }, [data, step, selectedKeyword, echartsRef, toggleFullscreen]);
 
   return (
     <div ref={cardRef} className="h-full">

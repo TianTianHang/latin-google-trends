@@ -6,10 +6,15 @@ import React, {
   useRef,
 } from "react";
 import ReactECharts from "echarts-for-react";
-import type { EChartsOption, LegendComponentOption, SeriesOption } from "echarts";
+import type {
+  EChartsOption,
+  LegendComponentOption,
+  SeriesOption,
+} from "echarts";
+import { useFullscreen } from "ahooks";
 import { TimeInterest } from "@/types/interest";
 import { LineChartOutlined } from "@ant-design/icons";
-import { Card, Switch, Progress, Button, Space, Select, Tag } from "antd";
+import { Switch, Progress, Button, Space, Select, Tag } from "antd";
 import dayjs from "dayjs";
 import { fillMissingValuesAndTrim } from "@/utils/interest";
 import { fitModel, getFitProgress } from "@/api/cfc";
@@ -181,16 +186,17 @@ const generateChartOptions = (
   index: number,
   title?: string,
   fitData: ChartData[] = [],
-  lineColors?: string[]
+  lineColors?: string[],
+  toggleFullscreen?: () => void
 ): EChartsOption => {
   if (data) {
     const series: SeriesOption[] = [];
     const allocatedColors: string[] = []; // 已分配颜色的数组
     const metaItem = data.meta[index];
-    const legend:LegendComponentOption={
-      orient:"vertical",
-      right: "10%",
-     
+    const legend: LegendComponentOption = {
+      orient: "vertical",
+      right: "0%",
+      top: "10%",
       data: [],
     };
     metaItem.keywords.forEach((keyword) => {
@@ -217,9 +223,9 @@ const generateChartOptions = (
             color: allocateColor(lineColors, allocatedColors),
           },
         });
-        legend.data?.push({name:keyword})
-        
-        if(fitSeriesData.length>0){
+        legend.data?.push({ name: keyword });
+
+        if (fitSeriesData.length > 0) {
           series.push({
             name: `${keyword}-fit`,
             type: "line",
@@ -229,9 +235,8 @@ const generateChartOptions = (
               color: allocateColor(lineColors, allocatedColors),
             },
           });
-          legend.data?.push({name:`${keyword}-fit`})
+          legend.data?.push({ name: `${keyword}-fit` });
         }
-        
       }
     });
 
@@ -244,6 +249,12 @@ const generateChartOptions = (
             name: "line-chart", // 下载的文件名称，默认为 'chart'
             backgroundColor: "#fff", // 背景色，默认透明
             // ... 其他可选参数
+          },
+          myFullscreen: {
+            show: true,
+            title: "全屏",
+            icon: "image://src/assets/fullscreen.svg",
+            onclick: toggleFullscreen,
           },
         },
       },
@@ -287,7 +298,7 @@ const generateChartOptions = (
         },
       },
       series,
-      legend
+      legend,
     };
   }
 
@@ -304,6 +315,12 @@ const generateChartOptions = (
           name: "line-chart", // 下载的文件名称，默认为 'chart'
           backgroundColor: "#fff", // 背景色，默认透明
           // ... 其他可选参数
+        },
+        myFullscreen: {
+          show: true,
+          title: "全屏",
+          icon: "image://src/assets/fullscreen.svg",
+          onclick: toggleFullscreen,
         },
       },
     },
@@ -350,6 +367,7 @@ const LineChart: React.FC<LineChartProps> = ({
   const { cardRef, echartsRef } = useAutoResizeChart();
   const [error, setError] = useState<Error | null>(null);
   const [retryCount, setRetryCount] = useState(0);
+  const [, { toggleFullscreen }] = useFullscreen(cardRef);
 
   const handleRetry = useCallback(() => {
     console.log(`Retrying... Attempt ${retryCount + 1}`);
@@ -366,15 +384,16 @@ const LineChart: React.FC<LineChartProps> = ({
       index,
       title,
       fitData,
-      lineColors
+      lineColors,
+      toggleFullscreen
     );
 
     // 冻结配置对象以防止意外修改
     return Object.freeze(options);
-  }, [data, index, title, fitData, lineColors]);
+  }, [data, index, title, fitData, lineColors, toggleFullscreen]);
 
   return (
-    <Card className="w-full h-full" ref={cardRef}>
+    <div className="w-full h-full" ref={cardRef}>
       <div className="absolute top-2 left-2 z-10 opacity-0 hover:opacity-100 transition-opacity duration-200">
         <Space>
           <Select
@@ -420,7 +439,7 @@ const LineChart: React.FC<LineChartProps> = ({
           }}
         />
       )}
-    </Card>
+    </div>
   );
 };
 
@@ -462,9 +481,11 @@ export const RegisteredLineChart: RegisteredComponent<LineChartProps> = {
             value: c,
           })
         ),
-        tagRender:(props) => {
+        tagRender: (props) => {
           const { label, value, closable, onClose } = props;
-          const onPreventMouseDown = (event: React.MouseEvent<HTMLSpanElement>) => {
+          const onPreventMouseDown = (
+            event: React.MouseEvent<HTMLSpanElement>
+          ) => {
             event.preventDefault();
             event.stopPropagation();
           };
@@ -479,7 +500,7 @@ export const RegisteredLineChart: RegisteredComponent<LineChartProps> = {
               {label}
             </Tag>
           );
-        }
+        },
       },
       title: {
         type: "text",
