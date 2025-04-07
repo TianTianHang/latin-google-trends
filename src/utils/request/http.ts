@@ -6,7 +6,7 @@ import { checkStatus } from '@/utils/request/checkStatus';
 // 创建新的axios实例
 const service = axios.create({
   // 公共接口
-  baseURL:  "/api",
+  baseURL: import.meta.env.VITE_BASE_API || "/api",
   // 超时时间 单位是ms，这里设置了5s的超时时间
   timeout: 10000,
 });
