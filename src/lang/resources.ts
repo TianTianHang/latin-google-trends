@@ -2,7 +2,9 @@ import en from "@/lang/locales/en.json";
 import zh from "@/lang/locales/zh.json";
 import viewsEn from "@/lang/locales/views/en.json";
 import viewsZh from "@/lang/locales/views/zh.json";
+// @ts-ignore
 import visualComponentsEn from "@/lang/locales/VisualComponents/en.json";
+// @ts-ignore
 import visualComponentsZh from "@/lang/locales/VisualComponents/zh.json";
 
 
