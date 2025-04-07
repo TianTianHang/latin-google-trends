@@ -1,11 +1,9 @@
-import en from "@/lang/locales/en.json";
-import zh from "@/lang/locales/zh.json";
-import viewsEn from "@/lang/locales/views/en.json";
-import viewsZh from "@/lang/locales/views/zh.json";
-// @ts-ignore
-import visualComponentsEn from "@/lang/locales/VisualComponents/en.json";
-// @ts-ignore
-import visualComponentsZh from "@/lang/locales/VisualComponents/zh.json";
+import en from "./locales/en.json";
+import zh from "./locales/zh.json";
+import viewsEn from "./locales/views/en.json";
+import viewsZh from "./locales/views/zh.json";
+import visualComponentsEn from "./locales/VisualComponents/en.json";
+import visualComponentsZh from "./locales/VisualComponents/zh.json";
 
 
 export const resources = {
