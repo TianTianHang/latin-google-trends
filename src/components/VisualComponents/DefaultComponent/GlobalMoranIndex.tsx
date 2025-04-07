@@ -39,7 +39,7 @@ const GlobalMoranIndex: React.FC<GlobalMoranIndexProps> = ({
 
   const moranData = useMemo(() => {
     if (!filterSubjectDatas || filterSubjectDatas.length === 0) return null;
-
+    if(filterSubjectDatas[index].data.length==0) return null;
     return filterSubjectDatas[index];
   }, [index, filterSubjectDatas]);
 

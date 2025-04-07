@@ -1,4 +1,4 @@
-import { Button, Space, Card, Table } from "antd";
+import { Button, Space, Card, Table, Input } from "antd";
 import { useTranslation } from "react-i18next";
 
 import CreateSubjectModal from "./CreateSubjectModal";
@@ -12,6 +12,7 @@ const SubjectManagement = () => {
   const { t } = useTranslation("views");
 
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [searchText, setSearchText] = useState("");
   const [detailModalVisible, setDetailModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [selectedSubjectId, setSelectedSubjectId] = useState<number | null>(null);
@@ -30,9 +31,17 @@ const SubjectManagement = () => {
     
   return (
     <Card title={t("subject.management.title")}>
-      <Button type="primary" onClick={showModal}>
-        {t("subject.management.button.create")}
-      </Button>
+      <Space>
+        <Button type="primary" onClick={showModal}>
+          {t("subject.management.button.create")}
+        </Button>
+        <Input.Search
+          placeholder={t("subject.management.search.placeholder")}
+          allowClear
+          onChange={(e) => setSearchText(e.target.value)}
+          style={{ width: 200 }}
+        />
+      </Space>
       <CreateSubjectModal visible={isModalVisible} onClose={handleCancel} />
       <DetailSubjectModal 
         visible={detailModalVisible} 
@@ -45,7 +54,11 @@ const SubjectManagement = () => {
          onClose={() => setEditModalVisible(false)} 
       />
       <Table
-        dataSource={allSubjects}
+        dataSource={allSubjects.filter(item =>
+          searchText === "" ||
+          item.name.toLowerCase().includes(searchText.toLowerCase()) ||
+          item.description?.toLowerCase().includes(searchText.toLowerCase())
+        )}
         rowKey="subject_id"
         columns={[
           {

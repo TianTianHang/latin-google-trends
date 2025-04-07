@@ -32,7 +32,7 @@ const DataMeta: React.FC<DataMetaProps> = ({
 
   const data = useMemo(() => {
     if (!filterSubjectDatas || filterSubjectDatas.length === 0) return null;
-
+    if(filterSubjectDatas[index].data.length==0) return null;
     return filterSubjectDatas[index];
   }, [index, filterSubjectDatas]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -37,7 +37,7 @@ export const PlayerControlBar: React.FC<PlayerControlBarProp> = ({
 
   const data = useMemo(() => {
     if (!filterSubjectDatas || filterSubjectDatas.length === 0) return null;
-
+    if(filterSubjectDatas[index].data.length==0) return null;
     return filterSubjectDatas[index];
   }, [index, filterSubjectDatas]);
   const [intervalTime, setIntervalTime] = useState(1000);

@@ -341,7 +341,10 @@
        "details": "Details",
        "edit": "Edit",
        "delete": "Delete"
-     }
+     },
+     "search":{
+      "placeholder":"Please input search text"
+    }
    },
      "modal": {
        "create": {

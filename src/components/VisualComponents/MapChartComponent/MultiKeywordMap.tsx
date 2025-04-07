@@ -36,7 +36,7 @@ const MultiKeywordMap: React.FC<MultiKeywordMapProps> = ({
   }, [subjectDatas]);
   const data = useMemo(() => {
     if (!filterSubjectDatas || filterSubjectDatas.length === 0) return null;
-
+    if(filterSubjectDatas[index].data.length==0) return null;
     return filterSubjectDatas[index];
   }, [index, filterSubjectDatas]);
   const { cardRef, echartsRef } = useAutoResizeChart();

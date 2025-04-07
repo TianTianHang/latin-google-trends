@@ -47,6 +47,7 @@ const useChartData = (subjectDatas?: SubjectDataResponse[]) => {
   const [index, setIndex] = useState(0);
   const data = useMemo(() => {
     if (!filterSubjectDatas || filterSubjectDatas.length === 0) return null;
+    if(filterSubjectDatas[index].data.length==0) return null;
     return filterSubjectDatas[index];
   }, [index, filterSubjectDatas]);
   const options = useMemo(
