@@ -7,6 +7,7 @@ interface ApiConfig {
   method?: string;
   params?: Record<string, unknown>;
   headers?: Record<string, string>;
+
 }
 
 export const fetchApiData = async (config: ApiConfig) => {
@@ -16,8 +17,13 @@ export const fetchApiData = async (config: ApiConfig) => {
       url,
       method,
       params,
-      headers
+      headers: {
+        'Content-Type': 'application/json',
+        ...headers
+      },
+      data: method !== 'GET' ? params : undefined
     });
+    
     return response.data;
   } catch (error) {
     message.error('Failed to fetch API data');

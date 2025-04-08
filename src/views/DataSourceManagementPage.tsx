@@ -74,13 +74,13 @@ const DataSourceManagementPage: React.FC = () => {
       }
 
       const newSource: DataSource = {
-        id: values.id,
+        id: values.id || `ds_${Date.now()}`, // 生成唯一ID如果用户未提供
         type: values.type,
         config,
         fetch: fetchFn
       };
 
-      useDataProviderStore.getState().registerDataSource(newSource);
+      await useDataProviderStore.getState().registerDataSource(newSource,true);
       setDataSources(prev => [...prev, newSource]);
       setIsModalVisible(false);
       message.success(t("dataSource.message.addSuccess"));
@@ -108,7 +108,7 @@ const DataSourceManagementPage: React.FC = () => {
         </Button>
       </div>
 
-      <Table dataSource={dataSources} rowKey="id">
+      <Table dataSource={dataSources.filter(d=>!d.id.startsWith("subject"))} rowKey="id">
         <Column title={t("dataSource.table.id")} dataIndex="id" />
         <Column title={t("dataSource.table.type")} dataIndex="type" />
         <Column

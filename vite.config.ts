@@ -24,7 +24,7 @@ export default defineConfig(({ mode }) => {
     server: {
       proxy: {
         "/api": {
-          target: "https://trends.918113.top", // 后端服务地址
+          target: "http://192.168.100.33:8080", // 后端服务地址
           changeOrigin: true, // 修改源，避免跨域
           rewrite: (path) => path.replace(/^\/api/, ""), // 去掉路径中的 /api 部分
           secure: false,

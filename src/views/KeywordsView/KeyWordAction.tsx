@@ -113,14 +113,14 @@ export const KeywordAction: React.FC<KeywordActionProp> = ({
           <Form.Item
             label={t('keywords.form.keyword')}
             name="word"
-            rules={[{ required: true, message: t('keywords.validation.keyword') }]}
+            rules={[{ required: true, message: t('keywords.form.validation.keywordRequired') }]}
           >
             <Input />
           </Form.Item>
           <Form.Item
             label={t('keywords.form.category')}
             name="category_id"
-            rules={[{ required: false, message: t('keywords.validation.category') }]}
+            rules={[{ required: false, message: t('keywords.form.validation.categoryNameRequired') }]}
           >
             <Select loading={categoriesLoading}>
               <Select.Option key={0} value={null}>
@@ -136,7 +136,7 @@ export const KeywordAction: React.FC<KeywordActionProp> = ({
           <Form.Item
             label={t('keywords.form.pronunciation')}
             name="pronunciation"
-            rules={[{ required: true, message: t('keywords.validation.pronunciation') }]}
+            rules={[{ required: true, message: t('keywords.form.validation.pronunciationRequired') }]}
           >
             <Input />
           </Form.Item>
@@ -158,11 +158,12 @@ export const KeywordAction: React.FC<KeywordActionProp> = ({
           <Form.Item
             label={t('keywords.form.definition')}
             name="definition"
-            rules={[{ required: true, message: t('keywords.validation.definition') }]}
+            rules={[{ required: true, message: t('keywords.form.validation.definitionRequired') }]}
           >
             <Input.TextArea />
           </Form.Item>
-          <Form.Item label={t('keywords.form.isPrimary')} name="is_primary"  rules={[{ required: true, message: t('keywords.validation.select') }]}>
+          <Form.Item label={t('keywords.form.isPrimary')} name="is_primary"  
+          rules={[{ required: true, message: t('keywords.form.validation.select') }]}>
             <Radio.Group
             defaultValue={true}
               options={[

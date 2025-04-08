@@ -7,9 +7,9 @@ const { Text } = Typography;
 const HeaderComp: React.FC = () => {
   return (
     <>
-    <Row justify="space-between" align="middle">
-      <Col>
-        <Text strong style={{ fontSize: 18 }}>
+    <Row justify="space-between" align="middle" gutter={[20,0]}>
+      <Col >
+        <Text strong  className="text-2xs" style={{ color: 'white' }}>
             Google Trends
         </Text>
       </Col>

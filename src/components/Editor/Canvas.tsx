@@ -21,17 +21,27 @@ import {
   Drawer,
   List,
   Skeleton,
+  Spin,
 } from "antd";
 import { LinkEditor } from "./LinkEditor";
 import { saveService } from "./services/saveService";
-import { useBoolean, useInterval, useMount, useRequest, useUnmount } from "ahooks";
+import {
+  useBoolean,
+  useInterval,
+  useMount,
+  useRequest,
+  useUnmount,
+} from "ahooks";
+import { useGlobalStore } from "@/stores/global";
+import { useTranslation } from "react-i18next";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 const responsiveMap = ["lg", "md", "sm", "xs", "xxs"];
 
 export const Canvas = () => {
+  const { t } = useTranslation();
   const { components, deleteComponent } = useComponentsStore();
-  const { currentLayouts, updateLayout } = useLayoutsStore();
+  const { currentLayouts, updateLayout, getStatic } = useLayoutsStore();
 
   const { renderComponent } = useComponentRenderer();
   const reset = () => {
@@ -45,7 +55,7 @@ export const Canvas = () => {
   useUnmount(() => {
     reset();
   });
-  
+
   const [menuVisible, { setTrue: showMenu, setFalse: hideMenu }] =
     useBoolean(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -58,6 +68,7 @@ export const Canvas = () => {
   const [linkForm] = Form.useForm();
   const [tabKey, setTabKey] = useState("1");
   const [currentSaveId] = useState<string>("default");
+  const { fullscreen } = useGlobalStore();
 
   // 加载数据
   interface SaveListItem {
@@ -95,7 +106,7 @@ export const Canvas = () => {
     async (id?: string) => {
       const data = await saveService.load(id);
       if (!data) {
-        message.info("没有找到保存的数据");
+        message.info(t("editor.canvas.noSavedData"));
         return;
       }
       return data;
@@ -157,14 +168,22 @@ export const Canvas = () => {
   );
 
   // 自动保存
+  const [autoSaving, { setTrue: startAutoSave, setFalse: endAutoSave }] =
+    useBoolean(false);
   useInterval(() => {
-    saveService.save(currentSaveId, `自动保存-${new Date().toLocaleString()}`);
+    startAutoSave();
+    (
+      saveService.save(
+        currentSaveId,
+        `自动保存-${new Date().toLocaleString()}`
+      ) as Promise<boolean>
+    ).finally(endAutoSave);
   }, 30000);
 
-  const handleContextMenu = (e: React.MouseEvent, id: string) => {
+  const handleContextMenu = (e: React.MouseEvent, id?: string) => {
     e.preventDefault();
     setMenuPosition({ x: e.clientX, y: e.clientY });
-    setSelectedComponentId(id);
+    setSelectedComponentId(id || "outside");
     showMenu();
   };
 
@@ -232,12 +251,15 @@ export const Canvas = () => {
 
   return (
     <div className="h-screen">
-      <div className="absolute top-2 right-150 z-50 flex gap-2">
+      <div className="fixed bottom-4 right-4 z-50 flex gap-2 items-center p-2 bg-white rounded shadow-lg">
+        {autoSaving && (
+          <Spin size="small" tip={t("editor.canvas.autoSaving")} />
+        )}
         <Button type="primary" onClick={handleLoad}>
-          加载
+          {t("editor.canvas.load")}
         </Button>
         <Button type="primary" onClick={handleSave}>
-          保存
+          {t("editor.canvas.save")}
         </Button>
       </div>
       <Skeleton
@@ -253,41 +275,56 @@ export const Canvas = () => {
           maxWidth: 1200,
         }}
       >
+        <div
+        className="h-full w-full"
+         onContextMenu={(e) => handleContextMenu(e)}
+        >
         <ResponsiveGridLayout
           className="layout"
           style={{ height: "100%" }}
           layouts={layouts}
           breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
           cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
+          rowHeight={fullscreen ? 200 : 150}
           onDragStop={handleDragStop}
           isDroppable
           useCSSTransforms
           autoSize
           draggableHandle=".cursor-move"
+         
         >
           {missIds.map((id) => (
-            <div key={id} onContextMenu={(e) => handleContextMenu(e, id)}>
-              {/* 拖动手柄 */}
-              <div
-                className="absolute top-0 right-0 z-10 cursor-move opacity-0 transition-opacity duration-300 hover:opacity-100"
-                style={{ width: "40px", height: "20px" }}
-              >
-                <div className="bg-blue-500 rounded-full flex items-center justify-center text-white text-xs">
-                  :::
+            <div key={id} onContextMenu={(e) => {
+              e.stopPropagation();
+              handleContextMenu(e, id);
+            }}>
+              {getStatic(id) ? null : (
+                <div
+                  className="absolute top-0 left-0 z-10 cursor-move opacity-0 transition-opacity duration-300 hover:opacity-100"
+                  style={{ width: "40px", height: "20px" }}
+                >
+                  <div className="bg-blue-500 rounded-full flex items-center justify-center text-white text-xs">
+                    :::
+                  </div>
                 </div>
-              </div>
+              )}
+
               <Card className="h-full w-full bg-blue-300 opacity-30 transition-opacity" />
             </div>
           ))}
           {components.map((comp) => (
             <div
               key={comp.id}
-              onContextMenu={(e) => handleContextMenu(e, comp.id)}
+              onContextMenu={(e) => {
+                e.stopPropagation();
+                handleContextMenu(e, comp.id);
+              }}
             >
-              {renderComponent(comp)}
+              {renderComponent(comp,getStatic(comp.id))}
             </div>
           ))}
-        </ResponsiveGridLayout>
+          </ResponsiveGridLayout>
+        </div>
       </Skeleton>
 
       {menuVisible && selectedComponentId && (
@@ -323,7 +360,7 @@ export const Canvas = () => {
           items={[
             {
               key: "1",
-              label: "参数编辑",
+              label: t("editor.canvas.propertyEdit"),
               children: selectedComponentId && (
                 <PropertyEditor
                   componentId={selectedComponentId}
@@ -333,7 +370,7 @@ export const Canvas = () => {
             },
             {
               key: "2",
-              label: "联动属性编辑",
+              label: t("editor.canvas.linkEdit"),
               children: selectedComponentId && (
                 <LinkEditor componentId={selectedComponentId} form={linkForm} />
               ),
@@ -343,7 +380,7 @@ export const Canvas = () => {
       </Modal>
 
       <Modal
-        title="保存当前状态"
+        title={t("editor.canvas.saveModalTitle")}
         open={saveModalVisible}
         onOk={handleSaveConfirm}
         onCancel={handleSaveModalCancel}
@@ -351,15 +388,17 @@ export const Canvas = () => {
         <Form form={saveForm} layout="vertical">
           <Form.Item
             name="name"
-            label="保存名称"
-            rules={[{ required: true, message: "请输入保存名称" }]}
+            label={t("editor.canvas.saveName")}
+            rules={[
+              { required: true, message: t("editor.canvas.enterSaveName") },
+            ]}
           >
-            <Input placeholder="请输入保存名称" />
+            <Input placeholder={t("editor.canvas.enterSaveName")} />
           </Form.Item>
         </Form>
       </Modal>
       <Drawer
-        title="选择存档"
+        title={t("editor.canvas.selectSave")}
         placement="right"
         onClose={hideLoadDrawer}
         open={loadDrawerVisible}
@@ -378,14 +417,14 @@ export const Canvas = () => {
               );
             }}
           >
-            刷新
+            {t("editor.canvas.refresh")}
           </Button>
         }
       >
         <List
           dataSource={saveList}
           loading={!saveList.length}
-          locale={{ emptyText: "暂无存档" }}
+          locale={{ emptyText: t("editor.canvas.noSaves") }}
           renderItem={(item) => (
             <List.Item
               actions={[
@@ -395,10 +434,10 @@ export const Canvas = () => {
                   onClick={async () => {
                     saveService.deleteSave(item.id);
                     setSaveList(saveList.filter((save) => save.id !== item.id));
-                    message.success("删除成功");
+                    message.success(t("editor.canvas.deleteSuccess"));
                   }}
                 >
-                  删除
+                  {t("editor.canvas.delete")}
                 </Button>,
                 <Button
                   type="link"
@@ -407,7 +446,7 @@ export const Canvas = () => {
                     hideLoadDrawer();
                   }}
                 >
-                  加载
+                  {t("editor.canvas.load")}
                 </Button>,
               ]}
             >
@@ -416,10 +455,11 @@ export const Canvas = () => {
                 description={
                   <div style={{ display: "flex", flexDirection: "column" }}>
                     <span>
-                      保存时间：{new Date(item.timestamp).toLocaleString()}
+                      {t("editor.canvas.saveTime")}:{" "}
+                      {new Date(item.timestamp).toLocaleString()}
                     </span>
                     <span style={{ color: "#999", fontSize: 12 }}>
-                      存档ID：{item.id}
+                      {t("editor.canvas.saveId")}: {item.id}
                     </span>
                   </div>
                 }

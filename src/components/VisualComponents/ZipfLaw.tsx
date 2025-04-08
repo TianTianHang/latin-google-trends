@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";
-import { Card, ColorPickerProps, GetProp } from "antd";
+import { ColorPickerProps, GetProp } from "antd";
 import { useTranslation } from "react-i18next";
 import { RegisteredComponent } from "../Editor/stores/registeredComponentsStore";
 import { SubjectDataResponse } from "@/types/subject";
@@ -183,7 +183,7 @@ const ZipfLaw: React.FC<ZipfLawProps> = ({
   }, [data, lineColor, step, t]);
 
   return (
-    <Card className="w-full h-full" ref={cardRef}>
+    <div className="w-full h-full" ref={cardRef}>
       <ReactECharts
         ref={echartsRef}
         option={option}
@@ -191,7 +191,7 @@ const ZipfLaw: React.FC<ZipfLawProps> = ({
         autoResize={false}
         
       />
-    </Card>
+    </div>
   );
 };
 

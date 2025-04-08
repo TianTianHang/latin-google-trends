@@ -48,6 +48,26 @@
       "delete": "删除",
       "edit": "编辑",
       "replace": "替换"
+    },
+    "canvas":{
+      "load": "加载",
+      "save": "保存",
+      "autoSaving": "自动保存中...",
+      "noSavedData": "没有找到保存的数据",
+      "loadSuccess": "加载成功",
+      "loadFailed": "加载失败",
+      "saveSuccess": "保存成功",
+      "saveFailed": "保存失败",
+      "saveError": "保存出错",
+      "deleteSuccess": "删除成功",
+      "noSaves": "暂无存档",  
+      "selectSave": "选择存档",
+      "saveName": "保存名称",
+      "enterSaveName": "请输入保存名称",
+      "refresh": "刷新",
+      "propertyEdit": "属性编辑",
+      "linkEdit": "联动编辑",
+      "saveModalTitle": "保存当前状态"
     }
   }
 }

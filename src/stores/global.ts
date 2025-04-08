@@ -4,6 +4,7 @@ import { persist } from "zustand/middleware";
 interface GlobalState {
   primaryColor: string;
   language: string;
+  fullscreen: boolean;
   setColor: (color: string) => void;
   setLanguage: (language: string) => void;
 }
@@ -14,6 +15,7 @@ export const useGlobalStore = create<GlobalState>()(
     (set) => ({
       primaryColor: "#247fff",
       language: "zh",
+      fullscreen: false,
       setColor: (color) => set(() => ({ primaryColor: color })),
       setLanguage: (language) => set(() => ({ language })),
     }),

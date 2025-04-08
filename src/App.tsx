@@ -9,8 +9,7 @@ import RouterBeforeEach from "./router/permission";
 
 import { useGlobalStore } from "./stores/global";
 import { useRegisterComponent } from "./components/VisualComponents";
-import { useSubjectStore } from "./stores/useSubjectStore";
-import { useRequest } from "ahooks";
+
 
 const antdLocales = {
   zh: zhCN,
@@ -20,14 +19,7 @@ const antdLocales = {
 function App() {
   const { language } = useGlobalStore();
   useRegisterComponent();
-  const { fetchAllSubjects } = useSubjectStore();
-
-  useRequest(
-    async () => {
-      fetchAllSubjects();
-    },
-    { refreshDeps: [fetchAllSubjects] }
-  );
+  
   return (
     <StyleProvider layer>
       <ConfigProvider

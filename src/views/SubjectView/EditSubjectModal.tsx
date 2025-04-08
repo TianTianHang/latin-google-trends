@@ -29,8 +29,6 @@ const EditSubjectModal = ({
   const [addedCollections, setAddedCollections] = useState<number[]>([]);
   const [removedCollections, setRemovedCollections] = useState<number[]>([]);
 
-
-
   const {
     data: notBindCollections = [],
     loading: isNotBindLoading,
@@ -43,7 +41,7 @@ const EditSubjectModal = ({
         limit: 1000,
       }),
     {
-      ready: !!selectType,
+      refreshDeps: [selectedSubjectData],
     }
   );
 
@@ -65,7 +63,7 @@ const EditSubjectModal = ({
       return bindCollections;
     },
     {
-      ready: !!selectedSubjectData,
+      refreshDeps: [selectedSubjectData],
     }
   );
 
@@ -73,7 +71,8 @@ const EditSubjectModal = ({
     if (!subject_id || !visible) return;
     selectSubject(subject_id);
     setSelectedSubjectData(subjectDatas?.[0]?.id ?? null);
-  }, [selectSubject, subjectDatas, subject_id, visible]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectSubject, subject_id, visible]);
 
   const handleSubjectDataChange = (value: number) => {
     const t = subjectDatas.find((s) => s.id === value);
@@ -115,7 +114,15 @@ const EditSubjectModal = ({
       message.warning(t("subject.modal.edit.form.error"));
     }
   };
-  const filterOption = (inputValue: string, option: { key: Key; title: string; description: string; meta: SubjectDataMeta }) => {
+  const filterOption = (
+    inputValue: string,
+    option: {
+      key: Key;
+      title: string;
+      description: string;
+      meta: SubjectDataMeta;
+    }
+  ) => {
     return (
       option.meta.keywords.some((keyword) => keyword.includes(inputValue)) ||
       option.meta.geo_code.includes(inputValue) ||
@@ -123,7 +130,7 @@ const EditSubjectModal = ({
       option.meta.timeframe_end.includes(inputValue)
     );
   };
-    
+
   return (
     <Modal
       open={visible}
@@ -150,7 +157,7 @@ const EditSubjectModal = ({
           value={selectedSubjectData}
           onChange={handleSubjectDataChange}
           options={subjectDatas.map((subject) => ({
-            label: `${subject.data_type}-${subject.id}`,
+            label: `${subject.data_type}-${subject.id}-subjectData`,
             value: subject.id,
           }))}
         />
@@ -166,14 +173,23 @@ const EditSubjectModal = ({
               (collection) => ({
                 key: collection.id,
                 title: `${collection.id} - ${collection.interest_type}`,
-                description: `GeoCode: ${collection.meta_data.geo_code} Keywords: ${collection.meta_data.keywords} Timeframe: ${collection.meta_data.timeframe_start}-${collection.meta_data.timeframe_end}`,
-                meta:collection.meta_data
+                description: `GeoCode: ${
+                  collection.meta_data.geo_code != ""
+                    ? collection.meta_data.geo_code
+                    : "World"
+                } Keywords: ${collection.meta_data.keywords} Timeframe: ${
+                  collection.meta_data.timeframe_start
+                }-${collection.meta_data.timeframe_end}`,
+                meta: collection.meta_data,
               })
             )}
             targetKeys={selectedCollections}
             onChange={handleTransferChange}
             pagination
-            titles={[t("subject.modal.edit.transfer.notBind"), t("subject.modal.edit.transfer.bind")]}
+            titles={[
+              t("subject.modal.edit.transfer.notBind"),
+              t("subject.modal.edit.transfer.bind"),
+            ]}
             listStyle={{
               width: 300,
               height: 300,

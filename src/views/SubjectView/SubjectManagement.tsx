@@ -2,11 +2,12 @@ import { Button, Space, Card, Table, Input } from "antd";
 import { useTranslation } from "react-i18next";
 
 import CreateSubjectModal from "./CreateSubjectModal";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useSubjectStore } from "@/stores/useSubjectStore";
 import DetailSubjectModal from "./DetailSubjectModal";
 import { ListSubjectResponse } from "@/types/subject";
 import EditSubjectModal from "./EditSubjectModal";
+import { useRequest } from "ahooks";
 
 const SubjectManagement = () => {
   const { t } = useTranslation("views");
@@ -15,7 +16,9 @@ const SubjectManagement = () => {
   const [searchText, setSearchText] = useState("");
   const [detailModalVisible, setDetailModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
-  const [selectedSubjectId, setSelectedSubjectId] = useState<number | null>(null);
+  const [selectedSubjectId, setSelectedSubjectId] = useState<number | null>(
+    null
+  );
   const { allSubjects, fetchAllSubjects } = useSubjectStore();
   const showModal = () => {
     setIsModalVisible(true);
@@ -24,11 +27,20 @@ const SubjectManagement = () => {
   const handleCancel = () => {
     setIsModalVisible(false);
   };
-  
-  useEffect(() => {
+
+  useRequest(
+    async () => {
       fetchAllSubjects();
-    }, [fetchAllSubjects]);
-    
+    },
+    { refreshDeps: [fetchAllSubjects], cacheKey: "allSubjects" }
+  );
+  const sortedSubjects = useMemo(() => {
+    return [...allSubjects].sort((a, b) => {
+      if (a.status === "completed" && b.status !== "completed") return -1;
+      if (a.status !== "completed" && b.status === "completed") return 1;
+      return a.name.localeCompare(b.name);
+    });
+  }, [allSubjects]);
   return (
     <Card title={t("subject.management.title")}>
       <Space>
@@ -43,21 +55,22 @@ const SubjectManagement = () => {
         />
       </Space>
       <CreateSubjectModal visible={isModalVisible} onClose={handleCancel} />
-      <DetailSubjectModal 
-        visible={detailModalVisible} 
-        subject_id={selectedSubjectId} 
-        onClose={() => setDetailModalVisible(false)} 
+      <DetailSubjectModal
+        visible={detailModalVisible}
+        subject_id={selectedSubjectId}
+        onClose={() => setDetailModalVisible(false)}
       />
       <EditSubjectModal
-         visible={editModalVisible} 
-         subject_id={selectedSubjectId} 
-         onClose={() => setEditModalVisible(false)} 
+        visible={editModalVisible}
+        subject_id={selectedSubjectId}
+        onClose={() => setEditModalVisible(false)}
       />
       <Table
-        dataSource={allSubjects.filter(item =>
-          searchText === "" ||
-          item.name.toLowerCase().includes(searchText.toLowerCase()) ||
-          item.description?.toLowerCase().includes(searchText.toLowerCase())
+        dataSource={sortedSubjects.filter(
+          (item) =>
+            searchText === "" ||
+            item.name.toLowerCase().includes(searchText.toLowerCase()) ||
+            item.description?.toLowerCase().includes(searchText.toLowerCase())
         )}
         rowKey="subject_id"
         columns={[
@@ -99,9 +112,9 @@ const SubjectManagement = () => {
           {
             title: t("subject.management.actions"),
             key: "actions",
-            render: (value:ListSubjectResponse) => (
+            render: (value: ListSubjectResponse) => (
               <Space size="middle">
-                <Button 
+                <Button
                   type="primary"
                   onClick={() => {
                     setSelectedSubjectId(value.subject_id);
@@ -110,12 +123,15 @@ const SubjectManagement = () => {
                 >
                   {t("subject.management.button.details")}
                 </Button>
-                <Button type="primary"
-                onClick={() => {
-                  setSelectedSubjectId(value.subject_id);
-                  setEditModalVisible(true);
-                }}
-                >{t("subject.management.button.edit")}</Button>
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    setSelectedSubjectId(value.subject_id);
+                    setEditModalVisible(true);
+                  }}
+                >
+                  {t("subject.management.button.edit")}
+                </Button>
                 <Button type="link" danger>
                   {t("subject.management.button.delete")}
                 </Button>

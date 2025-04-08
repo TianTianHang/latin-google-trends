@@ -1,15 +1,20 @@
-import React, { useEffect } from "react";
-import { Card, List, message, Table } from "antd";
+import { Card, List, message, Table, Tabs } from "antd";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useSubjectStore } from "@/stores/useSubjectStore";
+import { useRequest } from "ahooks";
 
 const SubjectList = () => {
   const { t } = useTranslation("views");
   const { allSubjects, subjectDatas, fetchAllSubjects, selectSubject } = useSubjectStore();
 
-  useEffect(() => {
-    fetchAllSubjects();
-  }, [fetchAllSubjects]);
+ 
+  useRequest(
+    async () => {
+      fetchAllSubjects();
+    },
+    { refreshDeps: [fetchAllSubjects] ,cacheKey:"allSubjects"}
+  );
 
   const handleShowData = async (subjectId: number) => {
     try {
@@ -22,25 +27,45 @@ const SubjectList = () => {
     }
   };
 
-  const generateColumns = (dataType: string, data: Record<string, unknown>[]) => {
+  const generateColumns = (
+    dataType: string,
+    data: Record<string, unknown>[],
+    hiddenColumns: string[] = []
+  ) => {
     if (data.length === 0) return [];
-    
+    hiddenColumns.push("is_partial")
     const firstRecord = data[0];
-    return Object.keys(firstRecord).map((key) => ({
-      title: key,
-      dataIndex: key,
-      key: key,
-    }));
+    return Object.keys(firstRecord)
+      .filter(key => !hiddenColumns.includes(key))
+      .map((key) => ({
+        title: key,
+        dataIndex: key,
+        key: key,
+      }));
   };
-
+ const sortedSubjects = useMemo(() => {
+   return [...allSubjects].sort((a, b) => {
+     if (a.status === 'completed' && b.status !== 'completed') return -1;
+     if (a.status !== 'completed' && b.status === 'completed') return 1;
+     return a.name.localeCompare(b.name);
+   });
+ }, [allSubjects]);
   return (
     <Card className="h-screen">
+
+
       <List
-        grid={{ gutter: 16, column: 4 }}
-        dataSource={allSubjects}
+       grid={{ gutter: 16, column: 4 }}
+       dataSource={sortedSubjects}
+       pagination={{
+         pageSize: 8,
+         showSizeChanger: false,
+         hideOnSinglePage: true
+       }}
         renderItem={(subject) => (
           <List.Item>
             <Card
+              
               title={subject.name}
               className={`h-half bg-white shadow-md rounded-lg overflow-hidden ${
                 subject.status === "completed"
@@ -77,12 +102,21 @@ const SubjectList = () => {
       />
       <div className="h-1/2">
         {subjectDatas.map((data, i) => (
-          <Table
+          <Tabs
             key={i}
-            columns={generateColumns(data.data_type, data.data.flat())}
-            dataSource={data.data.flat()}
-            rowKey="subject_id"
-            pagination={{ pageSize: 10 }}
+            type="card"
+            items={data.data.map((subData, j) => ({
+              key:`${i}-${j}`,
+              label: `data ${j + 1}`,
+              children: (
+                <Table
+                  columns={generateColumns(data.data_type, subData, ['subject_id'])}
+                  //@ts-expect-error unknow
+                  dataSource={subData}
+                  pagination={{ pageSize: 10 }}
+                />
+              )
+            }))}
           />
         ))}
       </div>

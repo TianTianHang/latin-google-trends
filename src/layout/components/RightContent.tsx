@@ -6,7 +6,8 @@ import LanguageSwitcher from "./LanguageSwitcher";
 import ProfilePage from "@/views/ProfilePage";
 import { useTranslation } from "react-i18next";
 import useScreenshot from "@/hooks/useScreenshot";
-import { useFullscreen, useMount } from "ahooks";
+import { useFullscreen, useMount, useUpdateEffect } from "ahooks";
+import { useGlobalStore } from "@/stores/global";
 
 const RightContent: React.FC = () => {
   const { resetToken } = useUserStore();
@@ -14,7 +15,7 @@ const RightContent: React.FC = () => {
   const { t } = useTranslation();
   // 使用一个状态变量存储 content 的引用
   const [content, setContent] = useState<HTMLElement | null>(null);
-
+  
   useMount(() => {
     // 在组件挂载后尝试获取 content
     const mainContent = document.getElementById("main-content");
@@ -23,8 +24,10 @@ const RightContent: React.FC = () => {
     }
   }); 
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_, { toggleFullscreen }] = useFullscreen(content);
+  const [isFullscreen, { toggleFullscreen }] = useFullscreen(content);
+  useUpdateEffect(()=>{
+    useGlobalStore.setState({fullscreen:isFullscreen});
+  },[isFullscreen])
   const logoutHandle = () => {
     resetToken();
   };
@@ -51,14 +54,15 @@ const RightContent: React.FC = () => {
           <LanguageSwitcher />
         </Col>
         <Col>
-          <BellOutlined style={{ fontSize: 24 }} />
+          <BellOutlined  style={{ color: 'white' }} className="text-white text-2xl" />
         </Col>
         <Col>
         <FullscreenOutlined onClick={()=>{
            if (content) {
             toggleFullscreen(); // 调用全屏切换方法
+        
           }
-        }}/>
+        }} style={{ color: 'white' }} className="text-white text-2xl"/>
         </Col>
         <Col>
           <DownloadOutlined
@@ -67,7 +71,7 @@ const RightContent: React.FC = () => {
                 downloadScreenshot(content, "screen-shot");
               }
             }}
-          />
+            style={{ color: 'white' }} className="text-white text-2xl" />
         </Col>
         <Col>
           <Dropdown menu={{ items }} placement="bottomRight">

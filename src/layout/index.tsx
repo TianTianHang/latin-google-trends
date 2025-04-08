@@ -1,7 +1,7 @@
-import React, { useState, Suspense, useMemo, useCallback, lazy } from "react";
+import React, { Suspense, useMemo, useCallback, lazy, useState } from "react";
 import { Outlet, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { MenuProps } from "antd";
-import { Layout, Menu, theme, Spin } from "antd";
+import { Layout, Menu, Spin } from "antd";
 import HeaderComp from "@/layout/components/Header";
 import NoAuthPage from "@/views/error/NoAuthPage";
 import "antd/dist/reset.css";
@@ -13,17 +13,24 @@ import { saveService } from "@/components/Editor/services/saveService";
 import { SaveList } from "@/types/layouts";
 import { useRequest } from "ahooks";
 import { cloneDeep } from "lodash";
+import { useSubjectStore } from "@/stores/useSubjectStore";
 
-const { Header, Content, Sider } = Layout;
+const { Header, Content } = Layout;
 
 const BasicLayout: React.FC = () => {
-  const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { token } = useUserStore();
   const { routes:rawRoutes } = usePermissionStore();
   const [routes, setRoutes]=useState(rawRoutes);
-  
+  const { fetchAllSubjects } = useSubjectStore();
+
+  useRequest(
+    async () => {
+      fetchAllSubjects();
+    },
+    { refreshDeps: [fetchAllSubjects] ,cacheKey:"allSubjects"}
+  );
   useRequest(() => saveService.getSaveList() as Promise<SaveList>, {
     cacheKey: "saveList", // 使用缓存键来启用缓存
     onSuccess: (saveList) => {
@@ -58,9 +65,6 @@ const BasicLayout: React.FC = () => {
       setRoutes([...temp]);
     },
   });
-  const {
-    token: { colorBgContainer },
-  } = theme.useToken();
   const { t, i18n } = useTranslation();
   const isAdmin = true;
   const itemLabel=useCallback((item:RouteType)=>{
@@ -113,45 +117,23 @@ const BasicLayout: React.FC = () => {
   };
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      <Sider
-        style={{
-          overflow: "auto",
-          height: "100vh",
-        }}
-        collapsible
-        collapsed={collapsed}
-        onCollapse={(value) => setCollapsed(value)}
-      >
-        <div
-          style={{
-            height: 0,
-            margin: 16,
-          }}
-        />
+    <Layout className="min-h-screen">
+      <Header className="px-2.5 py-0 flex items-center">
         <Menu
           theme="dark"
           defaultSelectedKeys={[pathname]}
           defaultOpenKeys={renderOpenKeys()}
-          mode="inline"
+          mode="horizontal"
           items={menuItems}
           onClick={onMenuClick}
+          className="flex-1 leading-[64px]"
         />
-      </Sider>
-      <Layout className="site-layout">
-        <Header style={{ padding: "0 10px", background: colorBgContainer }}>
-          <HeaderComp />
-        </Header>
-        {/* height：Header和Footer的默认高度是64 */}
-        <Content
-          style={{
-            padding: 8,
-            overflow: "auto",
-            height: `calc(100vh - 128px)`,
-          }}
-          id="main-content"
-          className="bg-white"
-        >
+        <HeaderComp />
+      </Header>
+      <Content
+        className="p-2 overflow-auto h-[calc(100vh-64px)] bg-white"
+        id="main-content"
+      >
           {isAdmin ? (
             <Suspense fallback={<Spin size="large" className="content_spin" />}>
               <Outlet />
@@ -161,7 +143,7 @@ const BasicLayout: React.FC = () => {
           )}
         </Content>
       </Layout>
-    </Layout>
+ 
   );
 };
 

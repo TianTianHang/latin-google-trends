@@ -278,7 +278,13 @@ const generateChartOptions = (
           show: true,
         },
         axisLabel: {
-          formatter: (value: number) => dayjs(value).format("YYYY-MM-DD"),
+          formatter: (value: number,index:number) => {
+            if (index%2==0){
+              return dayjs(value).format("YYYY-MM-DD")
+            }else{
+              return "";
+            }
+          },
         },
       },
       yAxis: {

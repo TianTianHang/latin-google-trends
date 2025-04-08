@@ -41,7 +41,7 @@
         "heatMap": "HeatMap Component",
         "zipfLaw": "ZipfLaw",
         "dataMeta": "Data Meta",
-        "localMoran":"Local Moran Component"
+        "localMoran": "Local Moran Component"
       },
       "layoutSwitch": "Layout Switch",
       "fixed": "Fixed",
@@ -49,6 +49,26 @@
       "delete": "Delete",
       "edit": "Edit",
       "replace": "Replace"
+    },
+    "canvas": {
+      "load": "Load",
+      "save": "Save",
+      "autoSaving": "Auto saving...",
+      "noSavedData": "No saved data found",
+      "loadSuccess": "Load successful",
+      "loadFailed": "Load failed",
+      "saveSuccess": "Save successful",
+      "saveFailed": "Save failed",
+      "saveError": "Save error",
+      "deleteSuccess": "Delete successful",
+      "noSaves": "No saves available",
+      "selectSave": "Select save",
+      "saveName": "Save name",
+      "enterSaveName": "Enter save name",
+      "refresh":"refresh",
+      "propertyEdit": "Property Edit",
+      "linkEdit": "Link Edit",
+      "saveModalTitle": "Save current state"
     }
   }
 }

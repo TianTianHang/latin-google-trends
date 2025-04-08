@@ -1,6 +1,4 @@
 import React, {
-  useCallback,
-  useEffect,
   useMemo,
   useRef,
   useState,
@@ -13,6 +11,8 @@ import {
   useLayoutsStore,
 } from "./stores";
 import { useTranslation } from "react-i18next";
+import { CheckOutlined } from "@ant-design/icons";
+import { useClickAway } from "ahooks";
 
 interface RightClickMenuProps {
   componentId: string;
@@ -34,7 +34,7 @@ const RightClickMenu: React.FC<RightClickMenuProps> = ({
 }) => {
   const { addComponent, components } = useComponentsStore();
   const { registered } = useRegisteredComponentsStore();
-  const { currentLayouts, switchLayout, predefinedLayouts } = useLayoutsStore();
+  const { currentLayouts, switchLayout, predefinedLayouts,toggleStatic,getStatic } = useLayoutsStore();
   const [position, setPosition] = useState<number>(-1);
   const [type, setType] = useState<string | undefined>(undefined);
   const {t}=useTranslation();
@@ -80,7 +80,11 @@ const RightClickMenu: React.FC<RightClickMenuProps> = ({
       {
         key: "fixed",
         label: t("editor.menu.fixed"),
-        onClick: onClose,
+        icon:getStatic(componentId)?<CheckOutlined />:null,
+        onClick: ()=>{
+          toggleStatic(componentId)
+          onClose()
+        },
       },
     ];
 
@@ -99,7 +103,17 @@ const RightClickMenu: React.FC<RightClickMenuProps> = ({
           onClose();
         },
       }));
-
+    if(componentId==="outside"){
+      setPosition(currentLayouts.length);
+      return [
+        {
+          key: "components",
+          label: t("editor.menu.components"),
+          children: componentItems,
+        },
+        ...baseItems,
+      ];
+    }
     if (componentId.startsWith("place")) {
       setPosition(+componentId.split("-")[1]);
       return [
@@ -124,40 +138,29 @@ const RightClickMenu: React.FC<RightClickMenuProps> = ({
       },
       ...baseItems,
     ];
-  }, [t, predefinedLayouts, onClose, registered, componentId, currentLayouts, components, onDelete, onEdit, switchLayout, type, addComponent, position]);
+  }, [t, predefinedLayouts, getStatic, componentId, registered, currentLayouts, components, onDelete, onEdit, switchLayout, onClose, toggleStatic, type, addComponent, position]);
 
-  const menuRef = useRef<HTMLDivElement | null>(null);
-  const handleClick = useCallback(
+  const menuRef = useRef<HTMLDivElement>(null);
+  useClickAway(
     (e: MouseEvent) => {
-      if (
-        menuRef.current &&
-        !menuRef.current.contains(e.target as HTMLElement)
-      ) {
-        // 检查是否点击在Ant Design的子菜单弹出层上
-        const submenuPopups = document.getElementsByClassName(
-          "ant-menu-submenu-popup"
-        );
-        let isSubmenuClick = false;
-        for (const popup of submenuPopups) {
-          if (popup.contains(e.target as Node)) {
-            isSubmenuClick = true;
-            break;
-          }
-        }
-        if (!isSubmenuClick) {
-          onClickOutside();
+      // 检查是否点击在Ant Design的子菜单弹出层上
+      const submenuPopups = document.getElementsByClassName(
+        "ant-menu-submenu-popup"
+      );
+      let isSubmenuClick = false;
+      for (const popup of submenuPopups) {
+        if (popup.contains(e.target as Node)) {
+          isSubmenuClick = true;
+          break;
         }
       }
+      if (!isSubmenuClick) {
+        onClickOutside();
+      }
     },
-    [onClickOutside]
+    menuRef,
+    'mousedown'
   );
-
-  useEffect(() => {
-    document.addEventListener("mousedown", handleClick);
-    return () => {
-      document.removeEventListener("mousedown", handleClick);
-    };
-  }, [handleClick]);
 
   return (
     <div

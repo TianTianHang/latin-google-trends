@@ -99,14 +99,14 @@ const KeywordsManagement: React.FC = () => {
           <Form.Item
             label={t('keywords.form.keyword')}
             name="word"
-            rules={[{ required: true, message: t('keywords.validation.keyword') }]}
+            rules={[{ required: true, message: t('keywords.form.validation.keywordRequired') }]}
           >
             <Input />
           </Form.Item>
           <Form.Item
             label={t('keywords.form.category')}
             name="category_id"
-            rules={[{ required: false, message: t('keywords.validation.category') }]}
+            rules={[{ required: false, message: t('keywords.form.validation.categoryNameSelectRequired') }]}
           >
             <Select loading={categoriesLoading}>
             <Select.Option key={0} value={null}>
@@ -122,7 +122,7 @@ const KeywordsManagement: React.FC = () => {
           <Form.Item
             label={t('keywords.form.pronunciation')}
             name="pronunciation"
-            rules={[{ required: true, message: t('keywords.validation.pronunciation') }]}
+            rules={[{ required: true, message: t('keywords.form.validation.pronunciationRequired') }]}
           >
             <Input />
           </Form.Item>
@@ -145,21 +145,21 @@ const KeywordsManagement: React.FC = () => {
           <Form.Item
             label={t('keywords.form.categoryName')}
             name="name"
-            rules={[{ required: true, message: t('keywords.validation.categoryName') }]}
+            rules={[{ required: true, message: t('keywords.form.validation.categoryNameRequired') }]}
           >
             <Input />
           </Form.Item>
           <Form.Item
             label={t('keywords.form.description')}
             name="description"
-            rules={[{ required: true, message: t('keywords.validation.description') }]}
+            rules={[{ required: true, message: t('keywords.form.validation.descriptionRequired') }]}
           >
             <Input />
           </Form.Item>
           <Form.Item
             label={t('keywords.form.parentCategory')}
             name="parent_id"
-            rules={[{ required: false, message: t('keywords.validation.parentCategory') }]}
+            rules={[{ required: false, message: t('keywords.form.validation.categoryNameSelectRequired') }]}
           >
             <Select loading={categoriesLoading}>
             <Select.Option key={0} value={null}>

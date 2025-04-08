@@ -12,6 +12,8 @@ interface LayoutsState {
   switchLayout: (layoutIndex: number) => void;
   updateLayout: (layout: Layout[]) => void;
   reset: ()=>void;
+  toggleStatic: (i: string) => void;
+  getStatic: (i: string) => boolean;
 }
 
 export const useLayoutsStore = create<LayoutsState>((set, get) => ({
@@ -70,5 +72,24 @@ export const useLayoutsStore = create<LayoutsState>((set, get) => ({
     set(() => ({
       currentLayouts: get().predefinedLayouts[0].layouts,
     }))
+  },
+  toggleStatic: (i: string) => {
+    set((state) => ({
+      currentLayouts: state.currentLayouts.map(layout => {
+        const isTarget = i.startsWith("place-")
+          ? state.currentLayouts.indexOf(layout) === parseInt(i.split("-")[1])
+          : layout.i === i;
+        return isTarget ? {...layout, static: !layout.static} : layout;
+      })
+    }));
+  },
+  getStatic: (i: string) => {
+    const { currentLayouts } = get();
+    const targetLayout = currentLayouts.find(layout =>
+      i.startsWith("place-")
+        ? currentLayouts.indexOf(layout) === parseInt(i.split("-")[1])
+        : layout.i === i
+    );
+    return targetLayout?.static ?? false;
   }
 }));

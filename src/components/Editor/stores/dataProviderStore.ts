@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { useDataNotificationCenter } from "./dataNotificationCenter";
 import { useInterlinkedStore } from "./interlinkedStore";
+import { listDataSources, createDataSource, deleteDataSource } from '@/api/datasource';
 
 export interface DataSource {
   id: string;
@@ -12,8 +13,9 @@ export interface DataSource {
 
 interface DataProviderState {
   dataSources: Map<string, DataSource>;
-  registerDataSource: (source: DataSource) => void;
-  unregisterDataSource: (id: string) => void;
+  loadDataSources: () => Promise<void>;
+  registerDataSource: (source: DataSource,save:boolean) => Promise<string>;
+  unregisterDataSource: (id: string) => Promise<void>;
   getData: (sourceId: string) => Promise<unknown>;
   subscribeData: (sourceId: string, callback: (data: unknown) => void) => void;
 }
@@ -21,26 +23,54 @@ interface DataProviderState {
 export const useDataProviderStore = create<DataProviderState>((set, get) => ({
   dataSources: new Map(),
 
-  registerDataSource: (source) => {
-    set((state) => {
-      state.dataSources.set(source.id, source);
-      return state;
-    });
-
-    // Setup real-time updates if supported
-    if (source.subscribe) {
-      source.subscribe((data) => {
-        useDataNotificationCenter.getState().notify(source.id, data);
-        useInterlinkedStore.getState().syncProps(source.id, "data", data);
-      });
+  loadDataSources: async () => {
+    try {
+      const sources = await listDataSources();
+      set({ dataSources: new Map(sources.map(s => [s.id, s])) });
+    } catch (error) {
+      console.error('Failed to load data sources', error);
     }
   },
 
-  unregisterDataSource: (id) => {
-    set((state) => {
-      state.dataSources.delete(id);
-      return state;
-    });
+  registerDataSource: async (source,save=true) => {
+    try {
+      let created=null
+      if(save){
+         created = await createDataSource(source);
+      }else{
+        created = source;
+      }
+      
+      set((state) => {
+        state.dataSources.set(created.id, created);
+        return state;
+      });
+      
+      // Setup real-time updates if supported
+      if (created.subscribe) {
+        created.subscribe((data) => {
+          useDataNotificationCenter.getState().notify(created.id, data);
+          useInterlinkedStore.getState().syncProps(created.id, "data", data);
+        });
+      }
+      return created.id;
+    } catch (error) {
+      console.error('Failed to register data source', error);
+      throw error;
+    }
+  },
+
+  unregisterDataSource: async (id) => {
+    try {
+      await deleteDataSource(id);
+      set((state) => {
+        state.dataSources.delete(id);
+        return state;
+      });
+    } catch (error) {
+      console.error('Failed to unregister data source', error);
+      throw error;
+    }
   },
 
   getData: async (sourceId) => {

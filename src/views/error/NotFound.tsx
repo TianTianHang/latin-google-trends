@@ -27,9 +27,9 @@ const NotFound = () => {
             </Text>
           }
           extra={
-            <Link to="/">
+            <Link to="/home">
               <Button type="primary" size="large" >
-                返回首页
+                <span className='text-black'>返回首页</span>
               </Button>
             </Link>
           }

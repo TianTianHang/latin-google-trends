@@ -48,11 +48,6 @@ const KeywordsList = () => {
       key: 'pronunciation',
     },
     {
-      title: t('keywords.table.definition'),
-      dataIndex: 'definition',
-      key: 'definition',
-    },
-    {
       title: t('keywords.table.actions'),
       dataIndex: 'id',
       render:(value)=><KeywordAction keyword_id={value} refesh={refresh}/>

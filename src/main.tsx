@@ -23,6 +23,6 @@ useSubjectStore.getState().fetchAllSubjects().then(()=>{
         fetch: async () => {
           return await getSubjectData(s.subject_id);
         },
-      });
+      },false);
     });
 });

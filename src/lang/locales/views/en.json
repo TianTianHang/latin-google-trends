@@ -39,7 +39,10 @@
         "pronunciationRequired": "Please input pronunciation",
         "definitionRequired": "Please input definition",
         "categoryNameRequired": "Please input category name",
-        "descriptionRequired": "Please input description"
+        "categoryNameSelectRequired": "Please Select category name",
+        "descriptionRequired": "Please input description",
+        "parentCategory": "Please select parent category",
+        "select": "Please select"
       }
     },
     "table": {
@@ -56,7 +59,10 @@
       "createSuccess": "Create successfully",
       "keywordCreated": "Keyword created successfully",
       "categoryCreated": "Category created successfully",
-      "definitionCreated": "Definition created successfully"
+      "definitionCreated": "Definition created successfully",
+      "operationFailed": "Operation failed",
+      "createDefinitionSuccess": "Definition created successfully",
+      "confirmDelete":"Confirm Delete"
     },
     "select": {
       "yes": "Yes",
@@ -64,12 +70,15 @@
       "none": "None"
     },
     "radio":{
-      "yes": "yes",
-      "no": "no"
+      "yes": "Yes",
+      "no": "No"
     },
     "search": {
       "placeholder": "Search keywords",
       "categoryPlaceholder": "Select category"
+    },
+    "text":{
+      "none":"None"
     }
   },
   "dataSource": {
@@ -405,7 +414,7 @@
        "edit": {
          "title": "Edit Subject",
          "form": {
-           "selectSubject": "Select subject",
+           "selectSubject": "Select data set",
            "save": "Save",
            "error": "Error",
            "loadingError": "Error loading collections"

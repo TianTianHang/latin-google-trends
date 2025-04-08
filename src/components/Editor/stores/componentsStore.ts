@@ -23,6 +23,49 @@ export const useComponentsStore = create<ComponentsState>((set) => {
     components: [],
     addComponent: (component) => {
       const currentLayouts = useLayoutsStore.getState().currentLayouts;
+      if(currentLayouts.length == component.position){
+        // 新增layout多一项
+        const id = crypto.randomUUID();
+        const newComponent = {
+          ...component,
+          id: id,
+        } as ComponentData<PropsType>;
+        set((state) => ({
+          components: [...state.components, newComponent],
+        }));
+        // 计算新组件的位置，避免重叠
+        let newY = 0;
+        let foundPosition = false;
+        while (!foundPosition) {
+          // 检查当前y位置是否可用
+          const positionOccupied = currentLayouts.some(layout =>
+            layout.y <= newY && newY < layout.y + layout.h &&
+            layout.x <= 0 && 0 < layout.x + layout.w
+          );
+          
+          if (!positionOccupied) {
+            foundPosition = true;
+          } else {
+            newY++;
+          }
+        }
+
+        const newLayout = {
+          i: id,
+          x: 0,
+          y: newY,
+          w: 2,
+          h: 1,
+          minH: 1,
+          minW: 1,
+          moved: true
+        }
+        const newCurrentLayouts = [...currentLayouts,newLayout];
+        useLayoutsStore.setState({
+          currentLayouts: newCurrentLayouts,
+        });
+        return;
+      }
       if (currentLayouts[component.position].i != "") {
         // 替换路线, id 不变
         const id = currentLayouts[component.position].i;
