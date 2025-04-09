@@ -183,6 +183,9 @@
     "interval": {
       "yearly": "每年",
       "monthly": "每月"
+    },
+    "search":{
+      "placeholder":"请输入搜索关键词"
     }
   },
   "profile": {

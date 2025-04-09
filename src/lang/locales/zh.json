@@ -19,6 +19,8 @@
   "route": {
     "home": "主页",
     "keywords": "关键字",
+    "keywords.list": "关键字列表",
+    "keywords.details": "关键字详情",
     "tasks": "任务管理",
     "dashboard": "面板",
     "data": "数据管理",

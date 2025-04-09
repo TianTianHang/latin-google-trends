@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
-import { message } from "antd";
+import { message, Spin } from "antd";
 import { saveService } from "@/components/Editor/services/saveService";
 import { useComponentRenderer } from "@/components/Editor/hooks/useComponentRenderer";
 
@@ -70,8 +70,12 @@ const PreviewPage: React.FC = () => {
   }, [id, t]);
 
   if (loading) {
-    return <div>{t("preview.status.loading")}</div>;
-  }
+      return (
+        <div className="flex items-center justify-center h-screen">
+          <Spin size="large" tip={t("preview.status.loading")}/>
+        </div>
+      );
+    }
 
   return (
     <div className="h-screen">

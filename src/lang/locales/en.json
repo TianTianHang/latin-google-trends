@@ -19,6 +19,8 @@
   "route": {
     "home": "Home",
     "keywords": "Keywords",
+    "keywords.list": "Keywords List",
+    "keywords.details": "Keywords Details",
     "tasks": "Task Management",
     "dashboard": "Dashboard",
     "dashboard.default": "Default Dashboard",

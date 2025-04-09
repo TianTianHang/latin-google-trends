@@ -38,7 +38,8 @@
       "tooltip": {
         "index": "Moran's I",
         "pValue": "p-value",
-        "zScore": "z-score"
+        "zScore": "z-score",
+        "cluster": "cluster"
       },
       "visualMap": {
         "high": "High",

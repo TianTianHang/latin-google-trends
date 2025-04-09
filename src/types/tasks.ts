@@ -1,3 +1,5 @@
+import { Dayjs } from "dayjs";
+
 // 定义任务相关的类型
 export type HistoricalTaskRequest = {
     job_type: string;
@@ -27,8 +29,10 @@ export type HistoricalTaskRequest = {
   
   export type ScheduledTaskResponse = {
     id: number;
+    job_type: string;
     duration: string;
     interval: number;
+    start_date:Dayjs;
     keywords: string[];
     enabled: boolean;
   };

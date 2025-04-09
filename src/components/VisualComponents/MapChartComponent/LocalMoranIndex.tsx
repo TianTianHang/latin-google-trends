@@ -130,6 +130,23 @@ const LocalMoranIndex: React.FC<LocalMoranIndexProps> = ({
           }
         },
       },
+      // visualMap: {
+      //   show: true,
+      //   right: 20,
+      //   type: "piecewise",
+      //   min: 1,
+      //   max: 4,
+      //   inRange: {
+      //     color: ['#FF4500', '#00FA9A', '#4B0082', '#FFD700']
+      //   },
+      //   pieces: [
+      //     { min: 1, max: 1, label: "HH", color: "#FF4500" },
+      //     { min: 2, max: 2, label: "LH", color: "#00FA9A" },
+      //     { min: 3, max: 3, label: "LL", color: "#4B0082" },
+      //     { min: 4, max: 4, label: "HL", color: "#FFD700" }
+      //   ],
+      //   dimension:6
+      // },
       amap: {
         viewMode: "3D",
         center: [12.4964, 41.9028],
@@ -148,7 +165,9 @@ const LocalMoranIndex: React.FC<LocalMoranIndexProps> = ({
             "component.localMoran.tooltip.pValue"
           )}: ${params.value[3].toFixed(4)}<br/>${t(
             "component.localMoran.tooltip.zScore"
-          )}: ${params.value[4].toFixed(4)}`;
+          )}: ${params.value[4].toFixed(4)}<br/>${t(
+            "component.localMoran.tooltip.cluster"
+          )}: ${params.value[5] ? ['HH', 'LH', 'LL', 'HL'][params.value[5]] : ''}`;
         },
       },
       animation: true,

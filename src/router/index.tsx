@@ -36,13 +36,35 @@ export const constantRoutes: RouteType[] = [
 export const asyncRoutes: RouteType[] = [
   {
     path: "/keywords",
-    component: lazy(() => import("@/views/KeywordsView")),
+    element: <Outlet/>,
     meta: {
       requiresAuth: true,
       breadcrumb: true,
       allowedRoles: ["admin"],
       title: "keywords",
     },
+    children:[
+      {
+        path: "/keywords/list",
+        component: lazy(() => import("@/views/KeywordsView")),
+        meta: {
+          requiresAuth: true,
+          breadcrumb: true,
+          allowedRoles: ["admin"],
+          title: "keywords.list",
+        }
+      },
+      {
+        path: "/keywords/details",
+        component: lazy(() => import("@/views/KeywordsView/KeywordDetailPage")),
+        meta: {
+          requiresAuth: true,
+          breadcrumb: true,
+          allowedRoles: ["admin","user"],
+          title: "keywords.details",
+        }
+      },
+    ]
   },
   {
     path: "/tasks",

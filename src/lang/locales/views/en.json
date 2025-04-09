@@ -183,6 +183,9 @@
     "interval": {
       "yearly": "Yearly",
       "monthly": "Monthly"
+    },
+    "search":{
+      "placeholder":"Please input search text"
     }
   },
   "profile": {

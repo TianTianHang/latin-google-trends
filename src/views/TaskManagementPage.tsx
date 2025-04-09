@@ -1,21 +1,47 @@
-import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useTaskStore } from '@/stores/taskStore';
-import { Button, Table, Space, Input, Form, Select, DatePicker, Switch } from 'antd';
-import { createHistoricalTask, createScheduledTask, terminateHistoricalTask, retryHistoricalTask, toggleScheduledTask } from '@/api/tasks';
-import type { HistoricalTaskRequest, ScheduledTaskRequest, HistoricalTaskResponse, ScheduledTaskResponse } from '@/types/tasks';
-import dayjs from 'dayjs';
-import { ServiceInstance } from '@/types/service';
-import { getServices } from '@/api/services';
-import {countries} from "@/views/countries"
+import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useTaskStore } from "@/stores/taskStore";
+import {
+  Button,
+  Table,
+  Space,
+  Input,
+  Form,
+  Select,
+  DatePicker,
+  Switch,
+} from "antd";
+import {
+  createHistoricalTask,
+  createScheduledTask,
+  terminateHistoricalTask,
+  retryHistoricalTask,
+  toggleScheduledTask,
+} from "@/api/tasks";
+import type {
+  HistoricalTaskRequest,
+  ScheduledTaskRequest,
+  HistoricalTaskResponse,
+  ScheduledTaskResponse,
+} from "@/types/tasks";
+import dayjs from "dayjs";
+import { ServiceInstance } from "@/types/service";
+import { getServices } from "@/api/services";
+import { countries } from "@/views/countries";
 const { Option } = Select;
-
 
 const TaskManagement: React.FC = () => {
   const { t } = useTranslation("views");
-  const { historicalTasks, scheduledTasks, fetchHistoricalTasks, fetchScheduledTasks } = useTaskStore();
-  const [serviceInstances, setServiceInstances] = useState<ServiceInstance[]>([]);
-  const [selectedServiceId, setSelectedServiceId] = useState<string>('');
+  const {
+    historicalTasks,
+    scheduledTasks,
+    fetchHistoricalTasks,
+    fetchScheduledTasks,
+  } = useTaskStore();
+  const [serviceInstances, setServiceInstances] = useState<ServiceInstance[]>(
+    []
+  );
+  const [selectedServiceId, setSelectedServiceId] = useState<string>("");
 
   useEffect(() => {
     fetchHistoricalTasks(selectedServiceId);
@@ -25,14 +51,14 @@ const TaskManagement: React.FC = () => {
 
   const fetchServiceInstances = async () => {
     try {
-      const services = await getServices("trends_collector")
-      const trendsCollectorInstances=services.services
+      const services = await getServices("trends_collector");
+      const trendsCollectorInstances = services.services;
       setServiceInstances(trendsCollectorInstances);
       if (trendsCollectorInstances.length > 0) {
         setSelectedServiceId(trendsCollectorInstances[0].instance_id); // 默认选择第一个实例
       }
     } catch (error) {
-      console.error('Failed to fetch service instances:', error);
+      console.error("Failed to fetch service instances:", error);
     }
   };
 
@@ -56,86 +82,102 @@ const TaskManagement: React.FC = () => {
     fetchHistoricalTasks(selectedServiceId);
   };
 
-  const handleToggleScheduledTask = async (taskId: number, enabled: boolean) => {
+  const handleToggleScheduledTask = async (
+    taskId: number,
+    enabled: boolean
+  ) => {
     await toggleScheduledTask(selectedServiceId, taskId, enabled);
     fetchScheduledTasks(selectedServiceId);
   };
 
   const columnsHistorical = [
     {
-      title: t('taskManagement.table.id'),
-      dataIndex: 'id',
-      key: 'id',
+      title: t("taskManagement.table.id"),
+      dataIndex: "id",
+      key: "id",
     },
     {
-      title: t('taskManagement.table.jobType'),
-      dataIndex: 'job_type',
-      key: 'job_type',
+      title: t("taskManagement.table.jobType"),
+      dataIndex: "job_type",
+      key: "job_type",
     },
     {
-      title: t('taskManagement.table.keywords'),
-      dataIndex: 'keywords',
-      key: 'keywords',
-      render: (keywords: string[]) => keywords.join(', '),
+      title: t("taskManagement.table.keywords"),
+      dataIndex: "keywords",
+      key: "keywords",
+      render: (keywords: string[]) => keywords.join(", "),
     },
     {
-      title: t('taskManagement.table.status'),
-      dataIndex: 'status',
-      key: 'status',
+      title: t("taskManagement.table.status"),
+      dataIndex: "status",
+      key: "status",
     },
     {
-      title: t('taskManagement.table.createdAt'),
-      dataIndex: 'created_at',
-      key: 'created_at',
-      render: (text: string) => dayjs(text).format('YYYY-MM-DD HH:mm:ss'),
+      title: t("taskManagement.table.createdAt"),
+      dataIndex: "created_at",
+      key: "created_at",
+      render: (text: string) => dayjs(text).format("YYYY-MM-DD HH:mm:ss"),
     },
     {
-      title: t('taskManagement.table.action'),
-      key: 'action',
+      title: t("taskManagement.table.action"),
+      key: "action",
       render: (text: string, record: HistoricalTaskResponse) => (
         <Space size="middle">
-          {record.status === 'running' && <Button onClick={() => handleTerminateHistoricalTask(record.id)}>
-            {t("taskManagement.button.terminate")}
-          </Button>}
-          {record.status === 'failed' && <Button onClick={() => handleRetryHistoricalTask(record.id)}>
-            {t("taskManagement.button.retry")}
-          </Button>}
+          {record.status === "running" && (
+            <Button onClick={() => handleTerminateHistoricalTask(record.id)}>
+              {t("taskManagement.button.terminate")}
+            </Button>
+          )}
+          {record.status === "failed" && (
+            <Button onClick={() => handleRetryHistoricalTask(record.id)}>
+              {t("taskManagement.button.retry")}
+            </Button>
+          )}
         </Space>
       ),
     },
-  ];
+  ].map((column) => {
+    if (column.key === "created_at") {
+      return {
+        ...column,
+        sorter: (a: HistoricalTaskResponse, b: HistoricalTaskResponse) =>
+          dayjs(a.created_at).unix() - dayjs(b.created_at).unix(),
+      };
+    }
+    return column;
+  });
 
   const columnsScheduled = [
     {
-      title: t('taskManagement.table.id'),
-      dataIndex: 'id',
-      key: 'id',
+      title: t("taskManagement.table.id"),
+      dataIndex: "id",
+      key: "id",
     },
     {
-      title: t('taskManagement.table.jobType'),
-      dataIndex: 'job_type',
-      key: 'job_type',
+      title: t("taskManagement.table.jobType"),
+      dataIndex: "job_type",
+      key: "job_type",
     },
     {
-      title: t('taskManagement.table.keywords'),
-      dataIndex: 'keywords',
-      key: 'keywords',
-      render: (keywords: string[]) => keywords.join(', '),
+      title: t("taskManagement.table.keywords"),
+      dataIndex: "keywords",
+      key: "keywords",
+      render: (keywords: string[]) => keywords.join(", "),
     },
     {
-      title: t('taskManagement.table.startDate'),
-      dataIndex: 'start_date',
-      key: 'start_date',
-      render: (text: string) => dayjs(text).format('YYYY-MM-DD'),
+      title: t("taskManagement.table.startDate"),
+      dataIndex: "start_date",
+      key: "start_date",
+      render: (text: string) => dayjs(text).format("YYYY-MM-DD"),
     },
     {
-      title: t('taskManagement.table.duration'),
-      dataIndex: 'duration',
-      key: 'duration',
+      title: t("taskManagement.table.duration"),
+      dataIndex: "duration",
+      key: "duration",
     },
     {
-      title: t('taskManagement.table.enabled'),
-      key: 'enabled',
+      title: t("taskManagement.table.enabled"),
+      key: "enabled",
       render: (text: string, record: ScheduledTaskResponse) => (
         <Switch
           checked={record.enabled}
@@ -143,7 +185,40 @@ const TaskManagement: React.FC = () => {
         />
       ),
     },
-  ];
+  ].map((column) => {
+    if (column.key === "enabled") {
+      return {
+        ...column,
+        sorter: (a: ScheduledTaskResponse, b: ScheduledTaskResponse) =>
+          a.enabled === b.enabled ? 0 : a.enabled ? -1 : 1,
+      };
+    }
+    return column;
+  });
+
+  const [historicalSearch, setHistoricalSearch] = useState("");
+  const [scheduledSearch, setScheduledSearch] = useState("");
+
+  const filteredHistoricalTasks = historicalTasks
+    .filter(
+      (task) =>
+        task.job_type.toLowerCase().includes(historicalSearch.toLowerCase()) ||
+        task.keywords.some((kw) =>
+          kw.toLowerCase().includes(historicalSearch.toLowerCase())
+        ) ||
+        task.status.toLowerCase().includes(historicalSearch.toLowerCase())
+    )
+    .sort((a, b) => dayjs(b.created_at).unix() - dayjs(a.created_at).unix());
+
+  const filteredScheduledTasks = scheduledTasks
+    .filter(
+      (task) =>
+        task.job_type.toLowerCase().includes(scheduledSearch.toLowerCase()) ||
+        task.keywords.some((kw) =>
+          kw.toLowerCase().includes(scheduledSearch.toLowerCase())
+        )
+    )
+    .sort((a, b) => (b.enabled === a.enabled ? 0 : b.enabled ? 1 : -1));
 
   return (
     <div>
@@ -154,7 +229,7 @@ const TaskManagement: React.FC = () => {
         placeholder={t("taskManagement.form.placeholder.serviceInstance")}
         style={{ width: 200 }}
       >
-        {serviceInstances.map(instance => (
+        {serviceInstances.map((instance) => (
           <Option key={instance.instance_id} value={instance.instance_id}>
             {`${instance.service_name} (${instance.host}:${instance.port})`}
           </Option>
@@ -162,7 +237,7 @@ const TaskManagement: React.FC = () => {
       </Select>
 
       <h2>{t("taskManagement.title.historicalTasks")}</h2>
-     
+
       <Form onFinish={handleCreateHistoricalTask}>
         <Form.Item name="job_type" label={t("taskManagement.form.jobType")}>
           <Select>
@@ -174,11 +249,11 @@ const TaskManagement: React.FC = () => {
           <Select mode="tags" />
         </Form.Item>
         <Form.Item name="geo_code" label={t("taskManagement.form.geoCode")}>
-        <Select
-          showSearch
-          placeholder={t("taskManagement.form.placeholder.country")}
-        >
-            {countries.map(country => (
+          <Select
+            showSearch
+            placeholder={t("taskManagement.form.placeholder.country")}
+          >
+            {countries.map((country) => (
               <Option key={country.code} value={country.code}>
                 {country.name}
               </Option>
@@ -203,13 +278,29 @@ const TaskManagement: React.FC = () => {
           </Button>
         </Form.Item>
       </Form>
-      <Button onClick={()=>fetchHistoricalTasks(selectedServiceId)} style={{ marginBottom: 16 }}>
-        {t("taskManagement.button.refresh")}
-      </Button>
-      <Table dataSource={historicalTasks} columns={columnsHistorical} rowKey="id" />
+      <Space>
+        <Button
+          onClick={() => fetchHistoricalTasks(selectedServiceId)}
+          style={{ marginBottom: 16 }}
+        >
+          {t("taskManagement.button.refresh")}
+        </Button>
+        <Input.Search
+          placeholder={t("taskManagement.search.placeholder")}
+          allowClear
+          onChange={(e) => setHistoricalSearch(e.target.value)}
+          style={{ width: 200, marginBottom: 16 }}
+        />
+      </Space>
+
+      <Table
+        dataSource={filteredHistoricalTasks}
+        columns={columnsHistorical}
+        rowKey="id"
+      />
 
       <h2>{t("taskManagement.title.scheduledTasks")}</h2>
-      
+
       <Form onFinish={handleCreateScheduledTask}>
         <Form.Item name="job_type" label={t("taskManagement.form.jobType")}>
           <Select>
@@ -221,18 +312,21 @@ const TaskManagement: React.FC = () => {
           <Select mode="tags" />
         </Form.Item>
         <Form.Item name="geo_code" label={t("taskManagement.form.geoCode")}>
-        <Select
-          showSearch
-          placeholder={t("taskManagement.form.placeholder.country")}
-        >
-            {countries.map(country => (
+          <Select
+            showSearch
+            placeholder={t("taskManagement.form.placeholder.country")}
+          >
+            {countries.map((country) => (
               <Option key={country.code} value={country.code}>
                 {country.name}
               </Option>
             ))}
           </Select>
         </Form.Item>
-        <Form.Item name="cron_expression" label={t("taskManagement.form.cronExpression")}>
+        <Form.Item
+          name="cron_expression"
+          label={t("taskManagement.form.cronExpression")}
+        >
           <Input />
         </Form.Item>
         <Form.Item name="start_date" label={t("taskManagement.form.startDate")}>
@@ -253,10 +347,26 @@ const TaskManagement: React.FC = () => {
           </Button>
         </Form.Item>
       </Form>
-      <Button onClick={()=>fetchScheduledTasks(selectedServiceId)} style={{ marginBottom: 16 }}>
-        {t("taskManagement.button.refresh")}
-      </Button>
-      <Table dataSource={scheduledTasks} columns={columnsScheduled} rowKey="id" />
+      <Space>
+        <Button
+          onClick={() => fetchScheduledTasks(selectedServiceId)}
+          style={{ marginBottom: 16 }}
+        >
+          {t("taskManagement.button.refresh")}
+        </Button>
+        <Input.Search
+          placeholder={t("taskManagement.search.placeholder")}
+          allowClear
+          onChange={(e) => setScheduledSearch(e.target.value)}
+          style={{ width: 200, marginBottom: 16 }}
+        />
+      </Space>
+
+      <Table
+        dataSource={filteredScheduledTasks}
+        columns={columnsScheduled}
+        rowKey="id"
+      />
     </div>
   );
 };

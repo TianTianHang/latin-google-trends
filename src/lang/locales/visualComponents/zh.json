@@ -38,7 +38,8 @@
       "tooltip": {
         "index": "莫兰指数",
         "pValue": "p值",
-        "zScore": "z分数"
+        "zScore": "z分数",
+        "cluster": "聚类"
       },
       "visualMap": {
         "high": "高",
