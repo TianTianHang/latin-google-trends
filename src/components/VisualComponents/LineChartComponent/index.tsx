@@ -25,6 +25,8 @@ import { useDataBinding } from "@/components/Editor/hooks/useDataBinding";
 import { SubjectDataResponse } from "@/types/subject";
 import { useTranslation } from "react-i18next";
 
+type AxisType = "value" | "log";
+
 interface ChartData {
   time: string;
   value: number;
@@ -38,6 +40,15 @@ interface LineChartProps {
   lineColors?: string[];
   title?: string;
 }
+
+// 坐标轴类型切换hook
+const useAxisType = () => {
+  const [axisType, setAxisType] = useState<AxisType>("value");
+  const toggleAxisType = useCallback(() => {
+    setAxisType((prev) => (prev === "value" ? "log" : "value"));
+  }, []);
+  return { axisType, toggleAxisType };
+};
 
 // 将数据处理逻辑提取到自定义hook中
 const useChartData = (subjectDatas?: SubjectDataResponse[]) => {
@@ -182,14 +193,25 @@ const allocateColor = (
   return newColor;
 };
 // 将图表配置生成逻辑提取到单独的函数中
-const generateChartOptions = (
-  data: SubjectDataResponse | null,
-  index: number,
-  title?: string,
-  fitData: ChartData[] = [],
-  lineColors?: string[],
-  toggleFullscreen?: () => void
-): EChartsOption => {
+interface ChartOptionsParams {
+  data: SubjectDataResponse | null;
+  index: number;
+  title?: string;
+  fitData?: ChartData[];
+  lineColors?: string[];
+  toggleFullscreen?: () => void;
+  axisType?: AxisType;
+}
+
+const generateChartOptions = ({
+  data,
+  index,
+  title,
+  fitData = [],
+  lineColors,
+  toggleFullscreen,
+  axisType = "value",
+}: ChartOptionsParams): EChartsOption => {
   if (data) {
     const series: SeriesOption[] = [];
     const allocatedColors: string[] = []; // 已分配颜色的数组
@@ -288,7 +310,7 @@ const generateChartOptions = (
         },
       },
       yAxis: {
-        type: "log",
+        type: axisType,
         min: 0.1,
         max: 100,
         axisLabel: {
@@ -385,19 +407,22 @@ const LineChart: React.FC<LineChartProps> = ({
   const { data, index, setIndex, options } = useChartData(subjectDatas);
   const { fit, setFit, isFitting, progress, fitData } = useFitData(data, index);
 
+  const { axisType, toggleAxisType } = useAxisType();
+
   const option = useMemo(() => {
-    const options = generateChartOptions(
+    const options = generateChartOptions({
       data,
       index,
       title,
       fitData,
       lineColors,
-      toggleFullscreen
-    );
+      toggleFullscreen,
+      axisType,
+    });
 
     // 冻结配置对象以防止意外修改
     return Object.freeze(options);
-  }, [data, index, title, fitData, lineColors, toggleFullscreen]);
+  }, [data, index, title, fitData, lineColors, toggleFullscreen, axisType]);
 
   return (
     <div className="w-full h-full" ref={cardRef}>
@@ -416,6 +441,13 @@ const LineChart: React.FC<LineChartProps> = ({
             unCheckedChildren="Fit"
             style={{ marginLeft: 8 }}
             disabled={fit}
+          />
+          <Switch
+            checked={axisType === "log"}
+            onChange={toggleAxisType}
+            checkedChildren="Log"
+            unCheckedChildren="Value"
+            style={{ marginLeft: 8 }}
           />
         </Space>
       </div>
