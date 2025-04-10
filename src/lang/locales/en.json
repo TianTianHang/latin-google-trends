@@ -41,7 +41,7 @@
         "geoAnalysis": "Multi-keyword geographic distribution analysis",
         "trendTracking": "Time trend tracking",
         "zipfLaw": "Zipf's law verification",
-        "dataExport": "Custom data export"
+        "dataExport": ""
       }
     },
     "quickAccess": {

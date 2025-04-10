@@ -40,7 +40,7 @@
         "geoAnalysis": "多关键词地域分布分析",
         "trendTracking": "时间趋势变化追踪",
         "zipfLaw": "Zipf定律验证",
-        "dataExport": "自定义数据导出"
+        "dataExport": ""
       }
     },
     "quickAccess": {
