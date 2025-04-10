@@ -132,7 +132,7 @@ const MultiKeywordMap: React.FC<MultiKeywordMapProps> = ({
           trigger: "item",
           formatter: function (params) {
             //@ts-expect-error 111
-            return `geo_name: ${params.name}<br/>geo_code: ${params.value[3]}<br/>keyword: ${params.value[4]}<br/>loc:${params.value[0]}<br/>lan:${params.value[1]}`;
+            return `value: ${params.value[2]}<br/>geo_name: ${params.name}<br/>geo_code: ${params.value[3]}<br/>keyword: ${params.value[4]}<br/>loc:${params.value[0]}<br/>lan:${params.value[1]}`;
           },
         },
         animation: true,
