@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-
+import { InputNumber } from "antd";
 import ReactECharts, { EChartsOption } from "echarts-for-react";
 import "echarts-extension-amap";
 import locData from "./loc_data.json";
@@ -31,12 +31,13 @@ const MultiKeywordMap: React.FC<MultiKeywordMapProps> = ({
   step,
 }) => {
   useDataBinding(`subject-${subjectId}`, componentId, "subjectDatas");
+  const [minValue, setMinValue] = useState(0);
   const filterSubjectDatas = useMemo(() => {
     return subjectDatas?.filter((sd) => sd.data_type == "region");
   }, [subjectDatas]);
   const data = useMemo(() => {
     if (!filterSubjectDatas || filterSubjectDatas.length === 0) return null;
-    if(filterSubjectDatas[index].data.length==0) return null;
+    if (filterSubjectDatas[index].data.length == 0) return null;
     return filterSubjectDatas[index];
   }, [index, filterSubjectDatas]);
   const { cardRef, echartsRef } = useAutoResizeChart();
@@ -75,7 +76,7 @@ const MultiKeywordMap: React.FC<MultiKeywordMapProps> = ({
               }
               // 如果 LABEL_X 或 LABEL_Y 无值，则不返回任何内容，相当于跳过该元素
             })
-            .filter((item) => item&&item.value[2] as number>0); // 清除 undefined 值
+            .filter((item) => item && (item.value[2] as number) > minValue); // 清除 undefined 值
 
           // 添加到 series 数组
           series.push({
@@ -97,7 +98,7 @@ const MultiKeywordMap: React.FC<MultiKeywordMapProps> = ({
               },
             },
             labelLayout: {
-              moveOverlap:  'shiftY',
+              moveOverlap: "shiftY",
             },
             symbolSize: 15,
             symbolOffset: [Math.random() * 20 - 10, Math.random() * 20 - 10],
@@ -110,13 +111,13 @@ const MultiKeywordMap: React.FC<MultiKeywordMapProps> = ({
       return {
         toolbox: {
           feature: {
-            myTool: downLoadTool(echartsRef,"multi-keyword-map"),
+            myTool: downLoadTool(echartsRef, "multi-keyword-map"),
             myFullscreen: {
               show: true,
-              title: '全屏',
-              icon: 'image://src/assets/fullscreen.svg',
-              onclick: toggleFullscreen
-            }
+              title: "全屏",
+              icon: "image://src/assets/fullscreen.svg",
+              onclick: toggleFullscreen,
+            },
           },
         },
         amap: {
@@ -141,17 +142,28 @@ const MultiKeywordMap: React.FC<MultiKeywordMapProps> = ({
     } else {
       return {};
     }
-  }, [data, echartsRef, step, toggleFullscreen, zoom]);
+  }, [data, echartsRef, step, toggleFullscreen, zoom, minValue]);
 
   return (
     <div ref={cardRef} className="h-full">
       {Object.keys(dataOption).length > 0 ? (
-        <ReactECharts
-          ref={echartsRef}
-          autoResize={true}
-          option={dataOption}
-          style={{ height: "100%", width: "100%" }}
-        />
+        <>
+          <div className="absolute top-2 left-2 z-10 opacity-0 hover:opacity-100 transition-opacity duration-3000">
+            <InputNumber
+              value={minValue}
+              min={0}
+              max={90}
+              onChange={(value) => setMinValue(value?value:0)}
+              className="w-20 border rounded px-2"
+            />
+          </div>
+          <ReactECharts
+            ref={echartsRef}
+            autoResize={true}
+            option={dataOption}
+            style={{ height: "100%", width: "100%" }}
+          />
+        </>
       ) : (
         <Empty />
       )}
