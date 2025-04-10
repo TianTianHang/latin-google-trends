@@ -97,7 +97,7 @@ export const asyncRoutes: RouteType[] = [
     },
     children: [
       {
-        path: "/data/subject",
+        path: "/data/subject/:tab",
         component: lazy(() => import("@/views/SubjectView")),
         meta: {
           requiresAuth: true,

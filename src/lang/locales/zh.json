@@ -31,6 +31,43 @@
     "permission.endpoint": "接口权限管理",
     "permission.user-role": "用户权限管理"
   },
+  "homePage": {
+    "intro": {
+      "title": "系统介绍",
+      "heading": "Google Trends 数据可视化系统",
+      "description": "本系统提供Google Trends数据的多维分析和可视化展示，帮助用户发现搜索趋势中的模式和规律。",
+      "features": {
+        "geoAnalysis": "多关键词地域分布分析",
+        "trendTracking": "时间趋势变化追踪",
+        "zipfLaw": "Zipf定律验证",
+        "dataExport": "自定义数据导出"
+      }
+    },
+    "quickAccess": {
+      "title": "快速入口",
+      "newAnalysis": "新建分析",
+      "viewHistory": "查看历史",
+      "viewTasks": "查看任务"
+    },
+    "updates": {
+      "title": "动态更新",
+      "loading": "加载中...",
+      "commit": "提交",
+      "error": "加载失败"
+    },
+    "statistics": {
+      "completedTasks": "已完成任务",
+      "failedTasks": "失败任务",
+      "enabledScheduledTasks": "启用计划任务",
+      "totalInterests": "总兴趣数",
+      "timeTypeInterests": "时间类型兴趣",
+      "regionTypeInterests": "地域类型兴趣",
+      "boundInterests": "已绑定兴趣",
+      "unboundInterests": "未绑定兴趣",
+      "loading": "加载统计信息...",
+      "error": "加载统计信息失败"
+    }
+  },
   "editor": {
     "menu": {
       "component": {
@@ -42,7 +79,8 @@
         "heatMap": "热力图组件",
         "zipfLaw": "ZipfLaw",
         "dataMeta": "元数据",
-        "localMoran": "局部莫兰指数组件"
+        "localMoran": "局部莫兰指数组件",
+        "jsonEditor": "json 编辑器"
       },
       "layoutSwitch": "布局切换",
       "fixed": "固定",

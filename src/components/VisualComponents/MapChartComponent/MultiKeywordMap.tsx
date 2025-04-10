@@ -75,7 +75,7 @@ const MultiKeywordMap: React.FC<MultiKeywordMapProps> = ({
               }
               // 如果 LABEL_X 或 LABEL_Y 无值，则不返回任何内容，相当于跳过该元素
             })
-            .filter((item) => item); // 清除 undefined 值
+            .filter((item) => item&&item.value[2] as number>0); // 清除 undefined 值
 
           // 添加到 series 数组
           series.push({
@@ -95,6 +95,9 @@ const MultiKeywordMap: React.FC<MultiKeywordMapProps> = ({
                 //@ts-expect-error 111
                 return params.value[4];
               },
+            },
+            labelLayout: {
+              moveOverlap:  'shiftY',
             },
             symbolSize: 15,
             symbolOffset: [Math.random() * 20 - 10, Math.random() * 20 - 10],

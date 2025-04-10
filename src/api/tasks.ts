@@ -10,6 +10,7 @@ const api = {
   terminateHistoricalTask: '/trends_collector/tasks/historical/{task_id}/terminate',
   retryHistoricalTask: '/trends_collector/tasks/historical/{task_id}/retry',
   toggleScheduledTask: '/trends_collector/tasks/scheduled/{task_id}/toggle',
+  stats:"/trends_collector/tasks/stats"
 };
 
 // 创建历史任务
@@ -55,7 +56,6 @@ export function retryHistoricalTask(serviceId: string, taskId: number) {
     headers: { 'X-Service-ID': serviceId }
   });
 }
-
 // 切换定时任务状态
 export function toggleScheduledTask(serviceId: string, taskId: number, enabled: boolean) {
   const url = api.toggleScheduledTask.replace('{task_id}', taskId.toString());
@@ -63,3 +63,19 @@ export function toggleScheduledTask(serviceId: string, taskId: number, enabled: 
     headers: { 'X-Service-ID': serviceId },
   });
 }
+
+// 获取任务统计信息
+export function getTasksStats(serviceId: string) {
+  return http.get<{
+    historical_tasks: {
+      completed: number;
+      failed: number;
+    };
+    scheduled_tasks: {
+      enabled: number;
+    };
+  }>(api.stats, undefined, {
+    headers: { 'X-Service-ID': serviceId }
+  });
+}
+

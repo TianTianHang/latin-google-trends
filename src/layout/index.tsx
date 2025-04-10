@@ -1,6 +1,6 @@
 import React, { Suspense, useMemo, useCallback, lazy, useState } from "react";
 import { Outlet, useNavigate, useLocation, Navigate } from "react-router-dom";
-import { MenuProps } from "antd";
+import { Alert, MenuProps } from "antd";
 import { Layout, Menu, Spin } from "antd";
 import HeaderComp from "@/layout/components/Header";
 import NoAuthPage from "@/views/error/NoAuthPage";
@@ -16,7 +16,7 @@ import { cloneDeep } from "lodash";
 import { useSubjectStore } from "@/stores/useSubjectStore";
 
 const { Header, Content } = Layout;
-
+const { ErrorBoundary } = Alert;
 const BasicLayout: React.FC = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -135,9 +135,12 @@ const BasicLayout: React.FC = () => {
         id="main-content"
       >
           {isAdmin ? (
-            <Suspense fallback={<Spin size="large" className="content_spin" />}>
+            <ErrorBoundary>
+              <Suspense fallback={<Spin size="large" className="content_spin" />}>
               <Outlet />
             </Suspense>
+            </ErrorBoundary>
+            
           ) : (
             <NoAuthPage />
           )}

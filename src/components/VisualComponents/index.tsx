@@ -10,6 +10,7 @@ import { registeredZipfLawComponent } from "./ZipfLaw";
 import { registeredDataMetaComponent } from "./DefaultComponent/DataMeta";
 import { registeredLocalMoranIndexComponent } from "./MapChartComponent/LocalMoranIndex";
 
+
 export const useRegisterComponent = () => {
   const { registerComponent } = useRegisteredComponentsStore();
   registerComponent(registeredImageComponent);
@@ -21,4 +22,5 @@ export const useRegisterComponent = () => {
   registerComponent(registeredSliderBarComponent);
   registerComponent(registeredDataMetaComponent);
   registerComponent(registeredLocalMoranIndexComponent);
+
 };

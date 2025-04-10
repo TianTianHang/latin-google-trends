@@ -32,6 +32,43 @@
     "permission.endpoint": "Endpoint Permission",
     "permission.user-role": "User Role Management"
   },
+  "homePage": {
+    "intro": {
+      "title": "System Introduction",
+      "heading": "Google Trends Data Visualization System",
+      "description": "This system provides multi-dimensional analysis and visualization of Google Trends data, helping users discover patterns and trends in search data.",
+      "features": {
+        "geoAnalysis": "Multi-keyword geographic distribution analysis",
+        "trendTracking": "Time trend tracking",
+        "zipfLaw": "Zipf's law verification",
+        "dataExport": "Custom data export"
+      }
+    },
+    "quickAccess": {
+      "title": "Quick Access",
+      "newAnalysis": "New Analysis",
+      "viewHistory": "View History",
+      "viewTasks": "View Tasks"
+    },
+    "updates": {
+      "title": "Updates",
+      "loading": "Loading...",
+      "commit": "Commit",
+      "error": "Failed to load"
+    },
+    "statistics": {
+      "completedTasks": "Completed Tasks",
+      "failedTasks": "Failed Tasks",
+      "enabledScheduledTasks": "Enabled Scheduled Tasks",
+      "totalInterests": "Total Interests",
+      "timeTypeInterests": "Time-based Interests",
+      "regionTypeInterests": "Region-based Interests",
+      "boundInterests": "Bound Interests",
+      "unboundInterests": "Unbound Interests",
+      "loading": "Loading statistics...",
+      "error": "Failed to load statistics"
+    }
+  },
   "editor": {
     "menu": {
       "component": {
@@ -43,7 +80,8 @@
         "heatMap": "HeatMap Component",
         "zipfLaw": "ZipfLaw",
         "dataMeta": "Data Meta",
-        "localMoran": "Local Moran Component"
+        "localMoran": "Local Moran Component",
+        "jsonEditor": "JSON Editor"
       },
       "layoutSwitch": "Layout Switch",
       "fixed": "Fixed",
