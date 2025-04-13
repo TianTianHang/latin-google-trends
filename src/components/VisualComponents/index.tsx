@@ -22,5 +22,4 @@ export const useRegisterComponent = () => {
   registerComponent(registeredSliderBarComponent);
   registerComponent(registeredDataMetaComponent);
   registerComponent(registeredLocalMoranIndexComponent);
-
 };

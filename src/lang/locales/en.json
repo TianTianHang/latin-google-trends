@@ -104,11 +104,14 @@
       "noSaves": "No saves available",
       "selectSave": "Select save",
       "saveName": "Save name",
+      "saveId" : "Save ID",
+      "saveTime": "Save time",
       "enterSaveName": "Enter save name",
       "refresh":"refresh",
       "propertyEdit": "Property Edit",
       "linkEdit": "Link Edit",
-      "saveModalTitle": "Save current state"
+      "saveModalTitle": "Save current state",
+      "delete":"Delete"
     }
   }
 }

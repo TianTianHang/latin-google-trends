@@ -103,11 +103,14 @@
       "noSaves": "暂无存档",  
       "selectSave": "选择存档",
       "saveName": "保存名称",
+      "saveId": "保存ID",
+      "saveTime": "保存时间",
       "enterSaveName": "请输入保存名称",
       "refresh": "刷新",
       "propertyEdit": "属性编辑",
       "linkEdit": "联动编辑",
-      "saveModalTitle": "保存当前状态"
+      "saveModalTitle": "保存当前状态",
+      "delete":"删除"
     }
   }
 }

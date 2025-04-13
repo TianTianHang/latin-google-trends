@@ -39,6 +39,7 @@ interface LineChartProps {
   subjectDatas?: SubjectDataResponse[];
   lineColors?: string[];
   title?: string;
+  step?:number;
 }
 
 // 坐标轴类型切换hook
@@ -390,6 +391,7 @@ const LineChart: React.FC<LineChartProps> = ({
   subjectDatas,
   lineColors,
   title,
+  step=0
 }) => {
   const { t } = useTranslation("visualComponents");
   useDataBinding(`subject-${subjectId}`, componentId, "subjectDatas");
@@ -405,7 +407,7 @@ const LineChart: React.FC<LineChartProps> = ({
   }, [retryCount]);
 
   const { data, index, setIndex, options } = useChartData(subjectDatas);
-  const { fit, setFit, isFitting, progress, fitData } = useFitData(data, index);
+  const { fit, setFit, isFitting, progress, fitData } = useFitData(data, step);
 
   const { axisType, toggleAxisType } = useAxisType();
 
@@ -476,6 +478,7 @@ const LineChart: React.FC<LineChartProps> = ({
             // 仅在配置实际变化时更新
             return JSON.stringify(prevOption) !== JSON.stringify(newOption);
           }}
+          className="background-white h-full"
         />
       )}
     </div>

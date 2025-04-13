@@ -1,8 +1,9 @@
 import { useSetState } from "ahooks";
-import { Form, FormInstance, Input, Select, Switch } from "antd";
+import { Form, FormInstance, Input, Select, Switch, Collapse } from "antd";
 import { useEffect } from "react";
 import { intersection } from "lodash";
-import { useComponentsStore, useRegisteredComponentsStore, useInterlinkedStore } from "./stores";
+import { useComponentsStore, useRegisteredComponentsStore, useInterlinkedStore, } from "./stores";
+import { Interlinked } from "./stores/interlinkedStore";
 
 interface LinkEditorProps {
   componentId: string;
@@ -33,7 +34,9 @@ export const LinkEditor: React.FC<LinkEditorProps> = ({
 }) => {
   const { components} = useComponentsStore();
   const {registered} =useRegisteredComponentsStore();
-  const {addInterlink} =useInterlinkedStore();
+  const {addInterlink, getInterlinkedComponents} =useInterlinkedStore();
+  
+  
   const [state, setState] = useSetState<State>({
     sourceId: componentId,
     targetId: null,
@@ -42,8 +45,45 @@ export const LinkEditor: React.FC<LinkEditorProps> = ({
     isBidirectional: false,
     existingLinks: [],
   });
+  // 初始化表单字段
+  useEffect(() => {
+    if (state.sourceId) {
+      form.setFieldsValue({
+        sourceId: state.sourceId,
+        bidirectional: state.isBidirectional
+      });
+    }
+  }, [form, state.sourceId, state.isBidirectional]);
   // 使用useEffect来更新状态
   useEffect(() => {
+    // 初始化existingLinks
+    if (state.sourceId) {
+      const linkedComponents = getInterlinkedComponents(state.sourceId);
+      const existingLinks = linkedComponents.map((link: Interlinked) => {
+        // 检查是否存在双向链接
+        const isBidirectional = getInterlinkedComponents(link.targetId)
+          .some((reverseLink) => reverseLink.targetId === state.sourceId && 
+            JSON.stringify(reverseLink.props.sort()) === JSON.stringify(link.props.sort()));
+        
+        return {
+          targetId: link.targetId,
+          props: link.props,
+          isBidirectional
+        };
+      });
+      
+      // 如果有链接，设置第一个链接的双向属性作为表单的初始值
+      if (existingLinks.length > 0) {
+        setState({ 
+          existingLinks,
+          isBidirectional: existingLinks[0].isBidirectional
+        });
+        form.setFieldsValue({
+          bidirectional: existingLinks[0].isBidirectional
+        });
+      }
+    }
+    
     // 更新selectedComponent
     const type = components.find((c) => c.id === state.sourceId)?.type;
     if (type) {
@@ -53,7 +93,7 @@ export const LinkEditor: React.FC<LinkEditorProps> = ({
         setState({ sourceProps: Object.keys(propTypes) });
       }
     }
-  }, [components, registered, setState, state.sourceId]);
+  }, [components, registered, setState, state.sourceId, getInterlinkedComponents, form]);
   useEffect(() => {
     // 更新selectedComponent
     const type = components.find((c) => c.id === state.targetId)?.type;
@@ -68,7 +108,7 @@ export const LinkEditor: React.FC<LinkEditorProps> = ({
   const formItems = (
     <>
       <Form.Item key={"sourceId"} name={"sourceId"} label={"Source Id"}>
-        <Input defaultValue={state.sourceId ?? ""} disabled />
+        <Input disabled />
       </Form.Item>
       <Form.Item key={"targetId"} name={"targetId"} label={"Target Id"}>
         <Select
@@ -84,14 +124,18 @@ export const LinkEditor: React.FC<LinkEditorProps> = ({
         />
       </Form.Item>
       <Form.Item key={"existingLinks"} label={"Existing Links"}>
-        <ul>
-          {state.existingLinks.map((link, index) => (
-            <li key={index}>
-              {link.targetId} - {link.props.join(', ')}
-              {link.isBidirectional && ' (Bidirectional)'}
-            </li>
-          ))}
-        </ul>
+        <Collapse
+          items={state.existingLinks.map((link, index) => ({
+            key: index,
+            label: `Target: ${link.targetId}`,
+            children: (
+              <>
+                <div>Properties: {link.props.join(', ')}</div>
+                {link.isBidirectional && <div>Type: Bidirectional</div>}
+              </>
+            )
+          }))}
+        />
       </Form.Item>
       <Form.Item key={"bidirectional"} name={"bidirectional"} label={"Bidirectional"} valuePropName="checked">
         <Switch
@@ -116,6 +160,9 @@ export const LinkEditor: React.FC<LinkEditorProps> = ({
   );
   return <Form 
   form={form}
+  initialValues={{
+    sourceId: state.sourceId ?? ""
+  }}
   onFinish={({targetId, props, bidirectional})=>{
     if(state.sourceId){
       addInterlink(state.sourceId, targetId, props);
