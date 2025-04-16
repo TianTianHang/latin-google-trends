@@ -107,6 +107,14 @@ export const PropertyEditor: React.FC<PropertyEditorProps> = ({
             step={config.step}
           />
         );
+      case "slider":
+        return (
+          <Slider
+            min={config.min}
+            max={config.max}
+            step={config.step || 1}
+          />
+        );
       case "color":
         return <ColorPicker />;
       case "select":

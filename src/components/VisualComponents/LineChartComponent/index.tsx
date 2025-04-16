@@ -14,7 +14,7 @@ import type {
 import { useFullscreen } from "ahooks";
 import { TimeInterest } from "@/types/interest";
 import { LineChartOutlined } from "@ant-design/icons";
-import { Switch, Progress, Button, Space, Select, Tag } from "antd";
+import { Switch, Progress, Button, Space, Select, Tag, Checkbox, Dropdown } from "antd";
 import dayjs from "dayjs";
 import { fillMissingValuesAndTrim } from "@/utils/interest";
 import { fitModel, getFitProgress } from "@/api/cfc";
@@ -24,6 +24,7 @@ import { useSubjectStore } from "@/stores/useSubjectStore";
 import { useDataBinding } from "@/components/Editor/hooks/useDataBinding";
 import { SubjectDataResponse } from "@/types/subject";
 import { useTranslation } from "react-i18next";
+
 
 type AxisType = "value" | "log";
 
@@ -39,7 +40,7 @@ interface LineChartProps {
   subjectDatas?: SubjectDataResponse[];
   lineColors?: string[];
   title?: string;
-  step?:number;
+  step?: number;
 }
 
 // 坐标轴类型切换hook
@@ -59,7 +60,7 @@ const useChartData = (subjectDatas?: SubjectDataResponse[]) => {
   const [index, setIndex] = useState(0);
   const data = useMemo(() => {
     if (!filterSubjectDatas || filterSubjectDatas.length === 0) return null;
-    if(filterSubjectDatas[index].data.length==0) return null;
+    if (filterSubjectDatas[index].data.length == 0) return null;
     return filterSubjectDatas[index];
   }, [index, filterSubjectDatas]);
   const options = useMemo(
@@ -75,14 +76,11 @@ const useChartData = (subjectDatas?: SubjectDataResponse[]) => {
 
 // 将拟合逻辑提取到自定义hook中
 const useFitData = (data: SubjectDataResponse | null, index: number) => {
-  const [fit, setFit] = useState(false);
+  const [fitMap, setFitMap] = useState<Record<string, boolean>>({});
   const [isFitting, setIsFitting] = useState(false);
   const [progress, setProgress] = useState(0);
   const [fitData, setFitData] = useState<ChartData[]>([]);
 
-  // 使用 ref 存储最新数据，避免闭包问题
-  const fitRef = useRef(fit);
-  fitRef.current = fit;
   const dataRef = useRef(data);
   dataRef.current = data;
 
@@ -99,6 +97,18 @@ const useFitData = (data: SubjectDataResponse | null, index: number) => {
         }
 
         const values = timeInterestData.map((item) => item[kw]);
+        
+        // 检查数据中相同值的数量，如果超过阈值则拒绝拟合
+        const valueCounts = values.reduce((acc, val) => {
+          acc[val] = (acc[val] || 0) + 1;
+          return acc;
+        }, {} as Record<number, number>);
+        
+        const maxCount = Math.max(...Object.values(valueCounts));
+        if (maxCount > values.length * 0.5) {
+          throw new Error("数据中存在过多相同值，不适合拟合");
+        }
+
         const fillValues = fillMissingValuesAndTrim(values, "linear");
 
         if (!fillValues) {
@@ -147,14 +157,24 @@ const useFitData = (data: SubjectDataResponse | null, index: number) => {
     [data, index]
   );
 
+  const toggleFit = useCallback((kw: string) => {
+    setFitMap(prev => {
+      const newFitMap = {...prev, [kw]: !prev[kw]};
+      return newFitMap;
+    });
+  }, []);
+
   useEffect(() => {
-    if (!dataRef.current || !fitRef.current) return;
+    if (!dataRef.current) return;
 
     const fetchFitData = async () => {
       const metaItem = dataRef.current!.meta[index];
       const newFitData: ChartData[] = [];
 
-      const promises = metaItem.keywords.map((kw) => generateFitData(kw, 0));
+      const promises = metaItem.keywords
+        .filter(kw => fitMap[kw])
+        .map(kw => generateFitData(kw, 0));
+      
       const results = await Promise.all(promises);
       newFitData.push(...results.flat());
 
@@ -162,10 +182,9 @@ const useFitData = (data: SubjectDataResponse | null, index: number) => {
     };
 
     fetchFitData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [index, generateFitData, fitRef.current]);
+  }, [index, generateFitData, fitMap]);
 
-  return { fit, setFit, isFitting, progress, fitData };
+  return { fitMap, setFitMap, toggleFit, isFitting, progress, fitData };
 };
 const getRandomColor = () => {
   // 生成随机颜色的方法，返回如 '#RRGGBB' 格式的字符串
@@ -196,7 +215,7 @@ const allocateColor = (
 // 将图表配置生成逻辑提取到单独的函数中
 interface ChartOptionsParams {
   data: SubjectDataResponse | null;
-  index: number;
+  step: number;
   title?: string;
   fitData?: ChartData[];
   lineColors?: string[];
@@ -206,7 +225,7 @@ interface ChartOptionsParams {
 
 const generateChartOptions = ({
   data,
-  index,
+  step,
   title,
   fitData = [],
   lineColors,
@@ -216,7 +235,7 @@ const generateChartOptions = ({
   if (data) {
     const series: SeriesOption[] = [];
     const allocatedColors: string[] = []; // 已分配颜色的数组
-    const metaItem = data.meta[index];
+    const metaItem = data.meta[step];
     const legend: LegendComponentOption = {
       orient: "vertical",
       right: "0%",
@@ -224,8 +243,8 @@ const generateChartOptions = ({
       data: [],
     };
     metaItem.keywords.forEach((keyword) => {
-      if (Array.isArray(data.data) && Array.isArray(data.data[index])) {
-        const timeInterestData = data.data[index] as TimeInterest[];
+      if (Array.isArray(data.data) && Array.isArray(data.data[step])) {
+        const timeInterestData = data.data[step] as TimeInterest[];
 
         const seriesData = timeInterestData.map((item) => ({
           name: item.time_utc,
@@ -290,7 +309,12 @@ const generateChartOptions = ({
         trigger: "axis",
         axisPointer: {
           type: "line",
-        },
+          // label: {
+          //   formatter(params:any) {
+          //     return dayjs(params.value[0]).format("YYYY-MM-DD");
+          //   },
+          // },
+        }
       },
       xAxis: {
         type: "time",
@@ -301,10 +325,10 @@ const generateChartOptions = ({
           show: true,
         },
         axisLabel: {
-          formatter: (value: number,index:number) => {
-            if (index%2==0){
+          formatter: (value: number, index: number) => {
+            if (index % 2 == 0) {
               return dayjs(value).format("YYYY-MM-DD")
-            }else{
+            } else {
               return "";
             }
           },
@@ -314,12 +338,12 @@ const generateChartOptions = ({
         type: axisType,
         min: 0.1,
         max: 100,
-        axisLabel: {
+        axisLabel: axisType === "log" ? {
           customValues: [
             0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1, 2, 3, 4, 5, 6, 7, 8, 9,
             10, 20, 30, 40, 50, 60, 70, 80, 90, 100,
           ],
-        },
+        } : {},
         name: "Value",
         nameLocation: "middle",
         nameGap: 30,
@@ -391,7 +415,7 @@ const LineChart: React.FC<LineChartProps> = ({
   subjectDatas,
   lineColors,
   title,
-  step=0
+  step = 0
 }) => {
   const { t } = useTranslation("visualComponents");
   useDataBinding(`subject-${subjectId}`, componentId, "subjectDatas");
@@ -407,14 +431,14 @@ const LineChart: React.FC<LineChartProps> = ({
   }, [retryCount]);
 
   const { data, index, setIndex, options } = useChartData(subjectDatas);
-  const { fit, setFit, isFitting, progress, fitData } = useFitData(data, step);
+  const { fitMap, setFitMap, isFitting, progress, fitData } = useFitData(data, step);
 
   const { axisType, toggleAxisType } = useAxisType();
 
   const option = useMemo(() => {
     const options = generateChartOptions({
       data,
-      index,
+      step,
       title,
       fitData,
       lineColors,
@@ -436,14 +460,30 @@ const LineChart: React.FC<LineChartProps> = ({
             value={index}
             onChange={(value) => setIndex(value)}
           />
-          <Switch
-            checked={fit}
-            onChange={setFit}
-            checkedChildren="Fit"
-            unCheckedChildren="Fit"
-            style={{ marginLeft: 8 }}
-            disabled={fit}
-          />
+          <Dropdown
+            menu={{
+              items: data?.meta[index].keywords.map(kw => ({
+                key: kw,
+                label: (
+                  <Checkbox
+                    checked={fitMap[kw]}
+                    onChange={() => {
+                      const newFitMap = {...fitMap, [kw]: !fitMap[kw]};
+                      setFitMap(newFitMap);
+                    }}
+                  >
+                    {kw}
+                  </Checkbox>
+                )
+              })),
+              selectable: true,
+              multiple: true
+            }}
+            trigger={['click']}
+          >
+            <Button>选择关键词</Button>
+          </Dropdown>
+          
           <Switch
             checked={axisType === "log"}
             onChange={toggleAxisType}
@@ -511,6 +551,14 @@ export const RegisteredLineChart: RegisteredComponent<LineChartProps> = {
             value: s.subject_id,
           }));
         },
+      },
+      step: {
+        type: "slider",
+        label: "Step",
+        placeholder: "Enter Step",
+        min: 0,
+        max: 100,
+        step: 1,
       },
       lineColors: {
         type: "select",

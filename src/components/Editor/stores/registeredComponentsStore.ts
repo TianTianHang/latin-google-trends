@@ -3,20 +3,20 @@ import { PropsType } from "./componentsStore";
 import { ComponentType, JSXElementConstructor, ReactElement } from "react";
 
 export type CustomTagProps = {
-    label: React.ReactNode;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    value: any;
-    disabled: boolean;
-    onClose: (event?: React.MouseEvent<HTMLElement, MouseEvent>) => void;
-    closable: boolean;
-    isMaxTag: boolean;
+  label: React.ReactNode;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  value: any;
+  disabled: boolean;
+  onClose: (event?: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+  closable: boolean;
+  isMaxTag: boolean;
 };
 export interface Schema {
-  type: "text" | "number" | "color" | "select" | "boolean" | "date" | "range" | "json" | "code";
+  type: "text" | "number" | "slider" | "color" | "select" | "boolean" | "date" | "range" | "json" | "code";
   label?: string;
   placeholder?: string;
-  mode?:"multiple" | "tags" | undefined;
-  options?: Array<{ label: string; value: string | number | null }>|(()=> Array<{ label: string; value: string | number | null }>)|(()=>Promise<Array<{ label: string; value: string | number | null }>>)
+  mode?: "multiple" | "tags" | undefined;
+  options?: Array<{ label: string; value: string | number | null }> | (() => Array<{ label: string; value: string | number | null }>) | (() => Promise<Array<{ label: string; value: string | number | null }>>)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tagRender?: ((props: CustomTagProps) => ReactElement<any, string | JSXElementConstructor<any>>);
   min?: number; // for range/number
@@ -51,7 +51,7 @@ export const useRegisteredComponentsStore = create<RegisteredComponentsState>((s
   registered: new Map<string, RegisteredComponent<PropsType>>(),
   registerComponent: (component) => {
     set((state) => {
-      state.registered.set(component.meta.type, component as  RegisteredComponent<PropsType>);
+      state.registered.set(component.meta.type, component as RegisteredComponent<PropsType>);
       return state;
     });
   },

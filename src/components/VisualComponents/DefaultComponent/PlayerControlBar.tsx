@@ -19,6 +19,7 @@ interface PlayerControlBarProp {
   index: number;
   step: number;
   compact?: boolean;
+  data_type?: "region"|"time";
 }
 
 export const PlayerControlBar: React.FC<PlayerControlBarProp> = ({
@@ -28,11 +29,12 @@ export const PlayerControlBar: React.FC<PlayerControlBarProp> = ({
   step=0,
   subjectDatas,
   compact = false,
+  data_type="region"
 }) => {
   useDataBinding(`subject-${subjectId}`, componentId, "subjectDatas");
   const {updateProps}=useComponentsStore()
   const filterSubjectDatas = useMemo(() => {
-    return subjectDatas?.filter((sd) => sd.data_type == "region");
+    return subjectDatas?.filter((sd) => sd.data_type == data_type);
   }, [subjectDatas]);
 
   const data = useMemo(() => {
@@ -155,7 +157,22 @@ export const registeredSliderBarComponent: RegisteredComponent<PlayerControlBarP
           type: "boolean",
           label: "Compact Mode",
           placeholder: "Enable compact mode"
-        }
+        },
+        data_type: {
+          type: "select",
+          label: "Data Type",
+          placeholder: "Enter Data Type",
+          options: [
+            {
+              label: "Region",
+              value: "region",
+            },
+            {
+              label: "Time",
+              value: "time",
+            },
+          ],
+        },
       },
     },
     component: PlayerControlBar,
