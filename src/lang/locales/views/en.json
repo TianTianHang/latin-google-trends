@@ -79,6 +79,32 @@
     },
     "text":{
       "none":"None"
+    },
+    "detail": {
+      "pronunciation": "Pronunciation",
+      "playPronunciation": "Play Pronunciation",
+      "speechNotSupported": "Your browser does not support speech synthesis",
+      "primaryDefinition": "Primary Definition",
+      "definitionWithId": "Definition {{id}}",
+      "selectKeyword": "Please select a keyword",
+      "fetchKeywordsFailed": "Failed to fetch keywords list",
+      "fetchKeywordDetailFailed": "Failed to fetch keyword detail",
+      "selectKeywordToViewDetail": "Please select a keyword to view details",
+      "aiExplanation": "AI Explanation",
+      "generatingExplanation": "Generating explanation...",
+      "showAIExplanationAfterSelect": "AI explanation will be shown after selecting a keyword",
+      "generateExplanationFailed": "Failed to generate explanation",
+      "cannotGetExplanation": "Unable to get explanation",
+      "feedback": "Is this explanation helpful to you?",
+      "useful": "Useful",
+      "useless": "Not useful",
+      "thankUseful": "Thank you for your feedback!",
+      "thankUseless": "We will improve!",
+      "examplesAndReferences": "Examples and References",
+      "example": "Example",
+      "reference": "Reference",
+      "relatedKeywords":"Related Keywords",
+      "noRelatedKeywords":"No related keywords"
     }
   },
   "dataSource": {
@@ -153,7 +179,9 @@
       "action": "Action",
       "startDate": "Start Date",
       "duration": "Duration",
-      "enabled": "Enabled"
+      "enabled": "Enabled",
+      "geo_code": "Geo Code",
+      "timeRange": "Time Range"
     },
     "form": {
       "jobType": "Job Type",
@@ -166,7 +194,8 @@
       "duration": "Duration",
       "placeholder": {
         "country": "Select a country",
-        "serviceInstance": "Select a service instance"
+        "serviceInstance": "Select a service instance",
+         "interval":"for example: 1h, 2h, 3h"
       }
     },
     "button": {
@@ -174,24 +203,33 @@
       "retry": "Retry",
       "createHistoricalTask": "Create Historical Task",
       "createScheduledTask": "Create Scheduled Task",
-      "refresh": "Refresh"
+      "refresh": "Refresh",
+      "viewHistoricalTasks": "View Historical Tasks"
     },
     "jobType": {
       "time": "Time",
       "region": "Region"
     },
     "interval": {
+      "none":"no split timeframe",
       "yearly": "Yearly",
       "monthly": "Monthly"
     },
     "search":{
       "placeholder":"Please input search text"
+    },
+    "modal":{
+      "historicalTimeline":"Historical Tasks Timeline"
+    },
+    "timeline":{
+      "noData":"No historical tasks"
     }
   },
   "profile": {
     "title": {
       "userInfo": "User Information",
-      "changePassword": "Change Password"
+      "changePassword": "Change Password",
+      "registerPrompt":"Please register first"
     },
     "form": {
       "oldPassword": "Old Password",
@@ -211,12 +249,14 @@
       }
     },
     "button": {
-      "changePassword": "Change Password"
+      "changePassword": "Change Password",
+      "registerNow":"Register Now"
     },
     "message": {
       "changeSuccess": "Password changed successfully",
       "changeFailed": "Failed to change password",
-      "passwordMismatch": "The two new passwords do not match"
+      "passwordMismatch": "The two new passwords do not match",
+      "registerPrompt":"Please register first"
     },
     "userInfo": {
       "username": "Username: "
@@ -240,14 +280,16 @@
     },
     "button": {
       "login": "Login",
-      "register": "Register"
+      "register": "Register",
+      "guest": "Guest Login"
     },
     "message": {
-      "registerSuccess": "Registration successful, please login"
+      "registerSuccess": "Registration successful, please login",
+      "guestLoginFailed":"Guest login failed"
     }
   },
   "permission": {
-    "title": "Permission Management",
+    "title": "EndPoint Permission Management",
     "button": {
       "add": "Add Permission",
       "edit": "Edit",

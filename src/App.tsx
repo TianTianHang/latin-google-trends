@@ -3,12 +3,14 @@ import { ConfigProvider, Spin } from "antd";
 import { Suspense } from "react";
 import zhCN from "antd/locale/zh_CN";
 import enUS from "antd/locale/en_US";
-import { BrowserRouter } from "react-router";
+import { BrowserRouter, useNavigate } from "react-router";
 import { AppRouter } from "./router";
 import RouterBeforeEach from "./router/permission";
 
 import { useGlobalStore } from "./stores/global";
 import { useRegisterComponent } from "./components/VisualComponents";
+import { useUserStore } from "./stores/user";
+import { useInterval } from "ahooks";
 
 
 const antdLocales = {
@@ -18,6 +20,7 @@ const antdLocales = {
 
 function App() {
   const { language } = useGlobalStore();
+  
   useRegisterComponent();
   
   return (

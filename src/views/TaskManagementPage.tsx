@@ -28,6 +28,8 @@ import dayjs from "dayjs";
 import { ServiceInstance } from "@/types/service";
 import { getServices } from "@/api/services";
 import { countries } from "@/views/countries";
+import PermissionComp from "@/components/PermissionComp";
+import { Timeline, Modal } from "antd";
 const { Option } = Select;
 
 const TaskManagement: React.FC = () => {
@@ -37,6 +39,7 @@ const TaskManagement: React.FC = () => {
     scheduledTasks,
     fetchHistoricalTasks,
     fetchScheduledTasks,
+    getHistoricalTasksByScheduleId
   } = useTaskStore();
   const [serviceInstances, setServiceInstances] = useState<ServiceInstance[]>(
     []
@@ -108,6 +111,20 @@ const TaskManagement: React.FC = () => {
       render: (keywords: string[]) => keywords.join(", "),
     },
     {
+      title: t("taskManagement.table.geo_code"),
+      dataIndex: "geo_code",
+      key: "geo_code",
+      render: (geoCode: string) =>
+        countries.find((country) => country.code === geoCode)?.name || geoCode,
+    },
+    {
+      title: t("taskManagement.table.timeRange"),
+      dataIndex: ["start_date", "end_date"],
+      key: "timeRange",
+      render: (text: string, record: HistoricalTaskResponse) =>
+        `${dayjs(record.start_date).format("YYYY-MM-DD")} ~ ${dayjs(record.end_date).format("YYYY-MM-DD")}`,
+    },
+    {
       title: t("taskManagement.table.status"),
       dataIndex: "status",
       key: "status",
@@ -147,6 +164,22 @@ const TaskManagement: React.FC = () => {
     return column;
   });
 
+  const [timelineVisible, setTimelineVisible] = useState(false);
+  const [timelineTasks, setTimelineTasks] = useState<HistoricalTaskResponse[]>([]);
+  const [timelineLoading, setTimelineLoading] = useState(false);
+
+  // 查看历史任务
+  const handleShowHistoricalTimeline = async (scheduleId: number) => {
+    setTimelineLoading(true);
+    try {
+      const tasks = await getHistoricalTasksByScheduleId(scheduleId);
+      setTimelineTasks(tasks);
+      setTimelineVisible(true);
+    } finally {
+      setTimelineLoading(false);
+    }
+  };
+
   const columnsScheduled = [
     {
       title: t("taskManagement.table.id"),
@@ -183,6 +216,17 @@ const TaskManagement: React.FC = () => {
           checked={record.enabled}
           onChange={(checked) => handleToggleScheduledTask(record.id, checked)}
         />
+      ),
+    },
+    {
+      title: t("taskManagement.table.action"),
+      key: "action",
+      render: (text: string, record: ScheduledTaskResponse) => (
+        <Space size="middle">
+          <Button onClick={() => handleShowHistoricalTimeline(record.id)}>
+            {t("taskManagement.button.viewHistoricalTasks")}
+          </Button>
+        </Space>
       ),
     },
   ].map((column) => {
@@ -222,6 +266,8 @@ const TaskManagement: React.FC = () => {
 
   return (
     <div>
+      
+      <PermissionComp  requireRoles={["admin"]}>
       <h2>{t("taskManagement.title.serviceSelection")}</h2>
       <Select
         value={selectedServiceId}
@@ -235,6 +281,8 @@ const TaskManagement: React.FC = () => {
           </Option>
         ))}
       </Select>
+      </PermissionComp>
+      
 
       <h2>{t("taskManagement.title.historicalTasks")}</h2>
 
@@ -267,7 +315,8 @@ const TaskManagement: React.FC = () => {
           <DatePicker format="YYYY-MM-DD" />
         </Form.Item>
         <Form.Item name="interval" label={t("taskManagement.form.interval")}>
-          <Select defaultValue="MS">
+          <Select defaultValue="">
+            <Option value="">{t("taskManagement.interval.none")}</Option>
             <Option value="YS">{t("taskManagement.interval.yearly")}</Option>
             <Option value="MS">{t("taskManagement.interval.monthly")}</Option>
           </Select>
@@ -278,6 +327,7 @@ const TaskManagement: React.FC = () => {
           </Button>
         </Form.Item>
       </Form>
+
       <Space>
         <Button
           onClick={() => fetchHistoricalTasks(selectedServiceId)}
@@ -323,12 +373,6 @@ const TaskManagement: React.FC = () => {
             ))}
           </Select>
         </Form.Item>
-        <Form.Item
-          name="cron_expression"
-          label={t("taskManagement.form.cronExpression")}
-        >
-          <Input />
-        </Form.Item>
         <Form.Item name="start_date" label={t("taskManagement.form.startDate")}>
           <DatePicker format="YYYY-MM-DD" />
         </Form.Item>
@@ -336,10 +380,17 @@ const TaskManagement: React.FC = () => {
           <Input />
         </Form.Item>
         <Form.Item name="interval" label={t("taskManagement.form.interval")}>
-          <Select defaultValue="MS">
-            <Option value="YS">{t("taskManagement.interval.yearly")}</Option>
-            <Option value="MS">{t("taskManagement.interval.monthly")}</Option>
-          </Select>
+          <Input 
+            placeholder={t("taskManagement.form.placeholder.interval")} 
+            // 使用正则表达式验证输入格式
+            onInput={(e) => {
+              const input = (e.target as HTMLInputElement).value;
+              if (!/^\d+[hdm]$/.test(input)) {
+                // 如果输入不符合格式，清空输入
+                (e.target as HTMLInputElement).value = input.replace(/[^0-9hdm]/g, '');
+              }
+            }}
+          />
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit">
@@ -367,6 +418,31 @@ const TaskManagement: React.FC = () => {
         columns={columnsScheduled}
         rowKey="id"
       />
+      <Modal
+        title={t("taskManagement.modal.historicalTimeline") || "历史任务时间线"}
+        visible={timelineVisible}
+        onCancel={() => setTimelineVisible(false)}
+        footer={null}
+        width={600}
+      >
+        <Timeline pending={timelineLoading}>
+          {timelineTasks.length === 0 && !timelineLoading && (
+            <Timeline.Item>{t("taskManagement.timeline.noData") || "暂无历史任务"}</Timeline.Item>
+          )}
+          {timelineTasks.map(task => (
+            <Timeline.Item key={task.id} color={task.status === "failed" ? "red" : "green"}>
+              <div>
+                <strong>{t("taskManagement.table.id")}: </strong>{task.id}<br />
+                <strong>{t("taskManagement.table.status")}: </strong>{task.status}<br />
+                <strong>{t("taskManagement.table.timeRange")}: </strong>
+                {dayjs(task.start_date).format("YYYY-MM-DD")} ~ {dayjs(task.end_date).format("YYYY-MM-DD")}<br />
+                <strong>{t("taskManagement.table.createdAt")}: </strong>
+                {dayjs(task.created_at).format("YYYY-MM-DD HH:mm:ss")}
+              </div>
+            </Timeline.Item>
+          ))}
+        </Timeline>
+      </Modal>
     </div>
   );
 };

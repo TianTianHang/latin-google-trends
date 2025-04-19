@@ -11,7 +11,7 @@ import { usePermissionStore } from "@/stores/permission";
 import { useTranslation } from "react-i18next";
 import { saveService } from "@/components/Editor/services/saveService";
 import { SaveList } from "@/types/layouts";
-import { useRequest } from "ahooks";
+import { useInterval, useRequest } from "ahooks";
 import { cloneDeep } from "lodash";
 import { useSubjectStore } from "@/stores/useSubjectStore";
 
@@ -20,13 +20,24 @@ const { ErrorBoundary } = Alert;
 const BasicLayout: React.FC = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { token } = useUserStore();
+  const { token,roles } = useUserStore();
   const { routes:rawRoutes } = usePermissionStore();
   const [routes, setRoutes]=useState(rawRoutes);
   const { fetchAllSubjects } = useSubjectStore();
+  const { getInfo } = useUserStore();
 
+  // 使用ahooks的useInterval定时检查用户信息
+  useInterval(async () => {
+    try {
+      await getInfo();
+    } catch (error) {
+      // token过期，跳转到登录页
+      navigate('/');
+    }
+  }, 5 * 60 * 1000);
   useRequest(
     async () => {
+      if(roles.includes("guest")) return;
       fetchAllSubjects();
     },
     { refreshDeps: [fetchAllSubjects] ,cacheKey:"allSubjects"}
@@ -43,7 +54,7 @@ const BasicLayout: React.FC = () => {
         meta: {
           requiresAuth: false,
           breadcrumb: true,
-          allowedRoles: ["user", "admin"],
+          allowedRoles: ["user", "admin","guest"],
           title: saveList[key].id,
         },
       }));

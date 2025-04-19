@@ -40,7 +40,7 @@ export const asyncRoutes: RouteType[] = [
     meta: {
       requiresAuth: true,
       breadcrumb: true,
-      allowedRoles: ["admin"],
+      allowedRoles: ["admin","user","guest"],
       title: "keywords",
     },
     children:[
@@ -50,7 +50,7 @@ export const asyncRoutes: RouteType[] = [
         meta: {
           requiresAuth: true,
           breadcrumb: true,
-          allowedRoles: ["admin"],
+          allowedRoles: ["admin","user"],
           title: "keywords.list",
         }
       },
@@ -60,7 +60,7 @@ export const asyncRoutes: RouteType[] = [
         meta: {
           requiresAuth: true,
           breadcrumb: true,
-          allowedRoles: ["admin","user"],
+          allowedRoles: ["admin","user","guest"],
           title: "keywords.details",
         }
       },
@@ -82,7 +82,7 @@ export const asyncRoutes: RouteType[] = [
     meta: {
       requiresAuth: true,
       breadcrumb: true,
-      allowedRoles: ["user", "admin"],
+      allowedRoles: ["user", "admin","guest"],
       title: "dashboard",
     }
   },

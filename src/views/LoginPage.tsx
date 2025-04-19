@@ -1,6 +1,6 @@
 import { Button, Form, Input, message, Tabs, TabsProps } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useUserStore } from "@/stores/user";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -17,8 +17,9 @@ interface RegisterForm extends LoginForm {
 export default function LoginPage() {
   const { t } = useTranslation("views");
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { login, register } = useUserStore();
-  const [activeTab, setActiveTab] = useState("login");
+  const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "login");
 
   const onFinishLogin = async (values: LoginForm) => {
     try {
@@ -36,6 +37,14 @@ export default function LoginPage() {
       setActiveTab("login");
     } catch (error) {
       console.error("Register failed:", error);
+    }
+  };
+  const onGuestLogin = async () => {
+    try {
+      await login({ username: "guest", password: "" });
+      navigate("/home");
+    } catch (error) {
+      message.error(t("login.message.guestLoginFailed") || "Guest login failed");
     }
   };
   const items: TabsProps["items"] = [
@@ -65,6 +74,11 @@ export default function LoginPage() {
           <Form.Item>
             <Button type="primary" htmlType="submit" block>
               {t("login.button.login")}
+            </Button>
+          </Form.Item>
+          <Form.Item>
+            <Button type="default" block onClick={onGuestLogin}>
+              {t("login.button.guest") || "游客登录"}
             </Button>
           </Form.Item>
         </Form>

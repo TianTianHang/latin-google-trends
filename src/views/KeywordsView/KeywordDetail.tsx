@@ -2,12 +2,14 @@ import { KeywordData, DefinitionResponse } from '@/types/keywords';
 import { useState } from 'react';
 import { Card, Button, Tabs, message } from 'antd';
 import { SoundOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next'; // 新增
 
 interface KeywordDetailProps {
   keyword: KeywordData;
 }
 
 export default function KeywordDetail({ keyword }: KeywordDetailProps) {
+  const { t } = useTranslation("views"); // 新增
   const [activeDefinition, setActiveDefinition] = useState<DefinitionResponse | null>(
     keyword.definitions.find(def => def.is_primary) || keyword.definitions[0]
   );
@@ -18,7 +20,7 @@ export default function KeywordDetail({ keyword }: KeywordDetailProps) {
       utterance.lang = 'la'; // 拉丁语
       speechSynthesis.speak(utterance);
     } else {
-      message.warning('您的浏览器不支持语音合成功能');
+      message.warning(t("keywords.detail.speechNotSupported")); // 国际化
     }
   };
 
@@ -26,11 +28,12 @@ export default function KeywordDetail({ keyword }: KeywordDetailProps) {
     <div className="keyword-detail">
       <Card title={keyword.word} className="keyword-card">
         <div className="pronunciation-section">
-          <span>发音: {keyword.pronunciation}</span>
+          <span>{t("keywords.detail.pronunciation")}: {keyword.pronunciation}</span>
           <Button 
             type="text" 
             icon={<SoundOutlined />} 
             onClick={handlePlayPronunciation}
+            title={t("keywords.detail.playPronunciation")} // 国际化
           />
         </div>
       </Card>
@@ -44,7 +47,7 @@ export default function KeywordDetail({ keyword }: KeywordDetailProps) {
           }}
           items={keyword.definitions.map(def => ({
             key: def.id.toString(),
-            label: def.is_primary ? '主定义' : `定义 ${def.id}`,
+            label: def.is_primary ? t("keywords.detail.primaryDefinition") : t("keywords.detail.definitionWithId", { id: def.id }),
             children: <p>{def.definition}</p>,
           }))}
         />

@@ -25,6 +25,10 @@ export type HistoricalTaskRequest = {
     keywords: string[];
     status: string;
     created_at: string;
+    schedule_id:number;
+    geo_code: string;
+    start_date: Dayjs
+    end_date: Dayjs;
   };
   
   export type ScheduledTaskResponse = {

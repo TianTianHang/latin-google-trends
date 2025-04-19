@@ -79,6 +79,32 @@
     },
     "text":{
       "none":"无"
+    },
+    "detail":{
+      "pronunciation": "发音",
+      "playPronunciation": "播放发音",
+      "speechNotSupported": "您的浏览器不支持语音合成功能",
+      "primaryDefinition": "主定义",
+      "definitionWithId": "定义 {{id}}",
+      "selectKeyword": "请选择关键词",
+      "fetchKeywordsFailed": "获取关键词列表失败",
+      "fetchKeywordDetailFailed": "获取关键词详情失败",
+      "selectKeywordToViewDetail": "请选择关键词查看详情",
+      "aiExplanation": "AI解释",
+      "generatingExplanation": "正在生成解释...",
+      "showAIExplanationAfterSelect": "选择关键词后显示AI解释",
+      "generateExplanationFailed": "生成解释失败",
+      "cannotGetExplanation": "无法获取解释",
+      "feedback": "本解释对你有帮助吗？",
+      "useful": "有用",
+      "useless": "无用",
+      "thankUseful": "感谢反馈！",
+      "thankUseless": "我们会改进！",
+      "examplesAndReferences": "用例与文献引用",
+      "example": "示例",
+      "reference": "文献",
+      "relatedKeywords":"相关关键词",
+      "noRelatedKeywords":"无相关关键词"
     }
   },
   "dataSource": {
@@ -153,7 +179,9 @@
       "action": "操作",
       "startDate": "开始日期",
       "duration": "持续时间",
-      "enabled": "启用状态"
+      "enabled": "启用状态",
+      "geo_code": "地理编码",
+      "timeRange": "时间范围"
     },
     "form": {
       "jobType": "任务类型",
@@ -162,11 +190,11 @@
       "startDate": "开始日期",
       "endDate": "结束日期",
       "interval": "间隔",
-      "cronExpression": "Cron表达式",
       "duration": "持续时间",
       "placeholder": {
         "country": "选择国家",
-        "serviceInstance": "选择服务实例"
+        "serviceInstance": "选择服务实例",
+        "interval":"例如: 1h, 2d, 3m"
       }
     },
     "button": {
@@ -174,24 +202,33 @@
       "retry": "重试",
       "createHistoricalTask": "创建历史任务",
       "createScheduledTask": "创建定时任务",
-      "refresh": "刷新"
+      "refresh": "刷新",
+      "viewHistoricalTasks":"查看历史任务"
     },
     "jobType": {
       "time": "时间",
       "region": "地区"
     },
     "interval": {
+      "none":"不分割时间段",
       "yearly": "每年",
       "monthly": "每月"
     },
     "search":{
       "placeholder":"请输入搜索关键词"
+    },
+    "modal":{
+      "historicalTimeline":"历史时间线"
+    },
+    "timeline":{
+      "noData":"暂无历史任务"
     }
   },
   "profile": {
     "title": {
       "userInfo": "用户信息",
-      "changePassword": "修改密码"
+      "changePassword": "修改密码",
+      "registerPrompt":"注册提示"
     },
     "form": {
       "oldPassword": "旧密码",
@@ -211,12 +248,14 @@
       }
     },
     "button": {
-      "changePassword": "修改密码"
+      "changePassword": "修改密码",
+      "registerNow":"现在注册"
     },
     "message": {
       "changeSuccess": "密码修改成功",
       "changeFailed": "密码修改失败",
-      "passwordMismatch": "两次输入的新密码不一致"
+      "passwordMismatch": "两次输入的新密码不一致",
+      "registerPrompt":"注册提示"
     },
     "userInfo": {
       "username": "用户名: "
@@ -240,14 +279,16 @@
     },
     "button": {
       "login": "登录",
-      "register": "注册"
+      "register": "注册",
+      "guest":"游客登录"
     },
     "message": {
-      "registerSuccess": "注册成功，请登录"
+      "registerSuccess": "注册成功，请登录",
+      "guestLoginFailed": "游客登录失败"
     }
   },
   "permission": {
-    "title": "权限管理",
+    "title": "接口权限管理",
     "button": {
       "add": "新增权限",
       "edit": "编辑",
