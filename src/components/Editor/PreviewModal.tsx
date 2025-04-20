@@ -8,20 +8,14 @@ interface PreviewModalProps {
   visible: boolean;
   dataSource?: DataSource;
   onCancel: () => void;
-  /**
-   * 自定义数据展示逻辑
-   * @param data 原始数据
-   * @returns 处理后的数据
-   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  renderData?: (data: any[]) => any[];
+
 }
 
 const PreviewModal: React.FC<PreviewModalProps> = ({
   visible,
   dataSource,
   onCancel,
-  renderData,
+ 
 }) => {
   const [filterValue, setFilterValue] = React.useState("");
 
@@ -41,8 +35,8 @@ const PreviewModal: React.FC<PreviewModalProps> = ({
 
   const processedData = React.useMemo(() => {
     if (!data) return [];
-    return renderData ? renderData(data) : data;
-  }, [data, renderData]);
+    return data
+  }, [data]);
 
   const filteredData =
     processedData?.filter((item) =>
@@ -64,13 +58,26 @@ const PreviewModal: React.FC<PreviewModalProps> = ({
       title: key,
       dataIndex: key,
       key: key,
-
       render: (value: unknown) => {
-        if (Array.isArray(value)) {
-          return `[${value.length} items]`;
-        }
+        // 优化：嵌套对象/数组缩略显示，鼠标悬停可查看完整内容
         if (typeof value === "object" && value !== null) {
-          return "[Object]";
+          const jsonStr = JSON.stringify(value, null, 2);
+          const maxLen = 60;
+          const isLong = jsonStr.length > maxLen;
+          const displayStr = isLong ? jsonStr.slice(0, maxLen) + "..." : jsonStr;
+          return (
+            <span title={jsonStr}>
+              <pre style={{
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-all',
+                margin: 0,
+                display: 'inline',
+                maxWidth: 300,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+              }}>{displayStr}</pre>
+            </span>
+          );
         }
         if (
           typeof value === "string" ||

@@ -6,8 +6,8 @@ import { listDataSources, createDataSource, deleteDataSource } from '@/api/datas
 export interface DataSource {
   id: string;
   type: "static" | "api" | "websocket" | "csv" | "excel";
-  config: Record<string, unknown>;
-  fetch: () => Promise<unknown>;
+  config: {renderData?:string}&Record<string, unknown>;
+  fetch: (config:DataSource['config']) => Promise<unknown>;
   subscribe?: (callback: (data: unknown) => void) => void;
 }
 
@@ -78,7 +78,8 @@ export const useDataProviderStore = create<DataProviderState>((set, get) => ({
     if (!source) {
       throw new Error(`Data source ${sourceId} not found`);
     }
-    return await source.fetch();
+    const data=await source.fetch(source.config);
+    return source.config.renderData?new Function(`return ${source.config.renderData}`)()(data):data;
   },
 
   subscribeData: (sourceId, callback) => {

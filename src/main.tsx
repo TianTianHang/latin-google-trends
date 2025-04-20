@@ -4,25 +4,16 @@ import "@/lang";
 import "@/index.css";
 
 import App from "@/App";
-import { useSubjectStore } from "./stores/useSubjectStore";
-import { useDataProviderStore } from "./components/Editor/stores";
-import { getSubjectData } from "./api/subject";
+import { fetchApiData, parseCsvData, parseExcelData } from '@/utils/dataSourceUtils';
+
+// 全局挂载
+(window as any).fetchApiData = fetchApiData;
+(window as any).parseCsvData = parseCsvData;
+(window as any).parseExcelData = parseExcelData;
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <App/>
   </StrictMode>
 );
-useSubjectStore.getState().fetchAllSubjects().then(()=>{
-  useSubjectStore.getState().allSubjects.map((s) => {
-      useDataProviderStore.getState().registerDataSource({
-        id: `subject-${s.subject_id}`,
-        type: "api",
-        config: {
-          renderData:"data=>data.map(item=>item.data)"
-        },
-        fetch: async () => {
-          return await getSubjectData(s.subject_id);
-        },
-      },false);
-    });
-});
+

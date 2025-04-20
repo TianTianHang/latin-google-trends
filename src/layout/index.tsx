@@ -11,27 +11,47 @@ import { usePermissionStore } from "@/stores/permission";
 import { useTranslation } from "react-i18next";
 import { saveService } from "@/components/Editor/services/saveService";
 import { SaveList } from "@/types/layouts";
-import { useInterval, useRequest } from "ahooks";
+import { useInterval, useRequest, useMount } from "ahooks";
 import { cloneDeep } from "lodash";
 import { useSubjectStore } from "@/stores/useSubjectStore";
+import { useDataProviderStore } from "@/components/Editor/stores";
+import { getSubjectData } from "@/api/subject";
 
 const { Header, Content } = Layout;
 const { ErrorBoundary } = Alert;
+
 const BasicLayout: React.FC = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { token,roles } = useUserStore();
+  const { token,roles,resetToken } = useUserStore();
   const { routes:rawRoutes } = usePermissionStore();
   const [routes, setRoutes]=useState(rawRoutes);
   const { fetchAllSubjects } = useSubjectStore();
   const { getInfo } = useUserStore();
-
+  useMount(() => {
+    useDataProviderStore.getState().loadDataSources()
+    useSubjectStore.getState().fetchAllSubjects().then(() => {
+      useSubjectStore.getState().allSubjects.forEach((s) => {
+        useDataProviderStore.getState().registerDataSource({
+          id: `subject-${s.subject_id}`,
+          type: "api",
+          config: {
+            renderData: "data=>data.map(item=>item.data)"
+          },
+          fetch: async () => {
+            return await getSubjectData(s.subject_id);
+          },
+        }, false);
+      });
+    });
+  });
   // 使用ahooks的useInterval定时检查用户信息
   useInterval(async () => {
     try {
       await getInfo();
     } catch (error) {
       // token过期，跳转到登录页
+      resetToken();
       navigate('/');
     }
   }, 5 * 60 * 1000);
@@ -40,7 +60,7 @@ const BasicLayout: React.FC = () => {
       if(roles.includes("guest")) return;
       fetchAllSubjects();
     },
-    { refreshDeps: [fetchAllSubjects] ,cacheKey:"allSubjects"}
+    { refreshDeps: [fetchAllSubjects] ,cacheKey:"allSubjects",ready: false}
   );
   useRequest(() => saveService.getSaveList() as Promise<SaveList>, {
     cacheKey: "saveList", // 使用缓存键来启用缓存

@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Button, Table, Modal, Form, Input, Select, Upload, message, Space } from 'antd';
 import { useTranslation } from 'react-i18next';
 import PreviewModal from '@/components/Editor/PreviewModal';
 import { UploadOutlined } from '@ant-design/icons';
 import { useDataProviderStore } from '@/components/Editor/stores/dataProviderStore';
 import type { DataSource } from '@/components/Editor/stores/dataProviderStore';
-import { fetchApiData, parseCsvData, parseExcelData } from '@/utils/dataSourceUtils';
+
+import MonacoEditor from '@monaco-editor/react';
+import { render } from 'nprogress';
 
 const { Column } = Table;
 const { Option } = Select;
@@ -29,17 +31,19 @@ interface DataSourceFormValues {
 
 const DataSourceManagementPage: React.FC = () => {
   const { t } = useTranslation("views");
-  const [dataSources, setDataSources] = useState<DataSource[]>([]);
+  
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm<DataSourceFormValues>();
   const [type, setType] = useState(null);
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewDataSource, setPreviewDataSource] = useState<DataSource>();
-  useEffect(() => {
-    const store = useDataProviderStore.getState();
-    const sources = Array.from(store.dataSources.values());
-    setDataSources(sources);
-  }, []);
+  // === 新增测试结果相关状态 ===
+  const [testResultVisible, setTestResultVisible] = useState(false);
+  const [testResultData, setTestResultData] = useState<any[]>([]);
+  const [testResultColumns, setTestResultColumns] = useState<any[]>([]);
+
+  const { dataSources: sourceMap } = useDataProviderStore();
+  const dataSources = useMemo(() => Array.from(sourceMap.values()), [sourceMap]);
 
   const handleAddDataSource = () => {
     setIsModalVisible(true);
@@ -48,7 +52,7 @@ const DataSourceManagementPage: React.FC = () => {
   const handleSaveDataSource = async (values: DataSourceFormValues) => {
     try {
       let config: Record<string, unknown>;
-      let fetchFn: () => Promise<unknown>;
+      let fetchFn: (config:DataSource["config"]) => Promise<unknown>;
 
       switch (values.type) {
         case 'api': {
@@ -57,17 +61,18 @@ const DataSourceManagementPage: React.FC = () => {
             url: apiConfig.url,
             method: apiConfig.method,
             params: apiConfig.params,
-            headers: apiConfig.headers
+            headers: apiConfig.headers,
+            renderData: apiConfig.renderData
           };
-          fetchFn = async () => fetchApiData(apiConfig);
+          fetchFn = (config)=>(window as any).fetchApiData(config);
           break;
         }
         case 'csv':
         case 'excel':
           config = { file: values.config };
           fetchFn = values.type === 'csv'
-            ? async () => parseCsvData(config)
-            : async () => parseExcelData(config);
+            ?(config)=>(window as any).parseCsvData(config)
+            : (config)=>(window as any).parseExcelData(config);
           break;
         default:
           throw new Error('Unsupported data source type');
@@ -81,7 +86,7 @@ const DataSourceManagementPage: React.FC = () => {
       };
 
       await useDataProviderStore.getState().registerDataSource(newSource,true);
-      setDataSources(prev => [...prev, newSource]);
+      useDataProviderStore.getState().loadDataSources();
       setIsModalVisible(false);
       message.success(t("dataSource.message.addSuccess"));
     } catch (error: unknown) {
@@ -96,7 +101,7 @@ const DataSourceManagementPage: React.FC = () => {
 
   const handleDeleteDataSource = (id: string) => {
     useDataProviderStore.getState().unregisterDataSource(id);
-    setDataSources(prev => prev.filter(source => source.id !== id));
+ 
     message.success(t("dataSource.message.deleteSuccess"));
   };
 
@@ -200,8 +205,79 @@ const DataSourceManagementPage: React.FC = () => {
                 label={t("dataSource.form.dataTransform")}
                 name={['config', 'renderData']}
                 tooltip={t("dataSource.form.dataTransformTooltip")}
+                getValueFromEvent={v => v}
+                valuePropName="value"
               >
-                <Input.TextArea rows={4} />
+                <div className="border border-gray-300 rounded-md">
+                  <MonacoEditor
+                    height="120px"
+                    language="javascript"
+                    options={{
+                      minimap: { enabled: false },
+                      fontSize: 14,
+                      lineNumbers: "on",
+                      scrollBeyondLastLine: false,
+                      automaticLayout: true,
+                    }}
+                    onChange={(value) => {
+                      form.setFieldValue(['config', 'renderData'], value);
+                    }}
+                  />
+                </div>
+              </Form.Item>
+              {/* 新增测试按钮 */}
+              <Form.Item>
+                <Button
+                  onClick={async () => {
+                    try {
+                      const values = await form.validateFields();
+                      const apiConfig = values.config as ApiConfig;
+                      let data = await (window as any).fetchApiData(apiConfig);
+                      if (apiConfig.renderData) {
+                        // eslint-disable-next-line no-new-func
+                        const fn = new Function(`return ${apiConfig.renderData}`)();
+                        data = fn(data);
+                      }
+                      // 只展示前10条数据
+                      let arr = Array.isArray(data) ? data.slice(0, 10) : [data];
+                      // 自动生成表头
+                      const columns = arr.length > 0
+                        ? Object.keys(arr[0]).map(key => ({
+                            title: key,
+                            dataIndex: key,
+                            key,
+                            render: (value: any) => {
+                              if (value !== null && typeof value === 'object') {
+                                const jsonStr = JSON.stringify(value, null, 2);
+                                const maxLen = 10;
+                                const isLong = jsonStr.length > maxLen;
+                                const displayStr = isLong ? jsonStr.slice(0, maxLen) + '...' : jsonStr;
+                                return (
+                                  <span title={jsonStr}>
+                                    <pre style={{whiteSpace: 'pre-wrap', wordBreak: 'break-all', margin: 0, display: 'inline'}}>{displayStr}</pre>
+                                  </span>
+                                );
+                              }
+                              return String(value);
+                            }
+                          }))
+                        : [];
+                      setTestResultData(arr);
+                      setTestResultColumns(columns);
+                      setTestResultVisible(true);
+                    } catch (err: any) {
+                      message.error(
+                        t("dataSource.message.testFailed") +
+                        ": " +
+                        (err?.message || String(err))
+                      );
+                    }
+                  }}
+                  type="dashed"
+                  style={{ marginTop: 8 }}
+                >
+                  {t("dataSource.button.test")}
+                </Button>
               </Form.Item>
             </>
           )}
@@ -222,16 +298,28 @@ const DataSourceManagementPage: React.FC = () => {
         </Form>
       </Modal>
 
+      {/* 新增：测试结果弹窗 */}
+      <Modal
+        title={t("dataSource.message.testSuccess")}
+        open={testResultVisible}
+        onCancel={() => setTestResultVisible(false)}
+        footer={null}
+        width={800}
+      >
+        <Table
+          dataSource={testResultData}
+          columns={testResultColumns}
+          rowKey={(record, idx) => (record.id ? record.id : idx?.toString())}
+          pagination={false}
+          scroll={{ x: true }}
+          size="small"
+        />
+      </Modal>
+
       <PreviewModal
         visible={previewVisible}
         dataSource={previewDataSource}
         onCancel={() => setPreviewVisible(false)}
-        renderData={
-          previewDataSource?.type === 'api' &&
-          previewDataSource.config.renderData
-            ? new Function(`return ${previewDataSource.config.renderData}`)()
-            : undefined
-        }
       />
     </div>
   );

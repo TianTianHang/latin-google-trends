@@ -113,7 +113,8 @@
       "add": "Add Data Source",
       "delete": "Delete",
       "preview": "Preview",
-      "upload": "Click to Upload"
+      "upload": "Click to Upload",
+      "test": "Test"
     },
     "table": {
       "id": "ID",
@@ -152,7 +153,9 @@
     "message": {
       "addSuccess": "Data source added successfully",
       "addFailed": "Failed to add data source",
-      "deleteSuccess": "Data source deleted successfully"
+      "deleteSuccess": "Data source deleted successfully",
+      "testSuccess": "Data source tested successfully",
+      "testFailed": "Failed to test data source"
     }
   },
   "preview": {

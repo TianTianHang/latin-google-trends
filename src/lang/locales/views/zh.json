@@ -113,7 +113,8 @@
       "add": "添加数据源",
       "delete": "删除",
       "preview": "预览",
-      "upload": "点击上传"
+      "upload": "点击上传",
+      "test": "点击测试api"
     },
     "table": {
       "id": "ID",
@@ -152,7 +153,9 @@
     "message": {
       "addSuccess": "数据源添加成功",
       "addFailed": "数据源添加失败",
-      "deleteSuccess": "数据源删除成功"
+      "deleteSuccess": "数据源删除成功",
+      "testSuccess": "API测试成功",
+      "testFailed": "API测试失败"
     }
   },
   "preview": {
