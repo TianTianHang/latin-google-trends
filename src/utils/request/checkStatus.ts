@@ -11,10 +11,16 @@ export const checkStatus = (status: number, msg?: string | Array<string>): void 
 
   switch (status) {
     case 400:
-      message.error(i18n.t('api.errMsg400'));
+      if (msg) {
+        errMsg = typeof msg === 'string' ? msg : msg[0];
+      }
+      message.error(errMsg||i18n.t('api.errMsg400'));
       break;
     case 401:
-      message.error(i18n.t('api.errMsg401'));
+      if (msg) {
+        errMsg = typeof msg === 'string' ? msg : msg[0];
+      }
+      message.error(errMsg||i18n.t('api.errMsg401'));
       // TODO: 退出登录
       break;
     case 403:

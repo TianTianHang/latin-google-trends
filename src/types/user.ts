@@ -1,3 +1,4 @@
+import { Dayjs } from "dayjs";
 
 
 export enum UserRole {
@@ -14,12 +15,21 @@ export interface loginDataType {
 export interface registerDataType {
   password: string;
   username: string;
+  email: string;
+  full_name: string;
+  phone: string;
   roles?: RoleResponse[];
 }
 
 export interface userInfoType {
   id: number;
   username: string;
+  email: string;
+  full_name: string;
+  phone: string;
+  is_active: number;
+  created_at: Dayjs;
+  last_login?: Dayjs;
   roles: RoleResponse[];
 }
 
@@ -49,6 +59,12 @@ export interface UserRoleAssignRequest {
 export interface UserResponse {
   id: number;
   username: string;
+  email: string;
+  full_name: string;
+  phone: string;
+  is_active: number;
+  created_at: Date;
+  last_login?: Date;
   role: UserRole;
   roles: RoleResponse[];
 }

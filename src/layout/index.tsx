@@ -36,7 +36,7 @@ const BasicLayout: React.FC = () => {
           id: `subject-${s.subject_id}`,
           type: "api",
           config: {
-            renderData: "data=>data.map(item=>item.data)"
+           
           },
           fetch: async () => {
             return await getSubjectData(s.subject_id);

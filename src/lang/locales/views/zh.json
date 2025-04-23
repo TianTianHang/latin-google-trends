@@ -42,7 +42,7 @@
         "categoryNameSelectRequired": "请选择分类",
         "descriptionRequired": "请输入描述",
         "parentCategory": "请选择父分类",
-        "select": "请选择"  
+        "select": "请选择"
       }
     },
     "table": {
@@ -50,7 +50,8 @@
       "category": "分类",
       "pronunciation": "发音",
       "definition": "定义",
-      "actions": "操作"
+      "actions": "操作",
+      "action": "操作"
     },
     "message": {
       "deleteSuccess": "删除成功",
@@ -62,14 +63,14 @@
       "definitionCreated": "定义创建成功",
       "operationFailed": "操作失败",
       "createDefinitionSuccess": "定义创建成功",
-      "confirmDelete":"确认删除？"
+      "confirmDelete": "确认删除？"
     },
     "select": {
       "yes": "是",
       "no": "否",
       "none": "无"
     },
-    "radio":{
+    "radio": {
       "yes": "是",
       "no": "否"
     },
@@ -77,10 +78,10 @@
       "placeholder": "搜索关键词",
       "categoryPlaceholder": "选择分类"
     },
-    "text":{
-      "none":"无"
+    "text": {
+      "none": "无"
     },
-    "detail":{
+    "detail": {
       "pronunciation": "发音",
       "playPronunciation": "播放发音",
       "speechNotSupported": "您的浏览器不支持语音合成功能",
@@ -103,8 +104,8 @@
       "examplesAndReferences": "用例与文献引用",
       "example": "示例",
       "reference": "文献",
-      "relatedKeywords":"相关关键词",
-      "noRelatedKeywords":"无相关关键词"
+      "relatedKeywords": "相关关键词",
+      "noRelatedKeywords": "无相关关键词"
     }
   },
   "dataSource": {
@@ -119,7 +120,8 @@
     "table": {
       "id": "ID",
       "type": "类型",
-      "actions": "操作"
+      "actions": "操作",
+      "action": "操作"
     },
     "modal": {
       "addTitle": "添加数据源"
@@ -197,7 +199,7 @@
       "placeholder": {
         "country": "选择国家",
         "serviceInstance": "选择服务实例",
-        "interval":"例如: 1h, 2d, 3m"
+        "interval": "例如: 1h, 2d, 3m"
       }
     },
     "button": {
@@ -206,32 +208,32 @@
       "createHistoricalTask": "创建历史任务",
       "createScheduledTask": "创建定时任务",
       "refresh": "刷新",
-      "viewHistoricalTasks":"查看历史任务"
+      "viewHistoricalTasks": "查看历史任务"
     },
     "jobType": {
       "time": "时间",
       "region": "地区"
     },
     "interval": {
-      "none":"不分割时间段",
+      "none": "不分割时间段",
       "yearly": "每年",
       "monthly": "每月"
     },
-    "search":{
-      "placeholder":"请输入搜索关键词"
+    "search": {
+      "placeholder": "请输入搜索关键词"
     },
-    "modal":{
-      "historicalTimeline":"历史时间线"
+    "modal": {
+      "historicalTimeline": "历史时间线"
     },
-    "timeline":{
-      "noData":"暂无历史任务"
+    "timeline": {
+      "noData": "暂无历史任务"
     }
   },
   "profile": {
     "title": {
       "userInfo": "用户信息",
       "changePassword": "修改密码",
-      "registerPrompt":"注册提示"
+      "registerPrompt": "注册提示"
     },
     "form": {
       "oldPassword": "旧密码",
@@ -252,16 +254,23 @@
     },
     "button": {
       "changePassword": "修改密码",
-      "registerNow":"现在注册"
+      "registerNow": "现在注册"
     },
     "message": {
       "changeSuccess": "密码修改成功",
       "changeFailed": "密码修改失败",
       "passwordMismatch": "两次输入的新密码不一致",
-      "registerPrompt":"注册提示"
+      "registerPrompt": "注册提示"
     },
     "userInfo": {
-      "username": "用户名: "
+      "username": "用户名：",
+      "email": "电子邮箱：",
+      "fullName": "姓名：",
+      "phone": "电话号码：",
+      "status": "状态：",
+      "active": "已激活",
+      "createdAt": "创建时间：",
+      "lastLogin": "最后登录时间："
     }
   },
   "login": {
@@ -273,17 +282,31 @@
       "username": "用户名",
       "password": "密码",
       "confirmPassword": "确认密码",
+      "email": "电子邮箱",
+      "fullName": "姓名",
+      "phone": "电话号码",
+      "status": "账户状态",
       "validation": {
         "username": "请输入用户名",
-        "password": "请输入密码",
+        "password": "请输入密码(需包含大写字母、数字和特殊字符)",
+        "passwordSpecial": "密码至少要有一个特殊字符",
+        "passwordUppercase": "密码必须包含一个大写字母",
         "confirmPassword": "请确认密码",
-        "passwordMismatch": "两次输入的密码不一致"
+        "emailFormat": "请输入有效的电子邮箱地址",
+        "fullName": "请输入您的姓名",
+        "phoneFormat": "请输入有效的电话号码",
+        "phone": "请输入电话号码",
+        "email": "请输入电子邮箱",
+        "passwordMismatch": "两次输入的密码不一致",
+        "passwordLength": "密码长度不能少于8位",
+        "passwordComplexity": "密码需包含大写字母、数字和特殊字符",
+        "passwordNumber": "密码必须包含一个数字"
       }
     },
     "button": {
       "login": "登录",
       "register": "注册",
-      "guest":"游客登录"
+      "guest": "游客登录"
     },
     "message": {
       "registerSuccess": "注册成功，请登录",
@@ -363,6 +386,7 @@
       "roleNameRequired": "请输入角色名称"
     }
   },
+
   "subject": {
     "tabs": {
       "list": "主题列表",
@@ -375,9 +399,10 @@
         "status": "状态",
         "dataCount": "数据量",
         "actions": "操作",
+      "action": "操作",
         "noDescription": "无描述",
         "dataNum": "数据数量",
-        "showData":"显示数据"
+        "showData": "显示数据"
       },
       "message": {
         "dataFetched": "数据获取成功",
@@ -391,6 +416,7 @@
       "status": "状态",
       "dataNum": "数据数量",
       "actions": "操作",
+      "action": "操作",
       "noDescription": "无描述",
       "button": {
         "create": "创建",
@@ -398,8 +424,8 @@
         "edit": "编辑",
         "delete": "删除"
       },
-      "search":{
-        "placeholder":"请输入搜索关键词"
+      "search": {
+        "placeholder": "请输入搜索关键词"
       }
     },
     "modal": {
@@ -471,6 +497,76 @@
           "bind": "已选"
         }
       }
+    }
+  },
+  "userManagement": {
+    "title": "用户管理",
+    "tabs": {
+      "list": "用户列表"
+    },
+    "form": {
+      "username": "用户名",
+      "email": "电子邮件",
+      "role": "角色",
+      "fullName": "姓名",
+      "phone": "电话号码",
+      "status": "状态",
+      "validation": {
+        "usernameRequired": "请输入用户名",
+        "emailRequired": "请输入电子邮件",
+        "emailInvalid": "请输入有效的电子邮件",
+        "roleRequired": "请选择角色",
+        "fullNameRequired": "请输入姓名",
+        "phoneRequired": "请输入电话号码"
+      }
+    },
+    "table": {
+      "username": "用户名",
+      "email": "电子邮箱",
+      "fullName": "姓名",
+      "phone": "电话号码",
+      "status": "状态",
+      "createdAt": "创建时间",
+      "lastLogin": "最后登录时间",
+      "actions": "操作",
+      "action": "操作"
+    },
+    "status": {
+      "active": "已激活",
+      "inactive": "未激活",
+      "locked": "已锁定"
+    },
+    "button": {
+      "add": "添加用户",
+      "edit": "编辑",
+      "delete": "删除",
+      "resetPassword": "重置密码",
+      "lock": "锁定",
+      "unlock": "解锁"
+    },
+    "modal": {
+      "addTitle": "添加用户",
+      "editTitle": "编辑用户",
+      "editUser": "编辑用户",
+      "confirmDelete": "确认删除",
+      "deleteContent": "确定要删除此用户吗？",
+      "confirmReset": "确认重置密码",
+      "resetContent": "确定要重置此用户的密码吗？"
+    },
+    "message": {
+      "addSuccess": "用户添加成功",
+      "updateSuccess": "用户更新成功",
+      "deleteSuccess": "用户删除成功",
+      "resetSuccess": "密码重置成功",
+      "operationFailed": "操作失败",
+      "fetchUsersFailed": "获取用户列表失败"
+    },
+    "search": {
+      "placeholder": "搜索用户"
+    },
+    "pagination": {
+      "total": "总数",
+      "items": "条"
     }
   }
 }

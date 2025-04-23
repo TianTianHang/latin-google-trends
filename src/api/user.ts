@@ -19,7 +19,8 @@ const api = {
   assignRoles: '/user_management/users/{userId}/roles/assign', // 分配角色
   getUserRoles: '/user_management/users/{userId}/roles/list', // 获取用户角色
   getAllUsers: '/user_management/users/list', //获取所有用户
-  change_password:'/user_management/users/change_password' //修改密码
+  change_password:'/user_management/users/change_password', //修改密码
+  updateUser:'/user_management/users/{userId}/update', //修改用户信息
 };
 
 /**
@@ -108,4 +109,14 @@ export function getAllUsers(){
  */
 export function changePassword(data: { old_password: string; new_password: string }) {
   return http.post(api.change_password, data);
+}
+
+/**
+ * @description: 修改用户信息
+ * @param {number} userId 用户ID
+ * @param {object} data 用户信息
+ * @return 修改结果
+ */
+export function updateUser(userId: number, data: UserResponse) {
+  return http.put(api.updateUser.replace('{userId}', userId.toString()), {...data,is_active:data.is_active?1:0});
 }

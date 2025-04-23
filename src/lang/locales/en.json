@@ -30,7 +30,8 @@
     "editor": "Editor",
     "permission": "Permission Management",
     "permission.endpoint": "Endpoint Permission",
-    "permission.user-role": "User Role Management"
+    "permission.user-role": "User Role Management",
+    "user.management": "User Management"
   },
   "homePage": {
     "intro": {
@@ -81,7 +82,8 @@
         "zipfLaw": "ZipfLaw",
         "dataMeta": "Data Meta",
         "localMoran": "Local Moran Component",
-        "jsonEditor": "JSON Editor"
+        "jsonEditor": "JSON Editor",
+        "lineChart": "  Line Chart"
       },
       "layoutSwitch": "Layout Switch",
       "fixed": "Fixed",

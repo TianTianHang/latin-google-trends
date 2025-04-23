@@ -60,8 +60,9 @@ service.interceptors.response.use(
       });
     }
     // 根据响应的错误状态码，做不同的处理
+    const { data } = response || {} as any;
     if (response) {
-      checkStatus(response.status);
+      checkStatus(response.status,data?.detail||data?.message);
     }
     return Promise.reject(error);
   }

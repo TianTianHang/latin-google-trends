@@ -8,7 +8,7 @@ import { useState } from "react";
 const SubjectView=()=>{
     const {t}=useTranslation("views")
     const { tab } = useParams();
-    const [activeKey,setActiveKey]=useState(tab)
+    const [activeKey,setActiveKey]=useState(tab?tab:"1")
     const items = [
         {
           key: '1',

@@ -12,6 +12,9 @@ interface LoginForm {
 
 interface RegisterForm extends LoginForm {
   confirmPassword: string;
+  email: string;
+  full_name: string;
+  phone: string;
 }
 
 export default function LoginPage() {
@@ -66,7 +69,13 @@ export default function LoginPage() {
 
           <Form.Item
             name="password"
-            rules={[{ required: true, message: t("login.form.validation.password") }]}
+            rules={[
+              { required: true, message: t("login.form.validation.password") },
+              { min: 8, message: t("login.form.validation.passwordLength") },
+              { pattern: /[A-Z]/, message: t("login.form.validation.passwordUppercase") },
+              { pattern: /[0-9]/, message: t("login.form.validation.passwordNumber") },
+              { pattern: /[^A-Za-z0-9]/, message: t("login.form.validation.passwordSpecial") }
+            ]}
           >
             <Input.Password prefix={<LockOutlined />} placeholder={t("login.form.password")} />
           </Form.Item>
@@ -97,8 +106,41 @@ export default function LoginPage() {
           </Form.Item>
 
           <Form.Item
+            name="email"
+            rules={[
+              { required: true, message: t("login.form.validation.email") },
+              { type: "email", message: t("login.form.validation.emailFormat") }
+            ]}
+          >
+            <Input placeholder={t("login.form.email")} />
+          </Form.Item>
+
+          <Form.Item
+            name="full_name"
+            rules={[{ required: true, message: t("login.form.validation.fullName") }]}
+          >
+            <Input placeholder={t("login.form.fullName")} />
+          </Form.Item>
+
+          <Form.Item
+            name="phone"
+            rules={[
+              { required: true, message: t("login.form.validation.phone") },
+              { pattern: /^[0-9]{11}$/, message: t("login.form.validation.phoneFormat") }
+            ]}
+          >
+            <Input placeholder={t("login.form.phone")} />
+          </Form.Item>
+
+          <Form.Item
             name="password"
-            rules={[{ required: true, message: t("login.form.validation.password") }]}
+            rules={[
+              { required: true, message: t("login.form.validation.password") },
+              { min: 8, message: t("login.form.validation.passwordLength") },
+              { pattern: /[A-Z]/, message: t("login.form.validation.passwordUppercase") },
+              { pattern: /[0-9]/, message: t("login.form.validation.passwordNumber") },
+              { pattern: /[^A-Za-z0-9]/, message: t("login.form.validation.passwordSpecial") }
+            ]}
           >
             <Input.Password prefix={<LockOutlined />} placeholder={t("login.form.password")} />
           </Form.Item>

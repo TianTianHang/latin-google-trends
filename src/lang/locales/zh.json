@@ -29,7 +29,8 @@
     "editor": "编辑器",
     "permission": "权限管理",
     "permission.endpoint": "接口权限管理",
-    "permission.user-role": "用户权限管理"
+    "permission.user-role": "用户权限管理",
+    "user.management": "用户管理"
   },
   "homePage": {
     "intro": {
@@ -80,7 +81,8 @@
         "zipfLaw": "ZipfLaw",
         "dataMeta": "元数据",
         "localMoran": "局部莫兰指数组件",
-        "jsonEditor": "json 编辑器"
+        "jsonEditor": "json 编辑器",
+        "lineChart": "通用折线图"
       },
       "layoutSwitch": "布局切换",
       "fixed": "固定",

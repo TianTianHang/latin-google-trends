@@ -1,18 +1,28 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, message, Typography, Divider, Row, Col } from 'antd';
 import { useUserStore } from '@/stores/user';
-import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
-import { hasPermission } from '@/stores/permission';
-import { has } from 'lodash';
+
 import usePermission from '@/hooks/usePermission';
 import { useNavigate } from 'react-router';
+import dayjs from 'dayjs';
 
 const { Title } = Typography;
 
 const ProfilePage: React.FC = () => {
   const { t } = useTranslation("views");
-  const { username, changePassword,resetToken } = useUserStore();
+  const { 
+    username, 
+    email,
+    fullName,
+    phone,
+    isActive,
+    createdAt,
+    lastLogin,
+    changePassword,
+    resetToken 
+  } = useUserStore();
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
@@ -55,7 +65,47 @@ const ProfilePage: React.FC = () => {
             padding: 16,
             borderRadius: 4
           }}>
-            <p style={{ margin: 0 }}>{t("profile.userInfo.username")}{username}</p>
+            <Row gutter={[16, 16]}>
+              <Col span={24}>
+                <p style={{ margin: 0 }}>
+                  <UserOutlined style={{ marginRight: 8 }} />
+                  {t("profile.userInfo.username")}: {username}
+                </p>
+              </Col>
+              <Col span={24}>
+                <p style={{ margin: 0 }}>
+                  <MailOutlined style={{ marginRight: 8 }} />
+                  {t("profile.userInfo.email")}: {email}
+                </p>
+              </Col>
+              <Col span={24}>
+                <p style={{ margin: 0 }}>
+                  <UserOutlined style={{ marginRight: 8 }} />
+                  {t("profile.userInfo.fullName")}: {fullName}
+                </p>
+              </Col>
+              <Col span={24}>
+                <p style={{ margin: 0 }}>
+                  <PhoneOutlined style={{ marginRight: 8 }} />
+                  {t("profile.userInfo.phone")}: {phone}
+                </p>
+              </Col>
+              {/* <Col span={24}>
+                <p style={{ margin: 0 }}>
+                  {t("profile.userInfo.status")}: {isActive ? t("profile.userInfo.active") : t("profile.userInfo.inactive")}
+                </p>
+              </Col> */}
+              <Col span={24}>
+                <p style={{ margin: 0 }}>
+                  {t("profile.userInfo.createdAt")}: {createdAt ? dayjs(createdAt).format('YYYY-MM-DD HH:mm:ss') : '-'}
+                </p>
+              </Col>
+              <Col span={24}>
+                <p style={{ margin: 0 }}>
+                  {t("profile.userInfo.lastLogin")}: {lastLogin ? dayjs(lastLogin).format('YYYY-MM-DD HH:mm:ss') : t("profile.userInfo.never")}
+                </p>
+              </Col>
+            </Row>
           </div>
         </Col>
         {hasPermission(["admin","user"]) ? (
@@ -88,7 +138,10 @@ const ProfilePage: React.FC = () => {
                 name="newPassword"
                 rules={[
                   { required: true, message: t("profile.form.validation.newPassword") },
-                  { min: 6, message: t("profile.form.validation.passwordLength") }
+                  { min: 8, message: t("login.form.validation.passwordLength") },
+                  { pattern: /[A-Z]/, message: t("login.form.validation.passwordUppercase") },
+                  { pattern: /[0-9]/, message: t("login.form.validation.passwordNumber") },
+                  { pattern: /[^A-Za-z0-9]/, message: t("login.form.validation.passwordSpecial") }
                 ]}
               >
                 <Input.Password

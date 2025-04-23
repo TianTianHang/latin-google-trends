@@ -62,14 +62,14 @@
       "definitionCreated": "Definition created successfully",
       "operationFailed": "Operation failed",
       "createDefinitionSuccess": "Definition created successfully",
-      "confirmDelete":"Confirm Delete"
+      "confirmDelete": "Confirm Delete"
     },
     "select": {
       "yes": "Yes",
       "no": "No",
       "none": "None"
     },
-    "radio":{
+    "radio": {
       "yes": "Yes",
       "no": "No"
     },
@@ -77,8 +77,8 @@
       "placeholder": "Search keywords",
       "categoryPlaceholder": "Select category"
     },
-    "text":{
-      "none":"None"
+    "text": {
+      "none": "None"
     },
     "detail": {
       "pronunciation": "Pronunciation",
@@ -103,8 +103,8 @@
       "examplesAndReferences": "Examples and References",
       "example": "Example",
       "reference": "Reference",
-      "relatedKeywords":"Related Keywords",
-      "noRelatedKeywords":"No related keywords"
+      "relatedKeywords": "Related Keywords",
+      "noRelatedKeywords": "No related keywords"
     }
   },
   "dataSource": {
@@ -198,7 +198,7 @@
       "placeholder": {
         "country": "Select a country",
         "serviceInstance": "Select a service instance",
-         "interval":"for example: 1h, 2h, 3h"
+        "interval": "for example: 1h, 2h, 3h"
       }
     },
     "button": {
@@ -214,25 +214,25 @@
       "region": "Region"
     },
     "interval": {
-      "none":"no split timeframe",
+      "none": "no split timeframe",
       "yearly": "Yearly",
       "monthly": "Monthly"
     },
-    "search":{
-      "placeholder":"Please input search text"
+    "search": {
+      "placeholder": "Please input search text"
     },
-    "modal":{
-      "historicalTimeline":"Historical Tasks Timeline"
+    "modal": {
+      "historicalTimeline": "Historical Tasks Timeline"
     },
-    "timeline":{
-      "noData":"No historical tasks"
+    "timeline": {
+      "noData": "No historical tasks"
     }
   },
   "profile": {
     "title": {
       "userInfo": "User Information",
       "changePassword": "Change Password",
-      "registerPrompt":"Please register first"
+      "registerPrompt": "Please register first"
     },
     "form": {
       "oldPassword": "Old Password",
@@ -253,16 +253,23 @@
     },
     "button": {
       "changePassword": "Change Password",
-      "registerNow":"Register Now"
+      "registerNow": "Register Now"
     },
     "message": {
       "changeSuccess": "Password changed successfully",
       "changeFailed": "Failed to change password",
       "passwordMismatch": "The two new passwords do not match",
-      "registerPrompt":"Please register first"
+      "registerPrompt": "Please register first"
     },
     "userInfo": {
-      "username": "Username: "
+      "username": "Username: ",
+      "email": "Email: ",
+      "fullName": "Full Name: ",
+      "phone": "Phone Number: ",
+      "status": "Status: ",
+      "active": "Active",
+      "createdAt": "Created At: ",
+      "lastLogin": "Last Login: "
     }
   },
   "login": {
@@ -274,11 +281,24 @@
       "username": "Username",
       "password": "Password",
       "confirmPassword": "Confirm Password",
+      "email": "Email",
+      "fullName": "Full Name",
+      "phone": "Phone Number",
+      "status": "Account Status",
       "validation": {
         "username": "Please enter username",
         "password": "Please enter password",
+        "passwordLength": "Password must be at least 8 characters",
+        "passwordUppercase": "Password must contain at least one uppercase letter",
+        "passwordNumber": "Password must contain at least one number",
+        "passwordSpecial": "Password must contain at least one special character",
         "confirmPassword": "Please confirm password",
-        "passwordMismatch": "Passwords do not match"
+        "passwordMismatch": "Passwords do not match",
+        "email": "Please enter email",
+        "emailFormat": "Please enter a valid email address",
+        "fullName": "Please enter full name",
+        "phone": "Please enter phone number",
+        "phoneFormat": "Please enter a valid 11-digit phone number"
       }
     },
     "button": {
@@ -288,7 +308,7 @@
     },
     "message": {
       "registerSuccess": "Registration successful, please login",
-      "guestLoginFailed":"Guest login failed"
+      "guestLoginFailed": "Guest login failed"
     }
   },
   "permission": {
@@ -364,114 +384,179 @@
       "roleNameRequired": "Please enter role name"
     }
   },
- "subject": {
-   "tabs": {
-     "list": "Subject List",
-     "management": "Subject Management"
-   },
-   "list": {
-     "card": {
-       "name": "Name",
-       "description": "Description",
-       "status": "Status",
-       "dataCount": "Data Count",
-       "actions": "Actions",
-       "noDescription": "No description",
-       "dataNum": "Data Number",
-       "showData":"Show data"
-     },
-     "message": {
-       "dataFetched": "Data fetched successfully",
-       "fetchFailed": "Failed to fetch data: {{error}}"
-     }
-   },
-   "management": {
-     "title": "Subject Management",
-     "name": "Name",
-     "description": "Description",
-     "status": "Status",
-     "dataNum": "Data Number",
-     "actions": "Actions",
-     "noDescription": "No description",
-     "button": {
-       "create": "Create",
-       "details": "Details",
-       "edit": "Edit",
-       "delete": "Delete"
-     },
-     "search":{
-      "placeholder":"Please input search text"
+  "subject": {
+    "tabs": {
+      "list": "Subject List",
+      "management": "Subject Management"
+    },
+    "list": {
+      "card": {
+        "name": "Name",
+        "description": "Description",
+        "status": "Status",
+        "dataCount": "Data Count",
+        "actions": "Actions",
+        "noDescription": "No description",
+        "dataNum": "Data Number",
+        "showData": "Show data"
+      },
+      "message": {
+        "dataFetched": "Data fetched successfully",
+        "fetchFailed": "Failed to fetch data: {{error}}"
+      }
+    },
+    "management": {
+      "title": "Subject Management",
+      "name": "Name",
+      "description": "Description",
+      "status": "Status",
+      "dataNum": "Data Number",
+      "actions": "Actions",
+      "noDescription": "No description",
+      "button": {
+        "create": "Create",
+        "details": "Details",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "search": {
+        "placeholder": "Please input search text"
+      }
+    },
+    "modal": {
+      "create": {
+        "title": "Create Subject",
+        "message": {
+          "createSuccess": "Subject {{subject_id}} created successfully",
+          "createFailed": "Failed to create subject: {{error}}"
+        },
+        "form": {
+          "name": "Name",
+          "nameRequired": "Please enter subject name",
+          "enterName": "Enter subject name",
+          "description": "Description",
+          "enterDescription": "Enter description",
+          "taskType": "Task Type",
+          "taskTypeRequired": "Please select task type",
+          "selectTaskType": "Select task type",
+          "realtimeTask": "Realtime Task",
+          "historicalTask": "Historical Task",
+          "dataType": "Data Type",
+          "dataTypeRequired": "Please select data type",
+          "enterDataType": "Enter data type",
+          "timeJob": "Time Job",
+          "regionJob": "Region Job",
+          "keywords": "Keywords",
+          "keywordsRequired": "Please enter keywords",
+          "enterKeywords": "Enter keywords",
+          "geoCode": "Geo Code",
+          "geoCodeRequired": "Please select geo code",
+          "enterGeoCode": "Enter geo code",
+          "startDate": "Start Date",
+          "startDateRequired": "Please select start date",
+          "endDate": "End Date",
+          "endDateRequired": "Please select end date",
+          "duration": "Duration",
+          "durationRequired": "Please enter duration",
+          "enterDuration": "Enter duration",
+          "interval": "Interval",
+          "enterInterval": "Enter interval",
+          "addParam": "Add Parameter",
+          "submit": "Submit"
+        }
+      },
+      "detail": {
+        "title": "Subject Details",
+        "panel": {
+          "subjectDataHeader": "Subject Data {{index}}",
+          "dataType": "Data Type",
+          "timestamp": "Timestamp",
+          "collectionHeader": "Collection {{index}}",
+          "keywords": "Keywords",
+          "geoCode": "Geo Code",
+          "timeframe": "Timeframe",
+          "timeUTC": "Time (UTC)",
+          "geoName": "Geo Name"
+        }
+      },
+      "edit": {
+        "title": "Edit Subject",
+        "form": {
+          "selectSubject": "Select data set",
+          "save": "Save",
+          "error": "Error",
+          "loadingError": "Error loading collections"
+        },
+        "transfer": {
+          "notBind": "Available",
+          "bind": "Selected"
+        }
+      }
     }
-   },
-     "modal": {
-       "create": {
-         "title": "Create Subject",
-         "message": {
-           "createSuccess": "Subject {{subject_id}} created successfully",
-           "createFailed": "Failed to create subject: {{error}}"
-         },
-         "form": {
-           "name": "Name",
-           "nameRequired": "Please enter subject name",
-           "enterName": "Enter subject name",
-           "description": "Description",
-           "enterDescription": "Enter description",
-           "taskType": "Task Type",
-           "taskTypeRequired": "Please select task type",
-           "selectTaskType": "Select task type",
-           "realtimeTask": "Realtime Task",
-           "historicalTask": "Historical Task",
-           "dataType": "Data Type",
-           "dataTypeRequired": "Please select data type",
-           "enterDataType": "Enter data type",
-           "timeJob": "Time Job",
-           "regionJob": "Region Job",
-           "keywords": "Keywords",
-           "keywordsRequired": "Please enter keywords",
-           "enterKeywords": "Enter keywords",
-           "geoCode": "Geo Code",
-           "geoCodeRequired": "Please select geo code",
-           "enterGeoCode": "Enter geo code",
-           "startDate": "Start Date",
-           "startDateRequired": "Please select start date",
-           "endDate": "End Date",
-           "endDateRequired": "Please select end date",
-           "duration": "Duration",
-           "durationRequired": "Please enter duration",
-           "enterDuration": "Enter duration",
-           "interval": "Interval",
-           "enterInterval": "Enter interval",
-           "addParam": "Add Parameter",
-           "submit": "Submit"
-         }
-       },
-       "detail": {
-         "title": "Subject Details",
-         "panel": {
-           "subjectDataHeader": "Subject Data {{index}}",
-           "dataType": "Data Type",
-           "timestamp": "Timestamp",
-           "collectionHeader": "Collection {{index}}",
-           "keywords": "Keywords",
-           "geoCode": "Geo Code",
-           "timeframe": "Timeframe",
-           "timeUTC": "Time (UTC)",
-           "geoName": "Geo Name"
-         }
-       },
-       "edit": {
-         "title": "Edit Subject",
-         "form": {
-           "selectSubject": "Select data set",
-           "save": "Save",
-           "error": "Error",
-           "loadingError": "Error loading collections"
-         },
-         "transfer": {
-           "notBind": "Available",
-           "bind": "Selected"
-         }
-       }
-     }
-   }
+  },
+  "userManagement": {
+    "title": "User Management",
+    "tabs": {
+      "list": "User List"
+    },
+    "button": {
+      "addUser": "Add User",
+      "editUser": "Edit User",
+      "deleteUser": "Delete User",
+      "confirm": "Confirm",
+      "cancel": "Cancel"
+    },
+    "modal": {
+      "confirmDelete": "Confirm Delete User",
+      "editUser": "Edit User",
+      "addUser": "Add User"
+    },
+    "message": {
+      "deleteSuccess": "User deleted successfully",
+      "updateSuccess": "User updated successfully",
+      "addSuccess": "User added successfully",
+      "resetSuccess": "Password reset successfully",
+      "operationFailed": "Operation failed",
+      "fetchUsersFailed": "Failed to fetch users"
+    },
+    "table": {
+      "username": "Username",
+      "email": "Email",
+      "fullName": "Full Name",
+      "phone": "Phone Number",
+      "status": "Status",
+      "createdAt": "Created At",
+      "lastLogin": "Last Login",
+      "actions": "Actions",
+      "action": "Action"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "locked": "Locked"
+    },
+    "form": {
+      "username": "Username",
+      "email": "Email",
+      "role": "Role",
+      "fullName": "Full Name",
+      "phone": "Phone Number",
+      "status": "Status",
+      "validation": {
+        "usernameRequired": "Please enter username",
+        "emailRequired": "Please enter email",
+        "emailInvalid": "Please enter a valid email address",
+        "roleRequired": "Please select role",
+        "fullNameRequired": "Please enter full name",
+        "phoneRequired": "Please enter phone number"
+      }
+    },
+    "search": {
+      "placeholder": "Search users"
+    },
+    "pagination": {
+      "total": "Total",
+      "items": "items"
+    }
+  }
 }

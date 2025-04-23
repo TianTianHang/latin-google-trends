@@ -97,7 +97,7 @@ export const asyncRoutes: RouteType[] = [
     },
     children: [
       {
-        path: "/data/subject/:tab",
+        path: "/data/subject",
         component: lazy(() => import("@/views/SubjectView")),
         meta: {
           requiresAuth: true,
@@ -160,6 +160,16 @@ export const asyncRoutes: RouteType[] = [
       },
     ],
   },
+  {
+    path:"/user/management",
+    component: lazy(() => import("@/views/UserManagementPage")),
+    meta: {
+      requiresAuth: true,
+      breadcrumb: true,
+      allowedRoles: ["admin"],
+      title: "user.management",
+    },
+  }
 ];
 // 路由处理方式
 const generateRouter = (routers: RouteType[]) => {
