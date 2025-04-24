@@ -429,18 +429,20 @@ const TaskManagement: React.FC = () => {
           {timelineTasks.length === 0 && !timelineLoading && (
             <Timeline.Item>{t("taskManagement.timeline.noData") || "暂无历史任务"}</Timeline.Item>
           )}
-          {timelineTasks.map(task => (
-            <Timeline.Item key={task.id} color={task.status === "failed" ? "red" : "green"}>
-              <div>
-                <strong>{t("taskManagement.table.id")}: </strong>{task.id}<br />
-                <strong>{t("taskManagement.table.status")}: </strong>{task.status}<br />
-                <strong>{t("taskManagement.table.timeRange")}: </strong>
-                {dayjs(task.start_date).format("YYYY-MM-DD")} ~ {dayjs(task.end_date).format("YYYY-MM-DD")}<br />
-                <strong>{t("taskManagement.table.createdAt")}: </strong>
-                {dayjs(task.created_at).format("YYYY-MM-DD HH:mm:ss")}
-              </div>
-            </Timeline.Item>
-          ))}
+          {timelineTasks
+            .sort((a, b) => dayjs(b.created_at).unix() - dayjs(a.created_at).unix())
+            .map(task => (
+              <Timeline.Item key={task.id} color={task.status === "failed" ? "red" : "green"}>
+                <div>
+                  <strong>{t("taskManagement.table.id")}: </strong>{task.id}<br />
+                  <strong>{t("taskManagement.table.status")}: </strong>{task.status}<br />
+                  <strong>{t("taskManagement.table.timeRange")}: </strong>
+                  {dayjs(task.start_date).format("YYYY-MM-DD")} ~ {dayjs(task.end_date).format("YYYY-MM-DD")}<br />
+                  <strong>{t("taskManagement.table.createdAt")}: </strong>
+                  {dayjs(task.created_at).format("YYYY-MM-DD HH:mm:ss")}
+                </div>
+              </Timeline.Item>
+            ))}
         </Timeline>
       </Modal>
     </div>
