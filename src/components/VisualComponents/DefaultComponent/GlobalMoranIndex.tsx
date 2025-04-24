@@ -87,7 +87,12 @@ const GlobalMoranIndex: React.FC<GlobalMoranIndexProps> = ({
 
 
   const formatter: StatisticProps["formatter"] = (value) => (
-    <CountUp end={value as number} decimals={4} duration={1} />
+    <CountUp 
+      end={value as number} 
+      decimals={4} 
+      // @ts-ignore - duration是实际可用的属性，类型定义需要更新
+      duration={1}
+    />
   );
 
   return (
