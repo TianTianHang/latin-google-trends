@@ -58,8 +58,14 @@ const PreviewModal: React.FC<PreviewModalProps> = ({
       title: key,
       dataIndex: key,
       key: key,
+      width: 200,  // 新增固定列宽
+      ellipsis: {
+        showTitle: false
+      },
       render: (value: unknown) => {
-        // 优化：嵌套对象/数组缩略显示，鼠标悬停可查看完整内容
+        
+        
+        // 修改后的渲染逻辑
         if (typeof value === "object" && value !== null) {
           const jsonStr = JSON.stringify(value, null, 2);
           const maxLen = 60;
@@ -88,6 +94,15 @@ const PreviewModal: React.FC<PreviewModalProps> = ({
         }
         return null;
       },
+      // 应用表头样式
+      onHeaderCell: () => ({
+        style:  {
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          backgroundColor: '#fafafa'
+        }
+      })
     }));
   };
 
@@ -104,9 +119,17 @@ const PreviewModal: React.FC<PreviewModalProps> = ({
       columns={columns}
       dataSource={data}
       pagination={false}
-      scroll={{ x: true,y:300 }}
+      scroll={{ 
+        x: 'max-content', 
+        y: 400,
+        scrollToFirstRowOnChange: true 
+      }}
       rowKey={(record, index) => index?.toString() || "key"}
       loading={loading}
+      style={{ 
+        margin: '8px -16px',
+        width: 'calc(100% + 32px)' 
+      }}
     />
   );
 
@@ -126,6 +149,7 @@ const PreviewModal: React.FC<PreviewModalProps> = ({
       return renderTable(filteredData, columns);
     }
 
+    // 修改2D表格部分
     if (is2D) {
       // 2维数据，第二维作为页码
       const columns = getColumns(filteredData[0]);
@@ -133,6 +157,11 @@ const PreviewModal: React.FC<PreviewModalProps> = ({
         <Table
           columns={columns}
           dataSource={filteredData.flat()}
+          scroll={{ 
+            x: 'max-content', 
+            y: 400,
+            scrollToFirstRowOnChange: true 
+          }}
           pagination={{
             total:filteredData.length*filteredData.length*100,
             pageSize: filteredData.length*100,
@@ -143,15 +172,14 @@ const PreviewModal: React.FC<PreviewModalProps> = ({
               return filteredData.flat().slice(start, end);
             },
           }}
-          scroll={{ x: true,y:300 }}
           rowKey={(record, index) => index?.toString() || "key"}
           loading={loading}
         />
       );
     }
 
+    // 修改3D表格部分
     if (is3D) {
-      // 3维数据，使用Collapse变成两维
       return (
         <Collapse>
           {filteredData.map((data2D, pageIndex) => (
@@ -160,6 +188,11 @@ const PreviewModal: React.FC<PreviewModalProps> = ({
 
                 columns={getColumns(data2D[0])}
                 dataSource={data2D.flat()}
+                scroll={{ 
+                  x: 'max-content', 
+                  y: 300,
+                  scrollToFirstRowOnChange: true 
+                }}
                 pagination={{
                   total:data2D.length*data2D.length*100,
                   pageSize: data2D.length*100,
@@ -170,7 +203,6 @@ const PreviewModal: React.FC<PreviewModalProps> = ({
                     return data2D.flat().slice(start, end);
                   },
                 }}
-                scroll={{ x: true,y:300 }}
                 rowKey={(record, index) => index?.toString() || "key"}
                 loading={loading}
               />
