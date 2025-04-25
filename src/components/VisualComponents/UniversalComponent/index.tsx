@@ -25,6 +25,7 @@ export interface UniversalComponentProps {
   xKey: string;
   yKey: string;
   color?: string;
+  title?:string;
   componentId: string;
   sourceId: string;
   sortBy?: string;         // 新增排序字段
@@ -119,6 +120,10 @@ export const registeredUniversalComponent: RegisteredComponent<UniversalComponen
         type: "text",
         label: "yKey", 
        
+      },
+      title:{
+        type: "text",
+        label: "title",
       },
       color:{
         type: "select",
