@@ -9,7 +9,7 @@ import { registeredSliderBarComponent } from "./DefaultComponent/PlayerControlBa
 import { registeredZipfLawComponent } from "./ZipfLaw";
 import { registeredDataMetaComponent } from "./DefaultComponent/DataMeta";
 import { registeredLocalMoranIndexComponent } from "./MapChartComponent/LocalMoranIndex";
-import { registeredLineChartComponent } from "./UniversalComponent";
+import { registeredUniversalComponent } from "./UniversalComponent";
 
 
 export const useRegisterComponent = () => {
@@ -23,5 +23,5 @@ export const useRegisterComponent = () => {
   registerComponent(registeredSliderBarComponent);
   registerComponent(registeredDataMetaComponent);
   registerComponent(registeredLocalMoranIndexComponent);
-  registerComponent(registeredLineChartComponent);
+  registerComponent(registeredUniversalComponent);
 };

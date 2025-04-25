@@ -1,6 +1,6 @@
 import React from "react";
 import ReactECharts, { EChartsOption } from "echarts-for-react";
-import { useDataBinding } from "@/components/Editor/hooks/useDataBinding";
+
 
 export interface LineChartProps {
     data: Array<Record<string, any>>;
@@ -8,12 +8,11 @@ export interface LineChartProps {
     yKey: string;
     title?: string;
     color?: string;
-    componentId: string;
-    sourceId: string;
+
 }
 
-const LineChart: React.FC<LineChartProps> = ({ data, xKey, yKey, title, color, componentId, sourceId }) => {
-    useDataBinding(sourceId, componentId, "data")
+const LineChart: React.FC<LineChartProps> = ({ data, xKey, yKey, title, color, }) => {
+  
     const option: EChartsOption = {
         title: {
             text: title || "折线图",

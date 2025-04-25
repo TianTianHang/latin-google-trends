@@ -83,7 +83,7 @@
         "dataMeta": "Data Meta",
         "localMoran": "Local Moran Component",
         "jsonEditor": "JSON Editor",
-        "lineChart": "  Line Chart"
+        "universalComponent": "Universal Component"
       },
       "layoutSwitch": "Layout Switch",
       "fixed": "Fixed",

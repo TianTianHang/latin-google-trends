@@ -1,12 +1,14 @@
 import React from "react";
 import ReactECharts, { EChartsOption } from "echarts-for-react";
 
+
 interface BarChartProps {
   data: Array<Record<string, any>>;
   xKey: string;
   yKey: string;
   title?: string;
   color?: string;
+
 }
 
 const BarChart: React.FC<BarChartProps> = ({ data, xKey, yKey, title, color }) => {

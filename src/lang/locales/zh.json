@@ -82,7 +82,7 @@
         "dataMeta": "元数据",
         "localMoran": "局部莫兰指数组件",
         "jsonEditor": "json 编辑器",
-        "lineChart": "通用折线图"
+        "universalComponent": "通用图表"
       },
       "layoutSwitch": "布局切换",
       "fixed": "固定",

@@ -1,15 +1,17 @@
 import React from "react";
 import ReactECharts, { EChartsOption } from "echarts-for-react";
 
+
 interface PieChartProps {
   data: Array<Record<string, any>>;
-  nameKey: string;
-  valueKey: string;
+  xKey: string;
+  yKey: string;
   title?: string;
   colors?: string[];
+ 
 }
 
-const PieChart: React.FC<PieChartProps> = ({ data, nameKey, valueKey, title, colors }) => {
+const PieChart: React.FC<PieChartProps> = ({ data, xKey:nameKey, yKey:valueKey, title, colors }) => {
   const option:EChartsOption = {
     title: {
       text: title || "饼图",
