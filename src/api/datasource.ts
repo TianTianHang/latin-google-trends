@@ -12,27 +12,50 @@ const api = {
 /**
  * 创建数据源
  */
-export const createDataSource = (data: DataSource) => {
-  // 将fetch函数转为字符串
+export const createDataSource = async (data: DataSource) => {  // 添加async 
+  let processedFile= null; 
+  if (data.type === 'csv' || data.type === 'excel') {
+    //@ts-ignore
+    const file = data.config.file.file  as File;
+    processedFile = {
+        name: file.name,
+        type: file.type,
+        data: Array.from(new Uint8Array(await file.arrayBuffer())) // 修复Buffer使用
+    };
+  }
+
   const sendData = {
     ...data,
-    fetch: data.fetch ? data.fetch.toString() : undefined,
+    config: {...data.config,file:JSON.stringify(processedFile)},
+    fetch: data.fetch?.toString()
   };
   return http.post<DataSource>(api.create, sendData);
 };
 
-/**
- * 获取数据源列表
- */
+// 修改获取方法
 export const listDataSources = async () => {
   const res = await http.get<DataSource[]>(api.list);
-  // 将fetch字符串转为函数
-  return res.map(ds => ({
-    ...ds,
-    fetch: typeof ds.fetch === 'string'
-      ? new Function(`return (${ds.fetch})`)()
-      : ds.fetch,
-  }));
+  return res.map(ds => {
+    const config = ds.config;
+    
+    if (ds.type === 'csv' || ds.type === 'excel') {
+      const file =JSON.parse(config.file as string);
+      console.log(file);
+      config.file = new File(
+        [new Uint8Array(file.data)],
+        file.name,
+        { type: file.type }
+      );
+    }
+
+    return {
+      ...ds,
+      config,
+      fetch: typeof ds.fetch === 'string' 
+        ? new Function(`return (${ds.fetch})`)()
+        : ds.fetch,
+    };
+  });
 };
 
 /**

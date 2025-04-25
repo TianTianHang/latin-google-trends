@@ -285,12 +285,18 @@ const DataSourceManagementPage: React.FC = () => {
           {(type === 'csv' || type === 'excel') && (
             <Form.Item
               label={t("dataSource.form.file")}
-              name="config"
-              valuePropName="file"
-              getValueFromEvent={e => e.file}
+              name={['config', 'file']}
+              getValueFromEvent={(e) => e.fileList?.[0]?.originFileObj}
               rules={[{ required: true, message: t("dataSource.form.validation.file") }]}
             >
-              <Upload accept={type === 'csv' ? '.csv' : '.xlsx,.xls'}>
+              <Upload 
+                accept={type === 'csv' ? '.csv' : '.xlsx,.xls'}
+                action="" // 禁用上传
+                beforeUpload={() => {
+                  return false; // 阻止自动上传
+                }}
+                maxCount={1}
+              >
                 <Button icon={<UploadOutlined />}>{t("dataSource.button.upload")}</Button>
               </Upload>
             </Form.Item>

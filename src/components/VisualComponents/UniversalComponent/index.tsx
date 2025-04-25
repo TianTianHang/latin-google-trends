@@ -7,6 +7,7 @@ import { useDataBinding } from "@/components/Editor/hooks/useDataBinding";
 import { Empty } from 'antd';
 import { useDataProviderStore } from "@/components/Editor/stores";
 import { useMemo } from "react";
+import { color } from "echarts";
 
 // 创建可扩展的组件映射
 const componentMap = {
@@ -23,6 +24,7 @@ export interface UniversalComponentProps {
   data: Record<string, any>[];
   xKey: string;
   yKey: string;
+  color?: string;
   componentId: string;
   sourceId: string;
   sortBy?: string;         // 新增排序字段
@@ -100,14 +102,14 @@ export const registeredUniversalComponent: RegisteredComponent<UniversalComponen
         }))
       },
       sourceId:{
-        type: "select",
+        type: "text",
         label: "sourceId",
-        options: Array.from(useDataProviderStore.getState().dataSources.values())
-        .filter(ds=>!ds.id.startsWith("subject"))
-        .map(ds => ({
-          label: ds.id,
-          value: ds.id
-        }))
+        // options: Array.from(useDataProviderStore.getState().dataSources.values())
+        // .filter(ds=>!ds.id.startsWith("subject"))
+        // .map(ds => ({
+        //   label: ds.id,
+        //   value: ds.id
+        // }))
       },
       xKey: {
         type: "text",
@@ -117,6 +119,23 @@ export const registeredUniversalComponent: RegisteredComponent<UniversalComponen
         type: "text",
         label: "yKey", 
        
+      },
+      color:{
+        type: "select",
+        label: "color",
+        options: [
+          { label: 'white', value: 'white' },
+          { label: 'black', value: 'black' },
+          { label: 'red', value: 'red' },
+          { label: 'blue', value: 'blue' },
+          { label: 'green', value: 'green' },
+          { label: 'yellow', value: 'yellow' },
+          { label: 'orange', value: 'orange' },
+          { label: 'pink', value: 'pink' },
+          { label: 'purple', value: 'purple' },
+          { label: 'gray', value: 'gray' },
+          { label: 'brown', value: 'brown' },
+        ]
       },
       sortBy: {
         type: "text",
